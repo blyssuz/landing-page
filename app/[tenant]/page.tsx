@@ -94,7 +94,7 @@ export default async function Page({
     return (
       <div className="flex min-h-screen items-center justify-center bg-stone-100">
         <div className="text-center px-4">
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Business Not Found</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-2">{tenantSlug}</h1>
           <p className="text-stone-600">Unable to load business information.</p>
         </div>
       </div>
