@@ -369,7 +369,7 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId 
   const handleBookNow = () => {
     if (selectedServices.length === 0) return;
     const serviceIds = selectedServices.map(s => s.id).join(',');
-    router.push(`/${tenantSlug}/booking?services=${serviceIds}&businessId=${businessId}`);
+    router.push(`/booking?services=${serviceIds}&businessId=${businessId}`);
   };
 
   const filteredServices = services.filter(service => {
