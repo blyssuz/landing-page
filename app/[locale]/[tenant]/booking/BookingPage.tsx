@@ -104,6 +104,8 @@ const UI: Record<Locale, Record<string, string>> = {
     enterCode: 'Kodni kiriting',
     verifyCode: 'Tasdiqlash',
     codeSent: 'Kod yuborildi',
+    codeSentViaSms: 'Kod SMS orqali yuborildi',
+    codeSentViaTelegram: 'Kod Telegram orqali yuborildi',
     waitSeconds: '{{s}} soniya kuting',
     bookingConfirmed: 'Buyurtmangiz tasdiqlandi!',
     bookingDetails: 'Tafsilotlar',
@@ -148,6 +150,8 @@ const UI: Record<Locale, Record<string, string>> = {
     enterCode: 'Введите код',
     verifyCode: 'Подтвердить',
     codeSent: 'Код отправлен',
+    codeSentViaSms: 'Код отправлен по SMS',
+    codeSentViaTelegram: 'Код отправлен через Telegram',
     waitSeconds: 'Подождите {{s}} сек',
     bookingConfirmed: 'Бронирование подтверждено!',
     bookingDetails: 'Детали',
@@ -218,6 +222,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [otpDeliveryMethod, setOtpDeliveryMethod] = useState<'sms' | 'telegram' | null>(null);
   const [otpCooldown, setOtpCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -472,6 +477,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
       const result = await sendOtp(phoneNumber);
       if (result.success) {
         setOtpSent(true);
+        setOtpDeliveryMethod((result.delivery_method as 'sms' | 'telegram') || 'sms');
         setOtpCooldown(60);
       } else {
         setError(result.error || t.errorOccurred);
@@ -837,7 +843,9 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
               </>
             ) : (
               <>
-                <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mb-2">{t.codeSent}</p>
+                <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                  {otpDeliveryMethod === 'telegram' ? t.codeSentViaTelegram : t.codeSentViaSms}
+                </p>
                 <p className="text-center text-xs text-zinc-400 mb-6">+{phoneNumber}</p>
                 <input
                   type="text"
