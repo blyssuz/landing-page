@@ -3,11 +3,16 @@
 import type { Locale } from '@/lib/i18n'
 import { Calendar, Clock, User } from 'lucide-react'
 
+interface MultilingualText {
+  uz: string
+  ru: string
+}
+
 interface BookingItem {
-  service_name: string
+  service_name: string | MultilingualText
   employee_name: string
-  start_time: number
-  end_time: number
+  start_time: number | string
+  end_time: number | string
   price: number
   duration_minutes: number
   status: string
@@ -56,7 +61,20 @@ const T: Record<Locale, Record<string, string>> = {
   },
 }
 
-function secondsToTime(seconds: number | undefined | null): string {
+function parseTime(value: number | string | undefined | null): number | null {
+  if (value == null) return null
+  if (typeof value === 'number') return value
+  // Handle ISO string like "2026-02-13T10:00"
+  if (typeof value === 'string' && value.includes('T')) {
+    const timePart = value.split('T')[1]
+    const [h, m] = timePart.split(':').map(Number)
+    return h * 3600 + (m || 0) * 60
+  }
+  return null
+}
+
+function secondsToTime(value: number | string | undefined | null): string {
+  const seconds = parseTime(value)
   if (seconds == null) return '--:--'
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
@@ -66,6 +84,12 @@ function secondsToTime(seconds: number | undefined | null): string {
 function formatPrice(price: number | undefined | null) {
   if (price == null) return '0'
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+
+function resolveText(value: string | MultilingualText | undefined | null, locale: Locale): string {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  return value[locale] || value.ru || value.uz || ''
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -104,7 +128,7 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
             <div className="px-4 pt-4 pb-3 flex items-start justify-between">
               <div>
                 {showBusinessName && booking.business_name && (
-                  <p className="text-sm font-semibold text-gray-900 mb-0.5">{booking.business_name}</p>
+                  <p className="text-sm font-semibold text-gray-900 mb-0.5">{resolveText(booking.business_name as string | MultilingualText, locale)}</p>
                 )}
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Calendar size={14} />
@@ -131,7 +155,7 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
               {items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between py-1.5">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-sm text-gray-900 truncate">{item.service_name}</span>
+                    <span className="text-sm text-gray-900 truncate">{resolveText(item.service_name, locale)}</span>
                     {item.employee_name && (
                       <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
                         <User size={10} />
