@@ -114,6 +114,12 @@ body {
   }
 }
 
+/* Hero blobs container rotation */
+@keyframes blobsRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Animation Classes */
 .animate-slideUp {
   animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
@@ -154,6 +160,12 @@ html {
 *:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+input:focus-visible,
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Button press effect */
