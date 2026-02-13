@@ -56,13 +56,15 @@ const T: Record<Locale, Record<string, string>> = {
   },
 }
 
-function secondsToTime(seconds: number): string {
+function secondsToTime(seconds: number | undefined | null): string {
+  if (seconds == null) return '--:--'
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
 }
 
-function formatPrice(price: number) {
+function formatPrice(price: number | undefined | null) {
+  if (price == null) return '0'
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
@@ -94,6 +96,7 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
         const statusKey = booking.status || 'pending'
         const statusLabel = t[statusKey] || statusKey
         const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES.pending
+        const items = booking.items || []
 
         return (
           <div key={booking.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
@@ -106,13 +109,13 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Calendar size={14} />
                   <span>{booking.booking_date}</span>
-                  {booking.items.length > 0 && (
+                  {items.length > 0 && (
                     <>
                       <span className="text-gray-300">|</span>
                       <Clock size={14} />
                       <span>
-                        {secondsToTime(booking.items[0].start_time)}
-                        {booking.items.length > 0 && ` - ${secondsToTime(booking.items[booking.items.length - 1].end_time)}`}
+                        {secondsToTime(items[0].start_time)}
+                        {items.length > 1 && ` - ${secondsToTime(items[items.length - 1].end_time)}`}
                       </span>
                     </>
                   )}
@@ -125,7 +128,7 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
 
             {/* Services */}
             <div className="px-4 pb-3 space-y-2">
-              {booking.items.map((item, idx) => (
+              {items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between py-1.5">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <span className="text-sm text-gray-900 truncate">{item.service_name}</span>
