@@ -79,29 +79,34 @@ export async function generateMetadata({
   }
 
   const { business } = businessData
-  const title = `${business.name} — Book Online | Blyss`
-  const description = `Book beauty & wellness services at ${business.name} in Uzbekistan. View prices, services, and book your appointment online via Blyss.`
+  const title = `${business.name} — Book Online | Онлайн-запись | Onlayn yozilish | Blyss`
+  const description = `Book beauty & wellness services at ${business.name} in Uzbekistan. View prices and book online via Blyss. | Запишитесь онлайн в ${business.name} — просмотрите услуги, цены и забронируйте через Blyss. | ${business.name} — xizmatlar va narxlarni ko'ring, Blyss orqali onlayn band qiling.`
   const url = `https://${business.tenant_url}.blyss.uz`
-  const image = business.cover_url || business.avatar_url || 'https://blyss.uz/og-image.png'
+  const ogImage = business.cover_url || 'https://blyss.uz/og-image.png'
+  const favicon = business.avatar_url || '/favicon.png'
 
   return {
     title,
     description,
+    icons: {
+      icon: favicon,
+      apple: favicon,
+    },
     openGraph: {
       type: 'website',
       url,
-      title,
+      title: `${business.name} — Book Online | Онлайн-запись | Blyss`,
       description,
       siteName: 'Blyss',
       locale: 'en_US',
       alternateLocale: ['ru_RU', 'uz_UZ'],
-      images: [{ url: image, width: 1200, height: 630, alt: business.name }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: business.name }],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${business.name} — Book Online | Онлайн-запись | Blyss`,
       description,
-      images: [image],
+      images: [ogImage],
     },
     alternates: {
       canonical: url,

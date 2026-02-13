@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Blyss — Beauty & Wellness Booking',
+    name: 'Blyss — Beauty & Wellness Booking | Онлайн-запись | Go\'zallik xizmatlari',
     short_name: 'Blyss',
     description:
-      'Book beauty and wellness services — salons, barbers, spas and more across Uzbekistan.',
+      'Book beauty & wellness services across Uzbekistan. | Онлайн-запись в салоны красоты, барбершопы, спа. | Go\'zallik va sog\'lomlashtirish xizmatlarini onlayn band qiling.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

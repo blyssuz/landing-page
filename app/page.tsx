@@ -17,9 +17,9 @@ import {
 } from "../data/venues";
 
 export const metadata: Metadata = {
-  title: 'Blyss — Book Beauty & Wellness Services in Uzbekistan',
+  title: 'Blyss — Book Beauty & Wellness Services | Онлайн-запись в салоны красоты | Go\'zallik xizmatlari',
   description:
-    'Discover and book top-rated salons, barbers, spas and wellness studios in Uzbekistan. No app needed — open in Telegram.',
+    'Discover and book top-rated salons, barbers, spas and wellness studios in Uzbekistan. No app needed — open in Telegram. | Найдите и запишитесь к лучшим мастерам Узбекистана — салоны красоты, барбершопы, спа. Откройте в Telegram — без скачивания. | O\'zbekistondagi eng yaxshi salonlar, sartaroshxonalar, spa va velnes studiyalarni toping va onlayn yoziling. Telegram orqali oching — yuklab olish shart emas.',
 };
 
 const jsonLd = {
@@ -28,14 +28,14 @@ const jsonLd = {
   name: 'Blyss',
   url: 'https://blyss.uz',
   description:
-    'Online booking platform for beauty and wellness services in Uzbekistan. Book salons, barbers, spas, and wellness studios.',
+    'Online booking platform for beauty and wellness services in Uzbekistan. Book salons, barbers, spas, and wellness studios. | Платформа онлайн-записи в салоны красоты и велнес-студии Узбекистана. | Go\'zallik va sog\'lomlashtirish xizmatlarini onlayn band qilish platformasi.',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web, Telegram',
   offers: {
     '@type': 'Offer',
     price: '0',
     priceCurrency: 'UZS',
-    description: 'Free for customers to book appointments',
+    description: 'Free for customers to book appointments | Бесплатно для клиентов | Mijozlar uchun bepul',
   },
   areaServed: {
     '@type': 'Country',
