@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Locale } from '@/lib/i18n';
 import {
@@ -11,6 +11,9 @@ import {
   Phone,
   Calendar,
   Loader2,
+  Plus,
+  X,
+  Trash2,
 } from 'lucide-react';
 import {
   getAvailableSlots,
@@ -70,19 +73,20 @@ interface BookingPageProps {
   businessName: string;
   businessPhone: string;
   services: Service[];
+  allServices: Service[];
   employees: Employee[];
   tenantSlug: string;
   locale: Locale;
 }
 
-type Step = 'date' | 'time' | 'employees' | 'phone' | 'confirm' | 'success';
+type Step = 'date' | 'time' | 'services' | 'phone' | 'confirm' | 'success';
 
 const UI: Record<Locale, Record<string, string>> = {
   uz: {
     back: 'Orqaga',
     selectDate: 'Sanani tanlang',
     selectTime: 'Vaqtni tanlang',
-    selectEmployee: 'Xodimni tanlang',
+    servicesReview: 'Xizmatlar',
     phoneVerify: 'Telefon tasdiqlash',
     confirm: 'Tasdiqlash',
     success: 'Muvaffaqiyat!',
@@ -109,19 +113,24 @@ const UI: Record<Locale, Record<string, string>> = {
     service: 'Xizmat',
     employee: 'Xodim',
     price: 'Narx',
-    anyEmployee: 'Har qanday xodim',
+    anySpecialist: 'Har qanday mutaxassis',
     today: 'Bugun',
     tomorrow: 'Ertaga',
     errorOccurred: 'Xatolik yuz berdi',
     tryAgain: 'Qayta urinib ko\'ring',
     alreadyBooked: 'Siz allaqachon bu vaqtda band qilgansiz',
     servicesSelected: 'xizmat tanlangan',
+    addService: 'Xizmat qo\'shish',
+    change: 'O\'zgartirish',
+    remove: 'O\'chirish',
+    selectSpecialist: 'Mutaxassisni tanlang',
+    addMoreServices: 'Xizmat qo\'shish',
   },
   ru: {
     back: 'Назад',
     selectDate: 'Выберите дату',
     selectTime: 'Выберите время',
-    selectEmployee: 'Выберите специалиста',
+    servicesReview: 'Услуги',
     phoneVerify: 'Подтвердите телефон',
     confirm: 'Подтверждение',
     success: 'Успешно!',
@@ -148,13 +157,18 @@ const UI: Record<Locale, Record<string, string>> = {
     service: 'Услуга',
     employee: 'Специалист',
     price: 'Цена',
-    anyEmployee: 'Любой специалист',
+    anySpecialist: 'Любой специалист',
     today: 'Сегодня',
     tomorrow: 'Завтра',
     errorOccurred: 'Произошла ошибка',
     tryAgain: 'Попробуйте снова',
     alreadyBooked: 'У вас уже есть бронь на это время',
     servicesSelected: 'услуг выбрано',
+    addService: 'Добавить услугу',
+    change: 'Изменить',
+    remove: 'Удалить',
+    selectSpecialist: 'Выберите специалиста',
+    addMoreServices: 'Добавить услугу',
   },
 };
 
@@ -189,7 +203,7 @@ function generateNext30Days(): Date[] {
   return days;
 }
 
-export function BookingPage({ businessId, businessName, businessPhone, services, tenantSlug, locale }: BookingPageProps) {
+export function BookingPage({ businessId, businessName, businessPhone, services, allServices, tenantSlug, locale }: BookingPageProps) {
   const router = useRouter();
   const t = UI[locale];
 
@@ -197,6 +211,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const [selectedTime, setSelectedTime] = useState<number | null>(null);
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(services.map(s => s.id));
   const [serviceEmployees, setServiceEmployees] = useState<ServiceSlotData[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<Record<string, string | null>>({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -207,10 +222,53 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bookingResult, setBookingResult] = useState<Record<string, unknown> | null>(null);
+  const [showEmployeeSheet, setShowEmployeeSheet] = useState(false);
+  const [showAddServiceSheet, setShowAddServiceSheet] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const dateScrollRef = useRef<HTMLDivElement>(null);
   const cooldownRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  const isPopStateRef = useRef(false);
   const dates = generateNext30Days();
+
+  const validSteps: Step[] = ['date', 'time', 'services', 'phone', 'confirm', 'success'];
+
+  // Sync step → URL (pushState when step changes programmatically)
+  useEffect(() => {
+    if (isPopStateRef.current) {
+      isPopStateRef.current = false;
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set('step', step);
+    if (step === 'date') {
+      window.history.replaceState({ step }, '', url.toString());
+    } else {
+      window.history.pushState({ step }, '', url.toString());
+    }
+  }, [step]);
+
+  // Listen for browser back/forward → sync URL to step
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlStep = params.get('step') as Step;
+      if (urlStep && validSteps.includes(urlStep)) {
+        isPopStateRef.current = true;
+        setError('');
+        setStep(urlStep);
+      } else {
+        // No step param → user went back past the booking page
+        router.push(`/${locale}`);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, router]);
+
+  const currentServices = allServices.filter(s => selectedServiceIds.includes(s.id));
+  const remainingServices = allServices.filter(s => !selectedServiceIds.includes(s.id));
 
   const getText = (text: MultilingualText | string | null | undefined): string => {
     if (!text) return '';
@@ -227,8 +285,12 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     return mins > 0 ? `${hours} ${t.hour} ${mins} ${t.minute}` : `${hours} ${t.hour}`;
   };
 
-  const totalPrice = services.reduce((sum, s) => sum + s.price, 0);
-  const totalDuration = services.reduce((sum, s) => sum + s.duration_minutes, 0);
+  // Lock body scroll when sheets are open
+  useEffect(() => {
+    const isOpen = showEmployeeSheet || showAddServiceSheet;
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showEmployeeSheet, showAddServiceSheet]);
 
   // Check auth on mount
   useEffect(() => {
@@ -251,6 +313,49 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     }
   }, [otpCooldown]);
 
+  const fetchSlotsAndEmployees = async (serviceIds: string[], date: string, time: number | null) => {
+    setLoading(true);
+    try {
+      const slotsResult = await getAvailableSlots(businessId, date, serviceIds);
+      const newSlots = slotsResult?.available_start_times || [];
+      setAvailableSlots(newSlots);
+
+      // If the currently selected time is no longer available, bump back to time step
+      if (time !== null && !newSlots.includes(time)) {
+        setSelectedTime(null);
+        setStep('time');
+        return false;
+      }
+
+      // If we have a valid time, fetch employees too
+      if (time !== null) {
+        const empResult = await getSlotEmployees(businessId, date, serviceIds, time);
+        if (empResult?.services) {
+          setServiceEmployees(empResult.services);
+          // Auto-select first employee for new services, keep existing selections
+          const defaults: Record<string, string | null> = {};
+          for (const svc of empResult.services) {
+            if (selectedEmployees[svc.service_id] !== undefined) {
+              // Check if previously selected employee is still available
+              const prevEmp = selectedEmployees[svc.service_id];
+              const stillAvailable = svc.employees?.some((e: SlotEmployee) => e.id === prevEmp);
+              defaults[svc.service_id] = stillAvailable ? prevEmp : (svc.employees?.[0]?.id || null);
+            } else {
+              defaults[svc.service_id] = svc.employees?.[0]?.id || null;
+            }
+          }
+          setSelectedEmployees(defaults);
+        }
+      }
+      return true;
+    } catch {
+      setError(t.errorOccurred);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDateSelect = async (dateStr: string) => {
     setSelectedDate(dateStr);
     setSelectedTime(null);
@@ -259,9 +364,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     setLoading(true);
 
     try {
-      const serviceIds = services.map(s => s.id);
-      const result = await getAvailableSlots(businessId, dateStr, serviceIds);
-
+      const result = await getAvailableSlots(businessId, dateStr, selectedServiceIds);
       if (result?.available_start_times) {
         setAvailableSlots(result.available_start_times);
       }
@@ -279,12 +382,9 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     setLoading(true);
 
     try {
-      const serviceIds = services.map(s => s.id);
-      const result = await getSlotEmployees(businessId, selectedDate, serviceIds, time);
-
+      const result = await getSlotEmployees(businessId, selectedDate, selectedServiceIds, time);
       if (result?.services) {
         setServiceEmployees(result.services);
-        // Auto-select first employee for each service
         const defaults: Record<string, string | null> = {};
         for (const svc of result.services) {
           if (svc.employees?.length > 0) {
@@ -295,7 +395,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
         }
         setSelectedEmployees(defaults);
       }
-      setStep('employees');
+      setStep('services');
     } catch {
       setError(t.errorOccurred);
     } finally {
@@ -303,7 +403,59 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     }
   };
 
-  const handleEmployeesConfirm = () => {
+  const handleAddService = async (serviceId: string) => {
+    const newIds = [...selectedServiceIds, serviceId];
+    setSelectedServiceIds(newIds);
+    setShowAddServiceSheet(false);
+    setError('');
+
+    const ok = await fetchSlotsAndEmployees(newIds, selectedDate, selectedTime);
+    if (ok && step === 'services') {
+      // Stay on services step, data is updated
+    }
+  };
+
+  const handleRemoveService = async (serviceId: string) => {
+    if (selectedServiceIds.length <= 1) return;
+    const newIds = selectedServiceIds.filter(id => id !== serviceId);
+    setSelectedServiceIds(newIds);
+    setError('');
+
+    // Remove from selected employees
+    setSelectedEmployees(prev => {
+      const next = { ...prev };
+      delete next[serviceId];
+      return next;
+    });
+
+    // Re-fetch employees for updated service list
+    if (selectedTime !== null) {
+      setLoading(true);
+      try {
+        const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime);
+        if (empResult?.services) {
+          setServiceEmployees(empResult.services);
+        }
+      } catch {
+        setError(t.errorOccurred);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const openEmployeeSheet = (serviceId: string) => {
+    setEditingServiceId(serviceId);
+    setShowEmployeeSheet(true);
+  };
+
+  const selectEmployee = (serviceId: string, employeeId: string) => {
+    setSelectedEmployees(prev => ({ ...prev, [serviceId]: employeeId }));
+    setShowEmployeeSheet(false);
+    setEditingServiceId(null);
+  };
+
+  const handleServicesConfirm = () => {
     if (isAuthenticated) {
       setStep('confirm');
     } else {
@@ -358,9 +510,9 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     setLoading(true);
 
     try {
-      const bookingServices = services.map(s => ({
-        service_id: s.id,
-        employee_id: selectedEmployees[s.id] || null,
+      const bookingServices = selectedServiceIds.map(sid => ({
+        service_id: sid,
+        employee_id: selectedEmployees[sid] || null,
       }));
 
       const result = await createBooking(businessId, selectedDate, selectedTime, bookingServices);
@@ -384,12 +536,10 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
 
   const goBack = () => {
     setError('');
-    switch (step) {
-      case 'time': setStep('date'); break;
-      case 'employees': setStep('time'); break;
-      case 'phone': setStep('employees'); break;
-      case 'confirm': setStep(isAuthenticated ? 'employees' : 'phone'); break;
-      default: router.push(`/${locale}`);
+    if (step === 'date') {
+      router.push(`/${locale}`);
+    } else {
+      window.history.back();
     }
   };
 
@@ -397,12 +547,32 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     switch (step) {
       case 'date': return t.selectDate;
       case 'time': return t.selectTime;
-      case 'employees': return t.selectEmployee;
+      case 'services': return t.servicesReview;
       case 'phone': return t.phoneVerify;
       case 'confirm': return t.confirm;
       case 'success': return t.success;
     }
   };
+
+  const stepOrder = ['date', 'time', 'services', 'phone', 'confirm'];
+  const currentStepIdx = stepOrder.indexOf(step);
+
+  // Compute total from employee prices (if available) or service base prices
+  const getServicePrice = (serviceId: string) => {
+    const svcData = serviceEmployees.find(s => s.service_id === serviceId);
+    const emp = svcData?.employees?.find(e => e.id === selectedEmployees[serviceId]);
+    if (emp) return emp.price;
+    return allServices.find(s => s.id === serviceId)?.price ?? 0;
+  };
+
+  const getServiceDuration = (serviceId: string) => {
+    const svcData = serviceEmployees.find(s => s.service_id === serviceId);
+    const emp = svcData?.employees?.find(e => e.id === selectedEmployees[serviceId]);
+    if (emp) return emp.duration_minutes;
+    return allServices.find(s => s.id === serviceId)?.duration_minutes ?? 0;
+  };
+
+  const totalPrice = selectedServiceIds.reduce((sum, sid) => sum + getServicePrice(sid), 0);
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-900">
@@ -421,13 +591,9 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
           {/* Step progress */}
           <div className="max-w-2xl mx-auto px-4 pb-2">
             <div className="flex gap-1">
-              {['date', 'time', 'employees', 'phone', 'confirm'].map((s, i) => {
-                const stepOrder = ['date', 'time', 'employees', isAuthenticated ? 'confirm' : 'phone', 'confirm'];
-                const currentIdx = stepOrder.indexOf(step);
-                return (
-                  <div key={s} className={`h-1 flex-1 rounded-full ${i <= currentIdx ? 'bg-primary' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
-                );
-              })}
+              {stepOrder.map((s, i) => (
+                <div key={s} className={`h-1 flex-1 rounded-full ${i <= currentStepIdx ? 'bg-primary' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
+              ))}
             </div>
           </div>
         </div>
@@ -449,8 +615,8 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
           <div>
             {/* Services summary */}
             <div className="mb-6 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{services.length} {t.servicesSelected}</p>
-              {services.map(s => (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{currentServices.length} {t.servicesSelected}</p>
+              {currentServices.map(s => (
                 <div key={s.id} className="flex justify-between py-1">
                   <span className="text-sm text-zinc-900 dark:text-zinc-100">{getText(s.name)}</span>
                   <span className="text-sm text-zinc-500">{formatPrice(s.price)} {t.sum}</span>
@@ -458,7 +624,9 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
               ))}
               <div className="flex justify-between pt-2 mt-2 border-t border-zinc-200 dark:border-zinc-700">
                 <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t.total}</span>
-                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{formatPrice(totalPrice)} {t.sum} &middot; {formatDuration(totalDuration)}</span>
+                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  {formatPrice(currentServices.reduce((sum, s) => sum + s.price, 0))} {t.sum} &middot; {formatDuration(currentServices.reduce((sum, s) => sum + s.duration_minutes, 0))}
+                </span>
               </div>
             </div>
 
@@ -530,61 +698,102 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
           </div>
         )}
 
-        {/* ===== EMPLOYEES STEP ===== */}
-        {step === 'employees' && (
+        {/* ===== SERVICES REVIEW STEP ===== */}
+        {step === 'services' && (
           <div>
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 size={24} className="animate-spin text-primary" />
               </div>
             ) : (
-              <div className="space-y-6">
-                {serviceEmployees.map(svc => (
-                  <div key={svc.service_id}>
-                    <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
-                      {getText(svc.name)}
-                      <span className="text-xs text-zinc-500 ml-2">{secondsToTime(svc.start_time)}</span>
-                    </h3>
+              <div className="space-y-4">
+                {/* Date & time summary */}
+                <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
+                  <Calendar size={16} className="text-primary" />
+                  <span className="text-sm text-zinc-900 dark:text-zinc-100">{selectedDate}</span>
+                  <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                  <Clock size={16} className="text-primary" />
+                  <span className="text-sm text-zinc-900 dark:text-zinc-100">{selectedTime !== null ? secondsToTime(selectedTime) : ''}</span>
+                </div>
 
-                    {svc.unavailable ? (
-                      <p className="text-sm text-red-500">{svc.reason}</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {svc.employees.map(emp => {
-                          const isSelected = selectedEmployees[svc.service_id] === emp.id;
-                          const empName = [emp.first_name, emp.last_name].filter(Boolean).join(' ') || t.anyEmployee;
-                          return (
-                            <button
-                              key={emp.id}
-                              onClick={() => setSelectedEmployees(prev => ({ ...prev, [svc.service_id]: emp.id }))}
-                              className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${isSelected
-                                ? 'border-2 border-primary bg-primary/5'
-                                : 'border border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
-                                  <User size={18} className="text-zinc-500" />
-                                </div>
-                                <div className="text-left">
-                                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{empName}</p>
-                                  <p className="text-xs text-zinc-500">{formatDuration(emp.duration_minutes)}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{formatPrice(emp.price)} {t.sum}</span>
-                                {isSelected && <Check size={18} className="text-primary" />}
-                              </div>
-                            </button>
-                          );
-                        })}
+                {/* Service cards */}
+                {selectedServiceIds.map(serviceId => {
+                  const service = allServices.find(s => s.id === serviceId);
+                  if (!service) return null;
+
+                  const svcData = serviceEmployees.find(s => s.service_id === serviceId);
+                  const selectedEmpId = selectedEmployees[serviceId];
+                  const selectedEmp = svcData?.employees?.find(e => e.id === selectedEmpId);
+                  const empName = selectedEmp
+                    ? [selectedEmp.first_name, selectedEmp.last_name].filter(Boolean).join(' ')
+                    : t.anySpecialist;
+                  const price = selectedEmp?.price ?? service.price;
+                  const duration = selectedEmp?.duration_minutes ?? service.duration_minutes;
+
+                  return (
+                    <div key={serviceId} className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                            {getText(service.name)}
+                          </h4>
+                          <p className="text-xs text-zinc-500 mt-1">
+                            {formatDuration(duration)} &middot; {formatPrice(price)} {t.sum}
+                          </p>
+                        </div>
+                        {selectedServiceIds.length > 1 && (
+                          <button
+                            onClick={() => handleRemoveService(serviceId)}
+                            className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
 
+                      {/* Employee row */}
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                            <User size={14} className="text-zinc-500" />
+                          </div>
+                          <span className="text-sm text-zinc-700 dark:text-zinc-300">{empName}</span>
+                        </div>
+                        {svcData && svcData.employees && svcData.employees.length > 1 && (
+                          <button
+                            onClick={() => openEmployeeSheet(serviceId)}
+                            className="text-xs font-medium text-primary"
+                          >
+                            {t.change}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Add service button */}
+                {remainingServices.length > 0 && (
+                  <button
+                    onClick={() => setShowAddServiceSheet(true)}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-xl text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:border-primary hover:text-primary transition-colors"
+                  >
+                    <Plus size={16} />
+                    {t.addService}
+                  </button>
+                )}
+
+                {/* Total */}
+                <div className="flex justify-between items-center p-4 bg-primary/5 rounded-xl">
+                  <span className="text-base font-bold text-zinc-900 dark:text-zinc-100">{t.total}</span>
+                  <span className="text-base font-bold text-primary">
+                    {formatPrice(totalPrice)} {t.sum}
+                  </span>
+                </div>
+
+                {/* Continue button */}
                 <button
-                  onClick={handleEmployeesConfirm}
+                  onClick={handleServicesConfirm}
                   className="w-full py-3.5 bg-primary text-white rounded-xl font-semibold text-sm"
                 >
                   {t.next}
@@ -674,11 +883,11 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
               </div>
 
               {/* Services with employees */}
-              {serviceEmployees.map(svc => {
+              {serviceEmployees.filter(svc => selectedServiceIds.includes(svc.service_id)).map(svc => {
                 const emp = svc.employees?.find(e => e.id === selectedEmployees[svc.service_id]);
-                const empName = emp ? [emp.first_name, emp.last_name].filter(Boolean).join(' ') : t.anyEmployee;
-                const price = emp?.price ?? services.find(s => s.id === svc.service_id)?.price ?? 0;
-                const duration = emp?.duration_minutes ?? services.find(s => s.id === svc.service_id)?.duration_minutes ?? 0;
+                const empName = emp ? [emp.first_name, emp.last_name].filter(Boolean).join(' ') : t.anySpecialist;
+                const price = emp?.price ?? allServices.find(s => s.id === svc.service_id)?.price ?? 0;
+                const duration = emp?.duration_minutes ?? allServices.find(s => s.id === svc.service_id)?.duration_minutes ?? 0;
 
                 return (
                   <div key={svc.service_id} className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
@@ -699,10 +908,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
               <div className="flex justify-between items-center p-4 bg-primary/5 rounded-xl">
                 <span className="text-base font-bold text-zinc-900 dark:text-zinc-100">{t.total}</span>
                 <span className="text-base font-bold text-primary">
-                  {formatPrice(serviceEmployees.reduce((sum, svc) => {
-                    const emp = svc.employees?.find(e => e.id === selectedEmployees[svc.service_id]);
-                    return sum + (emp?.price ?? services.find(s => s.id === svc.service_id)?.price ?? 0);
-                  }, 0))} {t.sum}
+                  {formatPrice(totalPrice)} {t.sum}
                 </span>
               </div>
             </div>
@@ -755,6 +961,113 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
           </div>
         )}
       </div>
+
+      {/* ===== EMPLOYEE SELECTION BOTTOM SHEET ===== */}
+      {showEmployeeSheet && editingServiceId && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 animate-fadeIn"
+          onClick={() => { setShowEmployeeSheet(false); setEditingServiceId(null); }}
+        >
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 rounded-t-3xl max-h-[70vh] overflow-y-auto animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white dark:bg-zinc-900 px-4 pt-4 pb-2 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">{t.selectSpecialist}</h3>
+                <button
+                  onClick={() => { setShowEmployeeSheet(false); setEditingServiceId(null); }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  <X size={18} className="text-zinc-500" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-2 pb-8">
+              {(() => {
+                const svcData = serviceEmployees.find(s => s.service_id === editingServiceId);
+                if (!svcData?.employees) return null;
+
+                return svcData.employees.map(emp => {
+                  const isSelected = selectedEmployees[editingServiceId] === emp.id;
+                  const empName = [emp.first_name, emp.last_name].filter(Boolean).join(' ') || t.anySpecialist;
+                  return (
+                    <button
+                      key={emp.id}
+                      onClick={() => selectEmployee(editingServiceId, emp.id)}
+                      className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${isSelected
+                        ? 'border-2 border-primary bg-primary/5'
+                        : 'border border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                          <User size={18} className="text-zinc-500" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{empName}</p>
+                          <p className="text-xs text-zinc-500">{formatDuration(emp.duration_minutes)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{formatPrice(emp.price)} {t.sum}</span>
+                        {isSelected && <Check size={18} className="text-primary" />}
+                      </div>
+                    </button>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== ADD SERVICE BOTTOM SHEET ===== */}
+      {showAddServiceSheet && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 animate-fadeIn"
+          onClick={() => setShowAddServiceSheet(false)}
+        >
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 rounded-t-3xl max-h-[70vh] overflow-y-auto animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white dark:bg-zinc-900 px-4 pt-4 pb-2 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">{t.addMoreServices}</h3>
+                <button
+                  onClick={() => setShowAddServiceSheet(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  <X size={18} className="text-zinc-500" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-2 pb-8">
+              {remainingServices.map(service => (
+                <button
+                  key={service.id}
+                  onClick={() => handleAddService(service.id)}
+                  className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-primary transition-all"
+                >
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{getText(service.name)}</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">{formatDuration(service.duration_minutes)}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{formatPrice(service.price)} {t.sum}</span>
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Plus size={16} className="text-primary" />
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

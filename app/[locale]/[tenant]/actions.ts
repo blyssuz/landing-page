@@ -92,19 +92,34 @@ export async function getSlotEmployees(
 export async function sendOtp(phoneNumber: string) {
   try {
     const body = JSON.stringify({ phone_number: phoneNumber })
-    const response = await signedFetch(`${API_URL}/public/send-otp`, {
+    const url = `${API_URL}/public/send-otp`
+    console.log('[sendOtp] request:', { url, phoneNumber, body })
+
+    const response = await signedFetch(url, {
       method: 'POST',
       body,
     })
 
-    const data = await response.json()
-    if (!response.ok) {
-      return { success: false, error: data.error, error_code: data.error_code, wait_seconds: data.wait_seconds }
+    const responseText = await response.text()
+    console.log('[sendOtp] response:', { status: response.status, statusText: response.statusText, body: responseText })
+
+    let data: Record<string, unknown>
+    try {
+      data = JSON.parse(responseText)
+    } catch {
+      console.error('[sendOtp] failed to parse response as JSON:', responseText)
+      return { success: false, error: `Server returned ${response.status}: ${responseText.slice(0, 200)}` }
     }
 
+    if (!response.ok) {
+      console.error('[sendOtp] API error:', { status: response.status, data })
+      return { success: false, error: data.error as string, error_code: data.error_code as string, wait_seconds: data.wait_seconds as number }
+    }
+
+    console.log('[sendOtp] success:', data)
     return { success: true, ...data }
   } catch (error) {
-    console.error('[sendOtp] error:', error)
+    console.error('[sendOtp] exception:', error)
     return { success: false, error: 'Failed to send OTP' }
   }
 }
@@ -112,26 +127,41 @@ export async function sendOtp(phoneNumber: string) {
 export async function verifyOtp(phoneNumber: string, otpCode: number) {
   try {
     const body = JSON.stringify({ phone_number: phoneNumber, otp_code: otpCode })
-    const response = await signedFetch(`${API_URL}/public/verify-otp`, {
+    const url = `${API_URL}/public/verify-otp`
+    console.log('[verifyOtp] request:', { url, phoneNumber, otpCode, body })
+
+    const response = await signedFetch(url, {
       method: 'POST',
       body,
     })
 
-    const data = await response.json()
-    if (!response.ok) {
-      return { success: false, error: data.error, error_code: data.error_code }
+    const responseText = await response.text()
+    console.log('[verifyOtp] response:', { status: response.status, statusText: response.statusText, body: responseText })
+
+    let data: Record<string, unknown>
+    try {
+      data = JSON.parse(responseText)
+    } catch {
+      console.error('[verifyOtp] failed to parse response as JSON:', responseText)
+      return { success: false, error: `Server returned ${response.status}: ${responseText.slice(0, 200)}` }
     }
 
+    if (!response.ok) {
+      console.error('[verifyOtp] API error:', { status: response.status, data })
+      return { success: false, error: data.error as string, error_code: data.error_code as string }
+    }
+
+    console.log('[verifyOtp] success, storing tokens')
     // Store JWT in httpOnly cookies
     const cookieStore = await cookies()
-    cookieStore.set('blyss_access_token', data.access_token, {
+    cookieStore.set('blyss_access_token', data.access_token as string, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
     })
-    cookieStore.set('blyss_refresh_token', data.refresh_token, {
+    cookieStore.set('blyss_refresh_token', data.refresh_token as string, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -141,7 +171,7 @@ export async function verifyOtp(phoneNumber: string, otpCode: number) {
 
     return { success: true, user_id: data.user_id, phone_number: data.phone_number }
   } catch (error) {
-    console.error('[verifyOtp] error:', error)
+    console.error('[verifyOtp] exception:', error)
     return { success: false, error: 'Failed to verify OTP' }
   }
 }

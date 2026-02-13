@@ -9,7 +9,6 @@ import {
   Clock,
   MapPin,
   Phone,
-  Check,
   Star,
   Instagram,
   Share2,
@@ -20,7 +19,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  Plus,
 } from 'lucide-react';
 
 interface MultilingualText {
@@ -197,7 +195,6 @@ const LOCALE_LABELS: Record<Locale, string> = {
 export function TenantPage({ business, services, photos, tenantSlug, businessId, locale }: TenantPageProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -364,17 +361,8 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
     return secondsToTime(todayHours.end);
   };
 
-  const handleServiceToggle = (service: Service) => {
-    setSelectedServices(prev => {
-      const exists = prev.find(s => s.id === service.id);
-      if (exists) return prev.filter(s => s.id !== service.id);
-      return [...prev, service];
-    });
-  };
-
-  const handleBookNow = async () => {
-    if (selectedServices.length === 0) return;
-    await setBookingIntent(businessId, selectedServices.map(s => s.id));
+  const handleBookService = async (service: Service) => {
+    await setBookingIntent(businessId, [service.id]);
     router.push(`/${locale}/booking`);
   };
 
@@ -402,8 +390,6 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
     acc[cat].push(service);
     return acc;
   }, {});
-
-  const totalPrice = selectedServices.reduce((sum, s) => sum + s.price, 0);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -650,15 +636,10 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
                 Object.entries(groupedServices).map(([category, categoryServices]) => (
                   <div key={category} className="mb-6 py-2">
                     <div className='flex flex-col gap-4'>
-                      {categoryServices.map((service, index) => {
-                        const isSelected = selectedServices.some(s => s.id === service.id);
-                        return (
+                      {categoryServices.map((service, index) => (
                           <div
                             key={service.id}
-                            className={`flex items-start justify-between lg:px-6 lg:py-5 lg:rounded-xl overflow-hidden transition-all duration-100 ease-out ${isSelected
-                              ? 'lg:border-2 border-primary lg:shadow-sm'
-                              : 'lg:border lg:border-zinc-300 lg:dark:border-zinc-800 lg:hover:border-zinc-400 lg:dark:hover:border-zinc-600 lg:hover:shadow-sm'
-                              } ${categoryServices.length - 1 === index ? '' : 'border-b pb-4 border-zinc-300'}`}
+                            className={`flex items-start justify-between lg:px-6 lg:py-5 lg:rounded-xl overflow-hidden transition-all duration-100 ease-out lg:border lg:border-zinc-300 lg:dark:border-zinc-800 lg:hover:border-zinc-400 lg:dark:hover:border-zinc-600 lg:hover:shadow-sm ${categoryServices.length - 1 === index ? '' : 'border-b pb-4 border-zinc-300 dark:border-zinc-800'}`}
                           >
                             <div className="flex-1 min-w-0 pr-4">
                               <h4 className="text-base lg:text-lg font-semibold line-clamp-1 text-zinc-900 dark:text-zinc-100">
@@ -677,38 +658,15 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
                               <h4 className="text-base lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                                 {formatPrice(service.price)} {t.sum}
                               </h4>
-                              {selectedServices.length ? (
-                                <button
-                                  onClick={() => handleServiceToggle(service)}
-                                  className={`cursor-pointer mt-2 w-9 h-9 lg:w-12 lg:h-12 ms-auto flex items-center justify-center rounded-full transition-all ${isSelected
-                                    ? 'bg-primary text-white'
-                                    : 'bg-primary/10 text-primary shadow-sm'
-                                    }`}
-                                >
-                                  {isSelected ? <Check size={20} /> : <Plus size={20} />}
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => handleServiceToggle(service)}
-                                  className={`mt-2 px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium rounded-full shadow-sm transition-all ${isSelected
-                                    ? 'bg-primary/10 text-primary border border-primary'
-                                    : 'bg-primary text-white hover:bg-primary/90'
-                                    }`}
-                                >
-                                  {isSelected ? (
-                                    <span className="flex items-center gap-1">
-                                      <Check size={13} strokeWidth={2.5} />
-                                      {t.added}
-                                    </span>
-                                  ) : (
-                                    t.book
-                                  )}
-                                </button>
-                              )}
+                              <button
+                                onClick={() => handleBookService(service)}
+                                className="mt-2 px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium rounded-full shadow-sm transition-all bg-primary text-white hover:bg-primary/90"
+                              >
+                                {t.book}
+                              </button>
                             </div>
                           </div>
-                        );
-                      })}
+                        ))}
                     </div>
                   </div>
                 ))
@@ -923,45 +881,6 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
         </div>
       </div>
 
-      {/* ===== STICKY BOTTOM BAR ===== */}
-      {selectedServices.length > 0 && (
-        <>
-          {/* Mobile */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 px-3 py-3 z-40 safe-area-bottom">
-            <button
-              onClick={handleBookNow}
-              className="w-full py-3.5 mb-3 bg-primary text-white rounded-full font-semibold text-sm active:scale-[0.98] transition-transform"
-            >
-              {formatPrice(totalPrice)} {t.sum}
-              <br />
-              {t.bookNow}
-            </button>
-          </div>
-
-          {/* Desktop */}
-          <div className="hidden lg:block fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 z-40">
-            <div className="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div>
-                  <p className="text-2xl lg:text-3xl font-bold mb-1 text-zinc-900 dark:text-zinc-100">
-                    {formatPrice(totalPrice)} {t.sum}
-                  </p>
-                  <p className="text-base text-zinc-500 dark:text-zinc-400">
-                    {selectedServices.length} {t.selected}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleBookNow}
-                className="px-12 py-4 bg-primary text-white rounded-xl font-semibold text-lg hover:bg-primary/90 transition-colors"
-              >
-                {t.bookNow}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
       {/* ===== LOCATION PERMISSION MODAL ===== */}
       {showLocationModal && (
         <div
@@ -1078,8 +997,6 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
         </div>
       )}
 
-      {/* Bottom spacing for sticky bar */}
-      {selectedServices.length > 0 && <div className="h-20 lg:h-16" />}
     </div>
   );
 }

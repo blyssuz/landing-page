@@ -101,6 +101,7 @@ export default async function Page({
       businessName={businessData.business.name}
       businessPhone={businessData.business.business_phone_number}
       services={selectedServices}
+      allServices={allServices}
       employees={employees}
       tenantSlug={tenantSlug}
       locale={locale}
