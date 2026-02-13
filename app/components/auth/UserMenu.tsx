@@ -141,7 +141,7 @@ export function UserMenu({ locale }: UserMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setDropdownOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded-full px-1 py-1 pr-3 hover:bg-gray-100 transition-colors cursor-pointer"
+        className="flex items-center gap-2 rounded-full px-1 py-1 pr-3 bg-white/90 backdrop-blur-sm shadow-sm hover:bg-white transition-colors cursor-pointer"
       >
         <div className="w-8 h-8 rounded-full bg-[#088395] text-white flex items-center justify-center text-sm font-semibold">
           {getInitial(user)}

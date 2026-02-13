@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { X, Loader2, Phone, User } from 'lucide-react'
+import { X, Loader2, Phone, User, AlertCircle } from 'lucide-react'
 import { sendOtp, verifyOtp, registerUser } from '@/app/[locale]/[tenant]/actions'
 
 // ─── Types ───
@@ -54,6 +54,32 @@ const T: Record<'uz' | 'ru', Record<string, string>> = {
     error: 'Произошла ошибка',
     sec: 'сек',
   },
+}
+
+const ERROR_CODES: Record<'uz' | 'ru', Record<string, string>> = {
+  uz: {
+    INVALID_OTP: 'Noto\'g\'ri kod kiritildi',
+    OTP_EXPIRED: 'Kod muddati tugagan, qaytadan yuboring',
+    RATE_LIMITED: 'Ko\'p urinishlar, keyinroq qaytadan urinib ko\'ring',
+    OTP_DELIVERY_FAILED: 'Kodni yuborishda xatolik. Qaytadan urinib ko\'ring',
+    OTP_INVALID_STATE: 'Kod muddati tugagan yoki ishlatilgan',
+    PHONE_EXISTS: 'Bu raqam allaqachon ro\'yxatdan o\'tgan',
+    PHONE_MISMATCH: 'Telefon raqamlar mos kelmaydi',
+  },
+  ru: {
+    INVALID_OTP: 'Неверный код',
+    OTP_EXPIRED: 'Код истёк, запросите новый',
+    RATE_LIMITED: 'Слишком много попыток, попробуйте позже',
+    OTP_DELIVERY_FAILED: 'Ошибка отправки кода. Попробуйте ещё раз',
+    OTP_INVALID_STATE: 'Код истёк или уже использован',
+    PHONE_EXISTS: 'Этот номер уже зарегистрирован',
+    PHONE_MISMATCH: 'Номера телефонов не совпадают',
+  },
+}
+
+function getAuthErrorMessage(locale: 'uz' | 'ru', errorCode?: string, fallback?: string): string {
+  if (errorCode && ERROR_CODES[locale][errorCode]) return ERROR_CODES[locale][errorCode]
+  return fallback || T[locale].error
 }
 
 // ─── Helpers ───
@@ -189,7 +215,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
           setTimer(result.wait_seconds)
           setTimeout(() => otpRefs.current[0]?.focus(), 100)
         } else {
-          setError(result.error || t.error)
+          setError(getAuthErrorMessage(locale, result.error_code, result.error))
         }
       }
     } catch {
@@ -219,7 +245,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
             onSuccess()
           }
         } else {
-          setError(result.error || t.error)
+          setError(getAuthErrorMessage(locale, result.error_code, result.error))
           // Clear OTP fields on error
           setOtpValues(['', '', '', '', ''])
           setTimeout(() => otpRefs.current[0]?.focus(), 100)
@@ -310,7 +336,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         if (result.wait_seconds && result.wait_seconds > 0) {
           setTimer(result.wait_seconds)
         } else {
-          setError(result.error || t.error)
+          setError(getAuthErrorMessage(locale, result.error_code, result.error))
         }
       }
     } catch {
@@ -342,7 +368,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
       if (result.success) {
         onSuccess()
       } else {
-        setError(result.error || t.error)
+        setError(getAuthErrorMessage(locale, result.error_code, result.error))
       }
     } catch {
       setError(t.error)
@@ -412,8 +438,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
             <button
               onClick={handleSendCode}
               disabled={phoneDigits.length !== 9 || loading}
@@ -458,8 +482,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 />
               ))}
             </div>
-
-            {error && <p className="text-red-500 text-sm text-center mb-3">{error}</p>}
 
             {/* Timer / resend */}
             <div className="text-center mb-4">
@@ -530,8 +552,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-[#088395] focus:ring-2 focus:ring-[#088395]/20 transition-all text-gray-900 placeholder-gray-400 mb-1"
             />
 
-            {error && <p className="text-red-500 text-sm mt-2 mb-1">{error}</p>}
-
             <button
               onClick={handleRegister}
               disabled={loading}
@@ -543,6 +563,30 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
           </div>
         )}
       </div>
+
+      {/* ─── Error Popup ─── */}
+      {error && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setError('')}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertCircle size={24} className="text-red-500" />
+            </div>
+            <p className="text-gray-900 font-medium text-sm mb-4">{error}</p>
+            <button
+              onClick={() => setError('')}
+              className="px-8 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

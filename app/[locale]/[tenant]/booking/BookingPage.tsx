@@ -12,6 +12,7 @@ import {
   Plus,
   X,
   Trash2,
+  AlertCircle,
 } from 'lucide-react';
 import {
   getAvailableSlots,
@@ -104,6 +105,11 @@ const UI: Record<Locale, Record<string, string>> = {
     tomorrow: 'Ertaga',
     errorOccurred: 'Xatolik yuz berdi',
     alreadyBooked: 'Siz allaqachon bu vaqtda band qilgansiz',
+    bookingLimitReached: 'Siz maksimal 3 ta faol buyurtmaga erishdingiz',
+    slotNotAvailable: 'Tanlangan vaqt band',
+    noEmployeeAvailable: 'Bu vaqtda bo\'sh mutaxassis yo\'q',
+    businessClosed: 'Bu kunda ish vaqti yo\'q',
+    employeeNotWorking: 'Mutaxassis bu kuni ishlamaydi',
     addService: 'Xizmat qo\'shish',
     change: 'O\'zgartirish',
     selectSpecialist: 'Mutaxassisni tanlang',
@@ -131,6 +137,11 @@ const UI: Record<Locale, Record<string, string>> = {
     tomorrow: 'Завтра',
     errorOccurred: 'Произошла ошибка',
     alreadyBooked: 'У вас уже есть бронь на это время',
+    bookingLimitReached: 'Вы достигли максимума в 3 активных записи',
+    slotNotAvailable: 'Выбранное время уже занято',
+    noEmployeeAvailable: 'Нет свободных специалистов на это время',
+    businessClosed: 'В этот день не работает',
+    employeeNotWorking: 'Специалист не работает в этот день',
     addService: 'Добавить услугу',
     change: 'Изменить',
     selectSpecialist: 'Выберите специалиста',
@@ -449,11 +460,16 @@ export function BookingPage({
         setBookingResult(result.booking as Record<string, unknown>);
         setShowSuccess(true);
       } else {
-        if (result.error_code === 'USER_TIME_CONFLICT') {
-          setError(t.alreadyBooked);
-        } else {
-          setError(result.error || t.errorOccurred);
-        }
+        const errorMap: Record<string, string> = {
+          USER_TIME_CONFLICT: t.alreadyBooked,
+          BOOKING_LIMIT_REACHED: t.bookingLimitReached,
+          SLOT_NOT_AVAILABLE: t.slotNotAvailable,
+          NO_EMPLOYEE_AVAILABLE: t.noEmployeeAvailable,
+          BUSINESS_CLOSED: t.businessClosed,
+          EMPLOYEE_NOT_WORKING: t.employeeNotWorking,
+        };
+        const code = result.error_code || '';
+        setError(errorMap[code] || t.errorOccurred);
       }
     } catch {
       setError(t.errorOccurred);
@@ -504,11 +520,26 @@ export function BookingPage({
         </div>
       </div>
 
-      {/* ===== ERROR ===== */}
+      {/* ===== ERROR POPUP ===== */}
       {error && (
-        <div className="max-w-2xl mx-auto px-4 pt-4">
-          <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-sm text-red-600">
-            {error}
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setError('')}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertCircle size={24} className="text-red-500" />
+            </div>
+            <p className="text-gray-900 font-medium text-sm mb-4">{error}</p>
+            <button
+              onClick={() => setError('')}
+              className="px-8 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
