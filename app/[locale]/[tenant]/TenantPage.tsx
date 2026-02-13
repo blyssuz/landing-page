@@ -546,7 +546,7 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
       )}
 
       {/* Business Info Header */}
-      <div className="max-w-[1350px] mx-auto px-4 lg:px-6 mt-5 mb-4">
+      <div className="max-w-[1350px] mx-auto px-4 lg:px-6 mt-5 lg:mb-4">
         <h1 className="text-2xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
           {business.name}
         </h1>
@@ -650,37 +650,37 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
                 Object.entries(groupedServices).map(([category, categoryServices]) => (
                   <div key={category} className="mb-6 py-2">
                     <div className='flex flex-col gap-4'>
-                      {categoryServices.map((service) => {
+                      {categoryServices.map((service, index) => {
                         const isSelected = selectedServices.some(s => s.id === service.id);
                         return (
                           <div
                             key={service.id}
-                            className={`flex items-start justify-between px-6 py-5 rounded-xl overflow-hidden transition-all duration-100 ease-out ${isSelected
-                              ? 'border-2 border-primary shadow-sm'
-                              : 'border border-zinc-300 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm'
-                              }`}
+                            className={`flex items-start justify-between lg:px-6 lg:py-5 lg:rounded-xl overflow-hidden transition-all duration-100 ease-out ${isSelected
+                              ? 'lg:border-2 border-primary lg:shadow-sm'
+                              : 'lg:border lg:border-zinc-300 lg:dark:border-zinc-800 lg:hover:border-zinc-400 lg:dark:hover:border-zinc-600 lg:hover:shadow-sm'
+                              } ${categoryServices.length - 1 === index ? '' : 'border-b pb-4 border-zinc-300'}`}
                           >
                             <div className="flex-1 min-w-0 pr-4">
-                              <h4 className="text-lg font-semibold line-clamp-1 text-zinc-900 dark:text-zinc-100">
+                              <h4 className="text-base lg:text-lg font-semibold line-clamp-1 text-zinc-900 dark:text-zinc-100">
                                 {getText(service.name)}
                               </h4>
                               {service.description && getText(service.description) && (
-                                <p className="text-base text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 w-[90%]">
+                                <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 w-[90%]">
                                   {getText(service.description)}
                                 </p>
                               )}
-                              <p className="text-base text-zinc-400 mt-3">
+                              <p className="text-sm lg:text-base text-zinc-400 mt-3">
                                 {formatDuration(service.duration_minutes)}
                               </p>
                             </div>
                             <div className="text-end">
-                              <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                              <h4 className="text-base lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                                 {formatPrice(service.price)} {t.sum}
                               </h4>
                               {selectedServices.length ? (
                                 <button
                                   onClick={() => handleServiceToggle(service)}
-                                  className={`cursor-pointer mt-2 w-12 h-12 ms-auto flex items-center justify-center rounded-full transition-all ${isSelected
+                                  className={`cursor-pointer mt-2 w-9 h-9 lg:w-12 lg:h-12 ms-auto flex items-center justify-center rounded-full transition-all ${isSelected
                                     ? 'bg-primary text-white'
                                     : 'bg-primary/10 text-primary shadow-sm'
                                     }`}
@@ -690,7 +690,7 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
                               ) : (
                                 <button
                                   onClick={() => handleServiceToggle(service)}
-                                  className={`mt-2 px-4 py-2 text-base font-medium rounded-full shadow-sm transition-all ${isSelected
+                                  className={`mt-2 px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium rounded-full shadow-sm transition-all ${isSelected
                                     ? 'bg-primary/10 text-primary border border-primary'
                                     : 'bg-primary text-white hover:bg-primary/90'
                                     }`}
@@ -927,12 +927,14 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
       {selectedServices.length > 0 && (
         <>
           {/* Mobile */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 px-4 py-3 z-40 safe-area-bottom">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 px-3 py-3 z-40 safe-area-bottom">
             <button
               onClick={handleBookNow}
-              className="w-full py-3.5 bg-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform"
+              className="w-full py-3.5 mb-3 bg-primary text-white rounded-full font-semibold text-sm active:scale-[0.98] transition-transform"
             >
-              {t.bookNow} &middot; {selectedServices.length} {t.selected} &middot; {formatPrice(totalPrice)} {t.sum}
+              {formatPrice(totalPrice)} {t.sum}
+              <br />
+              {t.bookNow}
             </button>
           </div>
 
