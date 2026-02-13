@@ -77,7 +77,7 @@ interface BookingPageProps {
   employees: Employee[];
   tenantSlug: string;
   locale: Locale;
-  savedPhone: string | null;
+  savedUser: { phone: string; first_name: string; last_name: string } | null;
 }
 
 type Step = 'date' | 'time' | 'services' | 'phone' | 'confirm' | 'success';
@@ -242,7 +242,7 @@ function clearBookingState() {
   try { sessionStorage.removeItem(BOOKING_STATE_KEY); } catch {}
 }
 
-export function BookingPage({ businessId, businessName, businessPhone, services, allServices, tenantSlug, locale, savedPhone }: BookingPageProps) {
+export function BookingPage({ businessId, businessName, businessPhone, services, allServices, tenantSlug, locale, savedUser }: BookingPageProps) {
   const router = useRouter();
   const t = UI[locale];
 
@@ -254,7 +254,7 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
   const [serviceEmployees, setServiceEmployees] = useState<ServiceSlotData[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<Record<string, string | null>>({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(savedPhone || '');
+  const [phoneNumber, setPhoneNumber] = useState(savedUser?.phone || '');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpDeliveryMethod, setOtpDeliveryMethod] = useState<'sms' | 'telegram' | null>(null);
@@ -572,11 +572,6 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
     try {
       const result = await verifyOtp(phoneNumber, parseInt(otpCode));
       if (result.success) {
-        // Save phone in cookie for future pre-fill (client-side to avoid server action revalidation)
-        const isProduction = window.location.hostname.endsWith('.blyss.uz');
-        const domain = isProduction ? '; domain=.blyss.uz' : '';
-        const secure = isProduction ? '; Secure' : '';
-        document.cookie = `blyss_phone=${phoneNumber}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Strict${domain}${secure}`;
         setIsAuthenticated(true);
         setStep('confirm');
       } else {
@@ -960,6 +955,21 @@ export function BookingPage({ businessId, businessName, businessPhone, services,
         {step === 'confirm' && selectedTime !== null && (
           <div>
             <div className="space-y-3 mb-6">
+              {/* Client info */}
+              <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
+                <User size={18} className="text-primary" />
+                <div>
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    +{phoneNumber}
+                  </p>
+                  {savedUser?.first_name || savedUser?.last_name ? (
+                    <p className="text-xs text-zinc-500">
+                      {[savedUser.first_name, savedUser.last_name].filter(Boolean).join(' ')}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
               {/* Date & Time */}
               <div className="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
                 <Calendar size={18} className="text-primary" />

@@ -152,21 +152,37 @@ export async function verifyOtp(phoneNumber: string, otpCode: number) {
     }
 
     console.log('[verifyOtp] success, storing tokens')
-    // Store JWT in httpOnly cookies
     const cookieStore = await cookies()
+    const cookieDomain = process.env.NODE_ENV === 'production' ? '.blyss.uz' : undefined
+    const isSecure = process.env.NODE_ENV === 'production'
+
     cookieStore.set('blyss_access_token', data.access_token as string, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60, // 24 hours
+      maxAge: 24 * 60 * 60,
       path: '/',
+      domain: cookieDomain,
     })
     cookieStore.set('blyss_refresh_token', data.refresh_token as string, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 30 * 24 * 60 * 60,
       path: '/',
+      domain: cookieDomain,
+    })
+    cookieStore.set('blyss_user', JSON.stringify({
+      phone: phoneNumber,
+      first_name: (data.first_name as string) || '',
+      last_name: (data.last_name as string) || '',
+    }), {
+      httpOnly: false,
+      secure: isSecure,
+      sameSite: 'strict',
+      maxAge: 365 * 24 * 60 * 60,
+      path: '/',
+      domain: cookieDomain,
     })
     return { success: true as const, user_id: data.user_id, phone_number: data.phone_number }
   } catch (error) {
@@ -230,10 +246,36 @@ export async function getAuthStatus() {
   }
 }
 
-export async function getSavedPhone() {
+export async function getSavedUser() {
   try {
     const cookieStore = await cookies()
-    return cookieStore.get('blyss_phone')?.value || null
+    const raw = cookieStore.get('blyss_user')?.value
+    if (!raw) return null
+    return JSON.parse(raw) as { phone: string; first_name: string; last_name: string }
+  } catch {
+    return null
+  }
+}
+
+export async function getUserProfile() {
+  try {
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('blyss_access_token')?.value
+    if (!accessToken) return null
+
+    const response = await signedFetch(`${API_URL}/public/me`, {
+      cache: 'no-store',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!response.ok) return null
+
+    const data = await response.json()
+    return {
+      user_id: data.user_id as string,
+      phone: data.phone_number as string,
+      first_name: data.first_name as string,
+      last_name: data.last_name as string,
+    }
   } catch {
     return null
   }

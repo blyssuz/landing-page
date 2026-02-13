@@ -63,6 +63,12 @@ interface Business {
   tagline?: string;
 }
 
+interface SavedUser {
+  phone: string;
+  first_name: string;
+  last_name: string;
+}
+
 interface TenantPageProps {
   business: Business;
   services: Service[];
@@ -70,6 +76,7 @@ interface TenantPageProps {
   tenantSlug: string;
   businessId: string;
   locale: Locale;
+  savedUser: SavedUser | null;
 }
 
 function secondsToTime(seconds: number): string {
@@ -192,7 +199,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
   ru: 'RU',
 };
 
-export function TenantPage({ business, services, photos, tenantSlug, businessId, locale }: TenantPageProps) {
+export function TenantPage({ business, services, photos, tenantSlug, businessId, locale, savedUser }: TenantPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
@@ -597,6 +604,22 @@ export function TenantPage({ business, services, photos, tenantSlug, businessId,
           )}
         </div>
       </div>
+
+      {/* ===== LOGGED-IN USER ===== */}
+      {savedUser && (
+        <div className="max-w-[1350px] mx-auto px-4 lg:px-6 mt-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/5 dark:bg-primary/10 rounded-full">
+            <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center">
+              <Phone size={12} className="text-primary" />
+            </div>
+            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+              {savedUser.first_name || savedUser.last_name
+                ? [savedUser.first_name, savedUser.last_name].filter(Boolean).join(' ')
+                : `+${savedUser.phone}`}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="max-w-[1350px] mx-auto px-4 lg:px-6 pb-8">

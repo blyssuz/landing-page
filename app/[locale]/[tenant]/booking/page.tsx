@@ -4,7 +4,7 @@ import { signedFetch } from '@/lib/api'
 import { isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n'
 import type { Locale } from '@/lib/i18n'
 import { BookingPage } from './BookingPage'
-import { getBookingIntent, getSavedPhone } from '../actions'
+import { getBookingIntent, getSavedUser } from '../actions'
 
 interface MultilingualText {
   uz: string
@@ -83,7 +83,7 @@ export default async function Page({
   const allServices: Service[] = businessData.services || []
   const selectedServices = allServices.filter((s: Service) => serviceIds.includes(s.id))
   const employees: Employee[] = businessData.employees || []
-  const savedPhone = await getSavedPhone()
+  const savedUser = await getSavedUser()
 
   if (selectedServices.length === 0) {
     return (
@@ -103,7 +103,7 @@ export default async function Page({
       employees={employees}
       tenantSlug={tenantSlug}
       locale={locale}
-      savedPhone={savedPhone}
+      savedUser={savedUser}
     />
   )
 }

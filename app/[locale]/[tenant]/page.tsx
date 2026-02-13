@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import type { Locale } from '@/lib/i18n'
 import { isValidLocale, DEFAULT_LOCALE } from '@/lib/i18n'
 import { TenantPage } from './TenantPage'
+import { getSavedUser } from './actions'
 
 interface MultilingualText {
   uz: string
@@ -174,6 +175,7 @@ export default async function Page({
   }
 
   const { business, photos, services } = businessData
+  const savedUser = await getSavedUser()
 
   const businessJsonLd = {
     '@context': 'https://schema.org',
@@ -231,6 +233,7 @@ export default async function Page({
       tenantSlug={tenantSlug}
       businessId={business.id}
       locale={locale}
+      savedUser={savedUser}
     />
   </div>
 }
