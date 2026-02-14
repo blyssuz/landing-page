@@ -400,14 +400,14 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
       }}
     >
       <div
-        className={`bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md mx-4 shadow-2xl relative transition-all duration-200 ${
+        className={`bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-8 w-full max-w-md mx-4 shadow-2xl relative transition-all duration-200 ${
           visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
       >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="absolute top-4 right-4 p-1 rounded-full text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
           aria-label="Close"
         >
           <X size={20} />
@@ -420,12 +420,12 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Phone size={20} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">{t.loginTitle}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.loginTitle}</h2>
             </div>
 
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t.phone}</label>
-            <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <span className="px-3 py-3 bg-gray-50 text-gray-500 font-medium text-sm border-r border-gray-300 select-none">
+            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">{t.phone}</label>
+            <div className="flex items-center border border-gray-300 dark:border-zinc-700 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <span className="px-3 py-3 bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 font-medium text-sm border-r border-gray-300 dark:border-zinc-700 select-none">
                 +998
               </span>
               <input
@@ -436,7 +436,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 onChange={handlePhoneChange}
                 onKeyDown={handlePhoneKeyDown}
                 placeholder="XX XXX XX XX"
-                className="flex-1 px-3 py-3 text-sm outline-none bg-white text-gray-900 placeholder-gray-400"
+                className="flex-1 px-3 py-3 text-sm outline-none bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500"
                 autoFocus
               />
             </div>
@@ -459,10 +459,10 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Phone size={20} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">{t.enterCode}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.enterCode}</h2>
             </div>
 
-            <p className="text-sm lg:text-base text-gray-500 mb-6 ml-[52px]">
+            <p className="text-sm lg:text-base text-gray-500 dark:text-zinc-400 mb-6 ml-[52px]">
               {deliveryMethod === 'telegram' ? t.codeSentTelegram : t.codeSentSms}
             </p>
 
@@ -480,7 +480,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                   value={val}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900"
+                  className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 dark:border-zinc-700 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
                   disabled={loading}
                 />
               ))}
@@ -489,7 +489,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
             {/* Timer / resend */}
             <div className="text-center mb-4">
               {timer > 0 ? (
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-gray-400 dark:text-zinc-500">
                   {t.resendIn}
                   {timer} {t.sec}
                 </span>
@@ -526,11 +526,11 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <User size={20} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">{t.registerTitle}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.registerTitle}</h2>
             </div>
 
             {/* First name */}
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.firstName}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">{t.firstName}</label>
             <input
               type="text"
               value={firstName}
@@ -540,19 +540,19 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               }}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.firstName}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 placeholder-gray-400 mb-4"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-zinc-700 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 placeholder-gray-400 dark:placeholder-zinc-500 mb-4"
               autoFocus
             />
 
             {/* Last name */}
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.lastName}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">{t.lastName}</label>
             <input
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.lastName}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 placeholder-gray-400 mb-1"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-zinc-700 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 placeholder-gray-400 dark:placeholder-zinc-500 mb-1"
             />
 
             <button
@@ -574,16 +574,16 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
           onClick={() => setError('')}
         >
           <div
-            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
+            className="bg-white dark:bg-zinc-900 rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
-              <AlertCircle size={24} className="text-red-500" />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <AlertCircle size={24} className="text-red-500 dark:text-red-400" />
             </div>
-            <p className="text-gray-900 font-medium text-sm mb-4">{error}</p>
+            <p className="text-gray-900 dark:text-zinc-100 font-medium text-sm mb-4">{error}</p>
             <button
               onClick={() => setError('')}
-              className="px-8 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+              className="px-8 py-2.5 rounded-xl bg-gray-900 dark:bg-zinc-700 text-white text-sm font-medium hover:bg-gray-800 dark:hover:bg-zinc-600 transition-colors"
             >
               OK
             </button>

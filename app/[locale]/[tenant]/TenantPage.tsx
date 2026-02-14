@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   User,
+  CalendarCheck,
 } from 'lucide-react';
 
 interface MultilingualText {
@@ -168,6 +169,7 @@ const UI_TEXT: Record<Locale, Record<string, string>> = {
     gotIt: 'Tushunarli',
     specialists: 'Mutaxassislar',
     noSpecialists: 'Mutaxassislar mavjud emas',
+    myBookings: 'Mening bronlarim',
   },
   ru: {
     openUntil: 'Открыто до {{time}}',
@@ -211,6 +213,7 @@ const UI_TEXT: Record<Locale, Record<string, string>> = {
     gotIt: 'Понятно',
     specialists: 'Специалисты',
     noSpecialists: 'Специалисты отсутствуют',
+    myBookings: 'Мои записи',
   },
 };
 
@@ -219,7 +222,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
   ru: 'RU',
 };
 
-export function TenantPage({ business, services, employees, photos, tenantSlug, businessId, locale }: TenantPageProps) {
+export function TenantPage({ business, services, employees, photos, tenantSlug, businessId, locale, savedUser }: TenantPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
@@ -232,6 +235,8 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   const [distanceDenied, setDistanceDenied] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [geoAddress, setGeoAddress] = useState<string | null>(null);
+  const [bookingServiceId, setBookingServiceId] = useState<string | null>(null);
+  const [navigatingToBookings, setNavigatingToBookings] = useState(false);
   const locationRetries = useRef(0);
 
 
@@ -418,6 +423,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   };
 
   const handleBookService = async (service: Service) => {
+    setBookingServiceId(service.id);
     // Clear any saved booking state before starting fresh
     document.cookie = `blyss_booking_${businessId}=; path=/; max-age=0`;
     await setBookingIntent(businessId, [service.id]);
@@ -638,8 +644,15 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
                             </h4>
                             <button
                               onClick={() => handleBookService(service)}
-                              className="mt-2 px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium rounded-full shadow-sm transition-all bg-primary text-white hover:bg-primary/90"
+                              disabled={bookingServiceId === service.id}
+                              className="mt-2 px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium rounded-full shadow-sm transition-all bg-primary text-white hover:bg-primary/90 disabled:opacity-70 flex items-center gap-1.5"
                             >
+                              {bookingServiceId === service.id && (
+                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                              )}
                               {t.book}
                             </button>
                           </div>
@@ -691,6 +704,24 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
           {/* ===== RIGHT: SIDEBAR (Desktop) ===== */}
           <div className="hidden lg:block lg:col-span-1" ref={aboutRef}>
             <div className="sticky top-4 space-y-5 pt-6">
+              {/* My Bookings button */}
+              {savedUser && (
+                <button
+                  onClick={() => { setNavigatingToBookings(true); router.push(`/${locale}/bookings`); }}
+                  disabled={navigatingToBookings}
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-xl font-semibold text-base hover:bg-primary/90 transition-colors disabled:opacity-70"
+                >
+                  {navigatingToBookings ? (
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <CalendarCheck size={20} />
+                  )}
+                  {t.myBookings}
+                </button>
+              )}
               {/* Map */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
                 <div className="aspect-[4/3] bg-zinc-100 dark:bg-zinc-800 relative">
