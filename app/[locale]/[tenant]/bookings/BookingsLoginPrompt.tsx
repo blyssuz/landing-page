@@ -49,7 +49,7 @@ export function BookingsLoginPrompt({ locale }: { locale: Locale }) {
         <p className="text-base lg:text-lg text-zinc-500 dark:text-zinc-400 mb-6">{t.loginRequired}</p>
         <button
           onClick={() => setLoginOpen(true)}
-          className="px-8 py-3 bg-[#088395] text-white rounded-xl text-base font-semibold hover:bg-[#076e7d] transition-colors"
+          className="px-8 py-3 bg-primary text-white rounded-xl text-base font-semibold hover:bg-primary/90 transition-colors"
         >
           {t.signIn}
         </button>

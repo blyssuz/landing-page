@@ -55,6 +55,7 @@ interface BusinessData {
     tenant_url: string
     avatar_url?: string | null
     cover_url?: string | null
+    primary_color?: string | null
   }
   photos: Photo[]
   services: Service[]

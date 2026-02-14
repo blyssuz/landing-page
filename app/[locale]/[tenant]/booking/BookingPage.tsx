@@ -85,6 +85,7 @@ interface BookingPageProps {
   tenantSlug: string;
   locale: Locale;
   savedUser: { phone: string; first_name: string; last_name: string } | null;
+  primaryColor?: string;
 }
 
 // ─── Translations ───
@@ -281,6 +282,7 @@ export function BookingPage({
   tenantSlug,
   locale,
   savedUser,
+  primaryColor = '#088395',
 }: BookingPageProps) {
   const router = useRouter();
   const t = UI[locale];
@@ -664,19 +666,19 @@ export function BookingPage({
   // ─── Render ───
 
   return (
-    <div className="min-h-screen bg-white pb-4">
+    <div className="min-h-screen bg-white dark:bg-zinc-900 pb-4" style={{ '--primary': primaryColor } as React.CSSProperties}>
       {/* ===== HEADER (sticky) ===== */}
-      <div className="sticky top-0 bg-white/80 backdrop-blur-lg z-30 border-b border-gray-100">
+      <div className="sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg z-30 border-b border-gray-100 dark:border-zinc-800">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={goBack}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            <ChevronLeft size={24} className="text-gray-900" />
+            <ChevronLeft size={24} className="text-gray-900 dark:text-zinc-100" />
           </button>
           <div>
-            <h1 className="text-lg lg:text-xl font-bold text-gray-900">{t.bookAppointment}</h1>
-            <p className="text-base lg:text-lg text-gray-500">{businessName}</p>
+            <h1 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-zinc-100">{t.bookAppointment}</h1>
+            <p className="text-base lg:text-lg text-gray-500 dark:text-zinc-400">{businessName}</p>
           </div>
         </div>
       </div>
@@ -688,25 +690,25 @@ export function BookingPage({
           onClick={() => setError('')}
         >
           <div
-            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
+            className="bg-white dark:bg-zinc-900 rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
-              <AlertCircle size={24} className="text-red-500" />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <AlertCircle size={24} className="text-red-500 dark:text-red-400" />
             </div>
-            <p className="text-gray-900 font-medium text-sm mb-4">{error}</p>
+            <p className="text-gray-900 dark:text-zinc-100 font-medium text-sm mb-4">{error}</p>
             <div className="flex gap-3 justify-center">
               {errorCode === 'BOOKING_LIMIT_REACHED' && (
                 <button
                   onClick={() => { setError(''); setErrorCode(''); router.push(`/${locale}/bookings`); }}
-                  className="px-6 py-2.5 rounded-xl bg-[#088395] text-white text-sm font-medium hover:bg-[#076e7d] transition-colors"
+                  className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
                 >
                   {t.viewBookings}
                 </button>
               )}
               <button
                 onClick={() => { setError(''); setErrorCode(''); }}
-                className="px-8 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+                className="px-8 py-2.5 rounded-xl bg-gray-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors"
               >
                 OK
               </button>
@@ -718,21 +720,21 @@ export function BookingPage({
       {/* ===== CALENDAR SECTION ===== */}
       <section className="max-w-2xl mx-auto px-4 pt-6">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xl lg:text-2xl font-bold text-gray-900">
+          <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100">
             {MONTH_NAMES_FULL[locale][new Date().getMonth()]} {new Date().getFullYear()}
           </p>
           <div className="flex items-center gap-1">
             <button
               onClick={() => datesScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
             >
-              <ChevronLeft size={24} className="text-gray-700" />
+              <ChevronLeft size={24} className="text-gray-700 dark:text-zinc-300" />
             </button>
             <button
               onClick={() => datesScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
             >
-              <ChevronRight size={24} className="text-gray-700" />
+              <ChevronRight size={24} className="text-gray-700 dark:text-zinc-300" />
             </button>
           </div>
         </div>
@@ -755,10 +757,10 @@ export function BookingPage({
                 <button
                   key={dateStr}
                   disabled
-                  className="flex-shrink-0 flex flex-col items-center w-[4.5rem] py-5 rounded-2xl bg-gray-50 opacity-40 cursor-not-allowed"
+                  className="flex-shrink-0 flex flex-col items-center w-[4.5rem] py-5 rounded-2xl bg-gray-50 dark:bg-zinc-800 opacity-40 cursor-not-allowed"
                 >
-                  <span className="text-xs lg:text-sm text-gray-400">{dayName}</span>
-                  <span className="text-xl font-bold mt-0.5 text-gray-300 line-through">{date.getDate()}</span>
+                  <span className="text-xs lg:text-sm text-gray-400 dark:text-zinc-500">{dayName}</span>
+                  <span className="text-xl font-bold mt-0.5 text-gray-300 dark:text-zinc-600 line-through">{date.getDate()}</span>
                 </button>
               );
             }
@@ -768,12 +770,12 @@ export function BookingPage({
                 key={dateStr}
                 onClick={() => handleDateSelect(dateStr)}
                 className={`flex-shrink-0 flex flex-col items-center w-[4.5rem] py-5 rounded-2xl transition-all ${isSelected
-                  ? 'bg-[#088395] text-white'
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
                   }`}
               >
                 <span
-                  className={`text-xs lg:text-sm ${isSelected ? 'text-white/70' : 'text-gray-500'
+                  className={`text-xs lg:text-sm ${isSelected ? 'text-white/70' : 'text-gray-500 dark:text-zinc-400'
                     }`}
                 >
                   {dayName}
@@ -788,19 +790,19 @@ export function BookingPage({
       {/* ===== TIME SLOTS SECTION ===== */}
       {selectedDate && (
         <section ref={timeSectionRef} className="max-w-2xl mx-auto px-4 pt-8">
-          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-3">
             {t.selectTime}
           </h2>
 
           {slotsLoading ? (
             <div className="flex items-center justify-center py-16">
-              <HashLoader size={30} color="#088395" />
+              <HashLoader size={30} color={primaryColor} />
             </div>
           ) : availableSlots.length === 0 ? (
             <div className="text-center py-16">
-              <Clock size={40} className="lg:hidden mx-auto text-gray-300 mb-3" />
-              <Clock size={60} className="hidden lg:block mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 text-sm lg:text-base">{t.noSlots}</p>
+              <Clock size={40} className="lg:hidden mx-auto text-gray-300 dark:text-zinc-600 mb-3" />
+              <Clock size={60} className="hidden lg:block mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
+              <p className="text-gray-500 dark:text-zinc-400 text-sm lg:text-base">{t.noSlots}</p>
             </div>
           ) : (
             <div className="space-y-3 py-2">
@@ -820,8 +822,8 @@ export function BookingPage({
                         key={time}
                         onClick={() => handleTimeSelect(time)}
                         className={`py-3 rounded-xl text-sm lg:text-base font-medium transition-all ${isSelected
-                          ? 'bg-[#088395] text-white'
-                          : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
                           }`}
                       >
                         {secondsToTime(time)}
@@ -839,19 +841,19 @@ export function BookingPage({
       {selectedTime !== null && (
         <section ref={servicesSectionRef} className="max-w-2xl mx-auto px-4 pt-8">
 
-          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-3">
             {t.yourServices}
           </h2>
 
           {loading && serviceEmployees.length === 0 ? (
             <div className="flex items-center justify-center py-16">
-              <HashLoader size={30} color="#088395" />
+              <HashLoader size={30} color={primaryColor} />
             </div>
           ) : (
             <div className="relative space-y-3 py-2">
               {loading && (
-                <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center rounded-2xl">
-                  <HashLoader size={30} color="#088395" />
+                <div className="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 z-10 flex items-center justify-center rounded-2xl">
+                  <HashLoader size={30} color={primaryColor} />
                 </div>
               )}
               {/* Service cards */}
@@ -875,20 +877,20 @@ export function BookingPage({
                 timeOffset += duration * 60;
 
                 return (
-                  <div key={serviceId} className="bg-gray-50 rounded-2xl p-4">
+                  <div key={serviceId} className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
 
                         <div className='flex justify-between'>
                           <div className='flex flex-col text-start'>
-                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 -mb-0.5 line-clamp-1">
+                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5 line-clamp-1">
                               {getText(service.name)}
                             </h4>
-                            <span className='text-sm lg:text-base text-gray-500'>{secondsToTime(startSeconds)} - {secondsToTime(endSeconds)}</span>
+                            <span className='text-sm lg:text-base text-gray-500 dark:text-zinc-400'>{secondsToTime(startSeconds)} - {secondsToTime(endSeconds)}</span>
                           </div>
 
                           <div className='flex flex-col text-end'>
-                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 -mb-0.5">
+                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5">
                               {formatPrice(price)}
                             </h4>
                             <span className='text-sm lg:text-base'>{t.sum}</span>
@@ -899,7 +901,7 @@ export function BookingPage({
                       {selectedServiceIds.length > 1 && (
                         <button
                           onClick={() => handleRemoveService(serviceId)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                          className="p-1.5 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -907,18 +909,18 @@ export function BookingPage({
                     </div>
 
                     {/* Employee row */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <User size={18} className="lg:hidden text-gray-500" />
-                          <User size={22} className="hidden lg:block text-gray-500" />
+                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
+                          <User size={18} className="lg:hidden text-gray-500 dark:text-zinc-400" />
+                          <User size={22} className="hidden lg:block text-gray-500 dark:text-zinc-400" />
                         </div>
-                        <span className="text-sm lg:text-base text-gray-700">{empName}</span>
+                        <span className="text-sm lg:text-base text-gray-700 dark:text-zinc-300">{empName}</span>
                       </div>
                       {svcData && svcData.employees && svcData.employees.length > 1 && (
                         <button
                           onClick={() => openEmployeeSheet(serviceId)}
-                          className="text-xs font-medium text-[#088395]"
+                          className="text-xs font-medium text-primary"
                         >
                           {t.change}
                         </button>
@@ -933,7 +935,7 @@ export function BookingPage({
               {remainingServices.length > 0 && (
                 <button
                   onClick={() => setShowAddServiceSheet(true)}
-                  className="flex items-center justify-start gap-2 text-sm lg:text-base font-medium text-[#088395] cursor-pointer"
+                  className="flex items-center justify-start gap-2 text-sm lg:text-base font-medium text-primary cursor-pointer"
                 >
                   <Plus size={16} />
                   {t.addService}
@@ -951,27 +953,27 @@ export function BookingPage({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder={t.notesPlaceholder}
-            className="w-full p-4 bg-gray-50 rounded-2xl border-0 resize-none text-sm lg:text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#088395]/20"
+            className="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border-0 resize-none text-sm lg:text-base text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20"
             rows={3}
           />
-          <p className="text-xs lg:text-sm text-gray-400 mt-1.5 ml-1">{t.notes}</p>
+          <p className="text-xs lg:text-sm text-gray-400 dark:text-zinc-500 mt-1.5 ml-1">{t.notes}</p>
         </section>
       )}
 
       {/* ===== FIXED BOTTOM BAR ===== */}
       {selectedTime !== null && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 z-30">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-zinc-800 z-30">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
             <div>
-              <p className="text-sm lg:text-base text-gray-500">{t.total}</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900">
+              <p className="text-sm lg:text-base text-gray-500 dark:text-zinc-400">{t.total}</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100">
                 {formatPrice(totalPrice)} {t.sum}
               </p>
             </div>
             <button
               onClick={handleConfirmBooking}
               disabled={loading || selectedServiceIds.length === 0}
-              className="px-8 py-3.5 bg-[#088395] hover:bg-[#076e7d] text-white rounded-2xl font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3.5 bg-primary hover:bg-primary/90 text-white rounded-2xl font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <HashLoader size={18} color="#ffffff" />
@@ -985,34 +987,34 @@ export function BookingPage({
 
       {/* ===== SUCCESS OVERLAY ===== */}
       {showSuccess && (
-        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white dark:bg-zinc-900 z-50 flex items-center justify-center">
           <div className="text-center px-6 max-w-md w-full">
-            <div className="w-20 h-20 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-6">
-              <Check size={40} className="text-green-500" />
+            <div className="w-20 h-20 mx-auto rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center mb-6">
+              <Check size={40} className="text-green-500 dark:text-green-400" />
             </div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">{t.bookingConfirmed}</h2>
-            <p className="text-lg lg:text-xl text-gray-500 mb-8">{businessName}</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-zinc-100 mb-2">{t.bookingConfirmed}</h2>
+            <p className="text-lg lg:text-xl text-gray-500 dark:text-zinc-400 mb-8">{businessName}</p>
 
             {/* Booking details */}
             {bookingResult && (
               <div className="space-y-3 mb-8 text-left">
-                <div className="flex justify-between p-4 bg-gray-50 rounded-2xl">
-                  <span className="text-base lg:text-lg text-gray-500">{t.selectDate}</span>
-                  <span className="text-base lg:text-lg font-medium text-gray-900">
+                <div className="flex justify-between p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl">
+                  <span className="text-base lg:text-lg text-gray-500 dark:text-zinc-400">{t.selectDate}</span>
+                  <span className="text-base lg:text-lg font-medium text-gray-900 dark:text-zinc-100">
                     {(bookingResult.booking_date as string) || selectedDate}
                   </span>
                 </div>
                 {selectedTime !== null && (
-                  <div className="flex justify-between p-4 bg-gray-50 rounded-2xl">
-                    <span className="text-base lg:text-lg text-gray-500">{t.selectTime}</span>
-                    <span className="text-base lg:text-lg font-medium text-gray-900">
+                  <div className="flex justify-between p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl">
+                    <span className="text-base lg:text-lg text-gray-500 dark:text-zinc-400">{t.selectTime}</span>
+                    <span className="text-base lg:text-lg font-medium text-gray-900 dark:text-zinc-100">
                       {secondsToTime(selectedTime)}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between p-4 bg-gray-50 rounded-2xl">
-                  <span className="text-base lg:text-lg text-gray-500">{t.total}</span>
-                  <span className="text-base lg:text-lg font-bold text-[#088395]">
+                <div className="flex justify-between p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl">
+                  <span className="text-base lg:text-lg text-gray-500 dark:text-zinc-400">{t.total}</span>
+                  <span className="text-base lg:text-lg font-bold text-primary">
                     {formatPrice((bookingResult.total_price as number) ?? totalPrice)} {t.sum}
                   </span>
                 </div>
@@ -1022,13 +1024,13 @@ export function BookingPage({
             <div className="space-y-3">
               <button
                 onClick={() => router.push(`/${locale}/bookings`)}
-                className="w-full py-3.5 bg-[#088395] text-white rounded-2xl font-semibold text-base lg:text-lg transition-colors hover:bg-[#076e7d]"
+                className="w-full py-3.5 bg-primary text-white rounded-2xl font-semibold text-base lg:text-lg transition-colors hover:bg-primary/90"
               >
                 {t.viewBookings}
               </button>
               <button
                 onClick={() => router.push(`/${locale}`)}
-                className="w-full py-3.5 bg-gray-100 text-gray-700 rounded-2xl font-semibold text-base lg:text-lg transition-colors hover:bg-gray-200"
+                className="w-full py-3.5 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 rounded-2xl font-semibold text-base lg:text-lg transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700"
               >
                 {t.backToBusiness}
               </button>
@@ -1047,20 +1049,20 @@ export function BookingPage({
           }}
         >
           <div
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[70vh] overflow-y-auto animate-slideUp"
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 rounded-t-3xl max-h-[70vh] overflow-y-auto animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white px-4 pt-4 pb-2 border-b border-gray-100">
+            <div className="sticky top-0 bg-white dark:bg-zinc-900 px-4 pt-4 pb-2 border-b border-gray-100 dark:border-zinc-800">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-900">{t.selectSpecialist}</h3>
+                <h3 className="text-base font-bold text-gray-900 dark:text-zinc-100">{t.selectSpecialist}</h3>
                 <button
                   onClick={() => {
                     setShowEmployeeSheet(false);
                     setEditingServiceId(null);
                   }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
                 >
-                  <X size={18} className="text-gray-500" />
+                  <X size={18} className="text-gray-500 dark:text-zinc-400" />
                 </button>
               </div>
             </div>
@@ -1079,24 +1081,24 @@ export function BookingPage({
                       key={emp.id}
                       onClick={() => selectEmployee(editingServiceId, emp.id)}
                       className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${isSelected
-                        ? 'border-2 border-[#088395] bg-[#088395]/5'
-                        : 'border border-gray-200 hover:border-gray-400'
+                        ? 'border-2 border-primary bg-primary/5'
+                        : 'border border-gray-200 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
                         }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <User size={18} className="text-gray-500" />
+                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
+                          <User size={18} className="text-gray-500 dark:text-zinc-400" />
                         </div>
                         <div className="text-left">
-                          <p className="text-sm font-medium text-gray-900">{empName}</p>
-                          <p className="text-xs text-gray-500">{formatDuration(emp.duration_minutes)}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">{empName}</p>
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">{formatDuration(emp.duration_minutes)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
                           {formatPrice(emp.price)} {t.sum}
                         </span>
-                        {isSelected && <Check size={18} className="text-[#088395]" />}
+                        {isSelected && <Check size={18} className="text-primary" />}
                       </div>
                     </button>
                   );
@@ -1124,22 +1126,22 @@ export function BookingPage({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-2xl overflow-y-auto"
+              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white z-10 px-5 pt-5 pb-3 border-b border-gray-100">
+              <div className="sticky top-0 bg-white dark:bg-zinc-900 z-10 px-5 pt-5 pb-3 border-b border-gray-100 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-gray-900">{t.addMoreServices}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-zinc-100">{t.addMoreServices}</h3>
                   <button
                     onClick={() => setShowAddServiceSheet(false)}
-                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100"
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
                   >
-                    <X size={20} className="text-gray-500" />
+                    <X size={20} className="text-gray-500 dark:text-zinc-400" />
                   </button>
                 </div>
               </div>
 
-              <div className="p-5 divide-y divide-gray-200">
+              <div className="p-5 divide-y divide-gray-200 dark:divide-zinc-700">
                 {remainingServices.map(service => (
                   <button
                     key={service.id}
@@ -1147,17 +1149,17 @@ export function BookingPage({
                     className="w-full flex items-center justify-between transition-all py-3 first:pt-0 last:pb-0"
                   >
                     <div className="text-left flex-1">
-                      <p className="text-sm lg:text-base font-medium text-gray-900">{getText(service.name)}</p>
-                      <p className="text-xs lg:text-sm text-gray-500 mt-0.5">
+                      <p className="text-sm lg:text-base font-medium text-gray-900 dark:text-zinc-100">{getText(service.name)}</p>
+                      <p className="text-xs lg:text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
                         {formatDuration(service.duration_minutes)}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm lg:text-base font-medium text-gray-900">
+                      <span className="text-sm lg:text-base font-medium text-gray-900 dark:text-zinc-100">
                         {formatPrice(service.price)} {t.sum}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-[#088395]/10 flex items-center justify-center">
-                        <Plus size={16} className="text-[#088395]" />
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Plus size={16} className="text-primary" />
                       </div>
                     </div>
                   </button>

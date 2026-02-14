@@ -417,14 +417,14 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         {step === 'phone' && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-[#088395]/10 flex items-center justify-center">
-                <Phone size={20} className="text-[#088395]" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Phone size={20} className="text-primary" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900">{t.loginTitle}</h2>
             </div>
 
             <label className="block text-sm font-medium text-gray-700 mb-2">{t.phone}</label>
-            <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-[#088395] focus-within:ring-2 focus-within:ring-[#088395]/20 transition-all">
+            <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
               <span className="px-3 py-3 bg-gray-50 text-gray-500 font-medium text-sm border-r border-gray-300 select-none">
                 +998
               </span>
@@ -444,7 +444,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
             <button
               onClick={handleSendCode}
               disabled={phoneDigits.length !== 9 || loading}
-              className="w-full mt-5 py-3 rounded-xl text-white font-medium text-sm bg-[#088395] hover:bg-[#076e7d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-5 py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.sendCode}
@@ -456,8 +456,8 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         {step === 'otp' && (
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-full bg-[#088395]/10 flex items-center justify-center">
-                <Phone size={20} className="text-[#088395]" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Phone size={20} className="text-primary" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900">{t.enterCode}</h2>
             </div>
@@ -480,7 +480,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                   value={val}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-xl outline-none focus:border-[#088395] focus:ring-2 focus:ring-[#088395]/20 transition-all text-gray-900"
+                  className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900"
                   disabled={loading}
                 />
               ))}
@@ -497,7 +497,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 <button
                   onClick={handleResend}
                   disabled={loading}
-                  className="text-sm text-[#088395] hover:text-[#076e7d] font-medium transition-colors disabled:opacity-50"
+                  className="text-sm text-primary hover:text-primary/90 font-medium transition-colors disabled:opacity-50"
                 >
                   {t.resend}
                 </button>
@@ -511,7 +511,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 if (code.length === 5) doVerify(code)
               }}
               disabled={otpValues.some((v) => !v) || loading}
-              className="w-full py-3 rounded-xl text-white font-medium text-sm bg-[#088395] hover:bg-[#076e7d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.verify}
@@ -523,8 +523,8 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         {step === 'register' && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-[#088395]/10 flex items-center justify-center">
-                <User size={20} className="text-[#088395]" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <User size={20} className="text-primary" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900">{t.registerTitle}</h2>
             </div>
@@ -540,7 +540,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               }}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.firstName}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-[#088395] focus:ring-2 focus:ring-[#088395]/20 transition-all text-gray-900 placeholder-gray-400 mb-4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 placeholder-gray-400 mb-4"
               autoFocus
             />
 
@@ -552,13 +552,13 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               onChange={(e) => setLastName(e.target.value)}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.lastName}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-[#088395] focus:ring-2 focus:ring-[#088395]/20 transition-all text-gray-900 placeholder-gray-400 mb-1"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 placeholder-gray-400 mb-1"
             />
 
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full mt-4 py-3 rounded-xl text-white font-medium text-sm bg-[#088395] hover:bg-[#076e7d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.register}

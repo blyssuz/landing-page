@@ -30,17 +30,17 @@ const T = {
   },
 } as const
 
-async function getBusinessId(tenantSlug: string): Promise<string | null> {
+async function getBusinessInfo(tenantSlug: string): Promise<{ id: string | null; primaryColor: string | null }> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
     const response = await signedFetch(`${apiUrl}/public/businesses/${tenantSlug}/services`, {
       next: { revalidate: 60 },
     })
-    if (!response.ok) return null
+    if (!response.ok) return { id: null, primaryColor: null }
     const data = await response.json()
-    return data.business?.id || null
+    return { id: data.business?.id || null, primaryColor: data.business?.primary_color || null }
   } catch {
-    return null
+    return { id: null, primaryColor: null }
   }
 }
 
@@ -64,10 +64,11 @@ export default async function BookingsPage({
   }
   const user = 'user' in authResult ? authResult.user as { phone: string; first_name: string; last_name: string } : null
 
-  const [{ bookings: allBookings }, businessId] = await Promise.all([
+  const [{ bookings: allBookings }, businessInfo] = await Promise.all([
     getMyBookings(),
-    getBusinessId(tenantSlug),
+    getBusinessInfo(tenantSlug),
   ])
+  const { id: businessId, primaryColor } = businessInfo
 
   const tenantBookings = businessId
     ? allBookings.filter((b: { business_id: string }) => b.business_id === businessId)
@@ -75,7 +76,7 @@ export default async function BookingsPage({
   const otherCount = allBookings.length - tenantBookings.length
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
+    <div className="min-h-screen bg-white dark:bg-zinc-900" style={primaryColor ? { '--primary': primaryColor } as React.CSSProperties : undefined}>
       {/* Header */}
       <div className="sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg z-30 border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">

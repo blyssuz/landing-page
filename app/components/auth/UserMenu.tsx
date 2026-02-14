@@ -90,7 +90,7 @@ export function UserMenu({ locale, user: initialUser }: UserMenuProps) {
       <>
         <button
           onClick={() => setLoginModalOpen(true)}
-          className="px-4 py-2 rounded-full bg-[#088395] text-white text-sm font-semibold hover:bg-[#076e7d] transition-colors"
+          className="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
         >
           {t.signIn}
         </button>
@@ -112,7 +112,7 @@ export function UserMenu({ locale, user: initialUser }: UserMenuProps) {
         onClick={() => setDropdownOpen((prev) => !prev)}
         className="flex items-center gap-2 rounded-full px-1 py-1 pr-3 bg-white/90 backdrop-blur-sm shadow-sm hover:bg-white transition-colors cursor-pointer"
       >
-        <div className="w-8 h-8 rounded-full bg-[#088395] text-white flex items-center justify-center text-sm font-semibold">
+        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
           {getInitial(user)}
         </div>
         <span className="text-sm font-medium text-gray-800 max-w-[120px] truncate">

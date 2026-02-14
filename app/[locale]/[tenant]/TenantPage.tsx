@@ -75,6 +75,7 @@ interface Business {
     instagram?: string;
   };
   tagline?: string;
+  primary_color?: string | null;
 }
 
 interface SavedUser {
@@ -482,8 +483,10 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
     </div>
   );
 
+  const primaryColor = business.primary_color || '#088395';
+
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
+    <div className="min-h-screen bg-white dark:bg-zinc-900" style={{ '--primary': primaryColor } as React.CSSProperties}>
 
       {/* ===== COVER PHOTO ===== */}
       {hasCover ? (

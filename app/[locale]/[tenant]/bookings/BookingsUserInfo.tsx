@@ -26,9 +26,9 @@ export function BookingsUserInfo({ user, locale }: BookingsUserInfoProps) {
   }
 
   return (
-    <div className="flex items-center justify-between px-4 lg:px-5 py-3 lg:py-4">
+    <div className="flex items-center justify-between py-3 lg:py-4">
       <div className="flex items-center gap-3 lg:gap-4">
-        <div className="w-11 h-11 lg:w-14 lg:h-14 rounded-full bg-[#088395] text-white flex items-center justify-center text-base lg:text-xl font-bold">
+        <div className="w-11 h-11 lg:w-14 lg:h-14 rounded-full bg-primary text-white flex items-center justify-center text-base lg:text-xl font-bold">
           {initial}
         </div>
         <div>

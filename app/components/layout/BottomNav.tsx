@@ -34,15 +34,15 @@ export function BottomNav({ locale }: BottomNavProps) {
             <Link
               key={tab.key}
               href={tab.href}
-              className={`${tab.active ? 'bg-[#088395]/10' : ''} flex px-1 flex-col items-center gap-0.5 py-1 pb-0.5 min-w-0 w-full rounded-full`}
+              className={`${tab.active ? 'bg-primary/10' : ''} flex px-1 flex-col items-center gap-0.5 py-1 pb-0.5 min-w-0 w-full rounded-full`}
             >
               <Icon
                 size={22}
                 strokeWidth={tab.active ? 2.5 : 1.8}
-                className={tab.active ? 'text-[#088395]' : 'text-zinc-400'}
+                className={tab.active ? 'text-primary' : 'text-zinc-400'}
               />
               <span
-                className={`text-[11px] line-clamp-1 capitalize ${tab.active ? 'text-[#088395] font-bold' : 'font-medium text-zinc-400'}`}
+                className={`text-[11px] line-clamp-1 capitalize ${tab.active ? 'text-primary font-bold' : 'font-medium text-zinc-400'}`}
               >
                 {tab.label}
               </span>

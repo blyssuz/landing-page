@@ -62,8 +62,8 @@ export default async function Page({
 
   if (!tenant.isTenant || tenant.slug !== tenantSlug) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-zinc-500">Invalid tenant</p>
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-900">
+        <p className="text-zinc-500 dark:text-zinc-400">Invalid tenant</p>
       </div>
     )
   }
@@ -88,8 +88,8 @@ export default async function Page({
 
   if (selectedServices.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-zinc-500">No services selected.</p>
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-900">
+        <p className="text-zinc-500 dark:text-zinc-400">No services selected.</p>
       </div>
     )
   }
@@ -106,6 +106,7 @@ export default async function Page({
       tenantSlug={tenantSlug}
       locale={locale}
       savedUser={savedUser}
+      primaryColor={businessData.business.primary_color || undefined}
     />
   )
 }
