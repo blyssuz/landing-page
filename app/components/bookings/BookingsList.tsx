@@ -121,40 +121,42 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
           : null
 
         return (
-          <div key={booking.id} className={`p-4 rounded-xl bg-white dark:bg-zinc-800 border-4 border-zinc-200 dark:border-zinc-700 shadow-xs ${isCancelled ? 'opacity-50' : ''}`}>
+          <div key={booking.id} className={`p-3 lg:p-4 rounded-xl bg-white dark:bg-zinc-800 border-4 border-zinc-200 dark:border-zinc-700 shadow-xs ${isCancelled ? 'opacity-50' : ''}`}>
             {/* Date, time, status */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between mb-3 lg:mb-4">
+              <div className="flex items-center gap-3 lg:gap-4">
                 <div className="flex items-center gap-1.5">
-                  <Calendar size={18} className="text-zinc-400 dark:text-zinc-500" />
-                  <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{formatDate(booking.booking_date, locale)}</span>
+                  <Calendar size={16} className="lg:hidden text-zinc-400 dark:text-zinc-500" />
+                  <Calendar size={18} className="hidden lg:block text-zinc-400 dark:text-zinc-500" />
+                  <span className="text-sm lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">{formatDate(booking.booking_date, locale)}</span>
                 </div>
                 {timeRange && (
-                  <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{timeRange}</span>
+                  <span className="text-sm lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">{timeRange}</span>
                 )}
               </div>
               {isCancelled && (
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                <span className="px-2.5 lg:px-3 py-0.5 lg:py-1 rounded-full text-xs lg:text-sm font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                   {t.cancelled}
                 </span>
               )}
             </div>
 
             {showBusinessName && booking.business_name && (
-              <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
+              <p className="text-sm lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2 lg:mb-3">
                 {resolveText(booking.business_name as string | MultilingualText, locale)}
               </p>
             )}
 
             {/* Services */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 lg:space-y-2">
               {items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <ChevronRight size={18} className="text-zinc-300 dark:text-zinc-600 shrink-0" />
-                    <span className="text-lg text-zinc-700 dark:text-zinc-300 truncate">{resolveText(item.service_name, locale)}</span>
+                  <div className="flex items-center gap-1.5 lg:gap-2 min-w-0">
+                    <ChevronRight size={16} className="lg:hidden text-zinc-300 dark:text-zinc-600 shrink-0" />
+                    <ChevronRight size={18} className="hidden lg:block text-zinc-300 dark:text-zinc-600 shrink-0" />
+                    <span className="text-sm lg:text-lg text-zinc-700 dark:text-zinc-300 truncate">{resolveText(item.service_name, locale)}</span>
                   </div>
-                  <span className="text-base text-zinc-500 dark:text-zinc-400 shrink-0 ml-3">
+                  <span className="text-xs lg:text-base text-zinc-500 dark:text-zinc-400 shrink-0 ml-3">
                     {item.employee_name}
                   </span>
                 </div>
@@ -162,11 +164,11 @@ export function BookingsList({ bookings, locale, showBusinessName = false }: Boo
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-              <span className="text-base text-zinc-400 dark:text-zinc-500">
+            <div className="flex items-center justify-between mt-3 lg:mt-4 pt-2.5 lg:pt-3 border-t border-zinc-200 dark:border-zinc-700">
+              <span className="text-xs lg:text-base text-zinc-400 dark:text-zinc-500">
                 {booking.total_duration_minutes} {t.min}
               </span>
-              <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <span className="text-sm lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {formatPrice(booking.total_price)} {t.sum}
               </span>
             </div>

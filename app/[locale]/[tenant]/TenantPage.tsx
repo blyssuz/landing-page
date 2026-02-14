@@ -264,6 +264,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
 
   const galleryImages = allPhotos.map(p => p.url);
   const hasPhotos = galleryImages.length > 0;
+  const hasCover = !!(coverUrl || hasPhotos);
 
   // Filtered photos for gallery modal
   const filteredGalleryPhotos = galleryFilter === 'all'
@@ -484,134 +485,91 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-900">
 
-      {/* ===== GALLERY MOSAIC ===== */}
-      {hasPhotos ? (
-        <div className="relative">
-          {/* Mobile: Cover banner + thumbnail row */}
-          <div className="lg:hidden">
-            {/* Full-width cover banner */}
-            <div className="relative aspect-[16/7] bg-zinc-100 dark:bg-zinc-800" onClick={() => { setCurrentImageIndex(0); setShowGallery(true); }}>
-              <img
-                src={mosaicImages[0] || coverUrl || ''}
-                alt={business.name}
-                className="w-full h-full object-cover"
-              />
-              {/* Top actions mobile */}
-              <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                <LanguageSwitcher />
-              </div>
-            </div>
-            {/* Photo thumbnails row - square */}
-            {/* {mosaicImages.length > 1 && (
-              <div className="flex gap-1.5 px-3 mt-1.5">
-                {mosaicImages.slice(1, 5).map((img, idx) => (
-                  <div
-                    key={idx}
-                    className="relative w-[72px] h-[72px] cursor-pointer rounded-md overflow-hidden flex-shrink-0"
-                    onClick={() => { setCurrentImageIndex(idx + 1); setShowGallery(true); }}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                    {idx === mosaicImages.slice(1, 5).length - 1 && galleryImages.length > 5 && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <span className="text-white font-medium text-xs capitalize">{t.seeAllImages}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )} */}
+      {/* ===== COVER PHOTO ===== */}
+      {hasCover ? (
+        <div
+          className="relative h-[180px] lg:h-[300px] cursor-pointer overflow-hidden"
+          onClick={() => { setCurrentImageIndex(0); setShowGallery(true); }}
+        >
+          <img
+            src={coverUrl || mosaicImages[0] || ''}
+            alt={business.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between lg:hidden">
+            <LanguageSwitcher />
           </div>
-
-          {/* Desktop: Cover banner + photo row */}
-          <div className="hidden lg:block max-w-[1350px] mx-auto px-6 pt-4">
-            {/* Full-width cover banner */}
-            <div className="relative cursor-pointer group h-[300px] rounded-lg overflow-hidden" onClick={() => { setCurrentImageIndex(0); setShowGallery(true); }}>
-              <img src={mosaicImages[0] || coverUrl || ''} alt={business.name} className="w-full h-full object-cover group-hover:brightness-95 transition-all" />
-            </div>
-            {/* Photo thumbnails row below - square aspect ratio */}
-            {/* {mosaicImages.length > 1 && (
-              <div className="flex gap-3 mt-3">
-                {mosaicImages.slice(1, 5).map((img, idx) => (
-                  <div key={idx} className="relative w-[140px] h-[140px] cursor-pointer rounded-lg overflow-hidden flex-shrink-0" onClick={() => { setCurrentImageIndex(idx + 1); setShowGallery(true); }}>
-                    <img src={img} alt="" className="w-full h-full object-cover hover:brightness-95 transition-all" />
-                    {idx === mosaicImages.slice(1, 5).length - 1 && galleryImages.length > 5 && (
-                      <div className="absolute inset-0 flex items-end p-2 justify-end">
-                        <span className="text-zinc-900 font-medium text-xs bg-white px-3 py-2.5 rounded-xl capitalize">{t.seeAllImages}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )} */}
-            {/* Desktop top actions */}
-            <div className="absolute top-8 right-10 flex items-center gap-2">
-              <LanguageSwitcherDesktop />
-            </div>
+          <div className="absolute top-4 right-4 hidden lg:flex items-center gap-2">
+            <LanguageSwitcherDesktop />
           </div>
         </div>
       ) : (
-        /* No photos - show a minimal header with language toggle */
-        <div className="max-w-[1350px] mx-auto px-4 lg:px-6 flex justify-end gap-2 mb-2">
-          <LanguageSwitcherDesktop className="shadow-none " />
+        <div className="relative h-[120px] lg:h-[200px] bg-zinc-100 dark:bg-zinc-800">
+          <div className="absolute top-3 right-3 lg:top-4 lg:right-4">
+            <LanguageSwitcherDesktop className="shadow-none" />
+          </div>
         </div>
       )}
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* ===== MAIN CONTENT (grid starts right after cover) ===== */}
       <div className="max-w-[1350px] mx-auto px-4 lg:px-6 pb-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-5">
 
-          {/* ===== LEFT COLUMN: Services ===== */}
-          <div className="lg:col-span-2 pt-6">
+          {/* ===== LEFT COLUMN: Avatar + Info + Services ===== */}
+          <div className="lg:col-span-2">
 
+            {/* Avatar overlapping cover */}
+            <div className="-mt-14 lg:-mt-16 relative z-10">
+              <div
+                className={`w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-white dark:bg-zinc-900 bg-center bg-cover border-[3px] border-white dark:border-zinc-900 ${business.avatar_url ? '' : 'border border-zinc-200 dark:border-zinc-700'} overflow-hidden`}
+                style={business.avatar_url ? { backgroundImage: `url(${business.avatar_url})` } : undefined}
+              >
+                {!business.avatar_url && (
+                  <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+                    <User size={36} className="text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                )}
+              </div>
+            </div>
 
-            {/* Business Info Header */}
-            {/* Mobile: stacked layout with avatar overlapping cover */}
-            <div className="lg:hidden mb-4">
-              {business.avatar_url && (
-                <div className="-mt-8 mb-3 px-1">
-                  <img
-                    src={business.avatar_url}
-                    alt={business.name}
-                    className="w-16 h-16 rounded-xl object-cover border-2 border-white dark:border-zinc-900 shadow-sm"
-                  />
-                </div>
-              )}
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+            {/* Business name + meta */}
+            <div className="mt-3 mb-6">
+              <h1 className="text-2xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
                 {business.name}
               </h1>
               {(geoAddress || business.location?.address) && (
-                <p className="text-base text-zinc-500 dark:text-zinc-400 mt-1">
+                <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1">
                   {geoAddress || business.location?.address}
                 </p>
               )}
               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1.5">
                 {openStatus && closingTime ? (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
+                  <span className="text-sm lg:text-base font-medium text-green-600 dark:text-green-400">
                     {t.openUntil.replace('{{time}}', closingTime)}
                   </span>
                 ) : (
-                  <span className="text-base font-medium text-red-500 dark:text-red-400">{t.closedNow}</span>
+                  <span className="text-sm lg:text-base font-medium text-red-500 dark:text-red-400">{t.closedNow}</span>
                 )}
                 {distanceLoading && (
                   <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
+                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
                     <span className="inline-block w-24 h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
                   </>
                 )}
                 {distance && !distanceLoading && (
                   <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
-                    <span className="text-base text-zinc-500 dark:text-zinc-400">
+                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                    <span className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400">
                       {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
                     </span>
                   </>
                 )}
                 {distanceDenied && !distance && !distanceLoading && (
                   <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
+                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
                     <button
                       onClick={() => fetchDistance(true)}
-                      className="text-base text-primary hover:underline flex items-center gap-1"
+                      className="text-sm lg:text-base text-primary hover:underline flex items-center gap-1"
                     >
                       <MapPin size={14} />
                       {t.showDistance}
@@ -621,82 +579,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
               </div>
             </div>
 
-            {/* Desktop: side-by-side layout */}
-            <div className="hidden lg:flex mb-6 items-start gap-4">
-              {business.avatar_url && (
-                <img
-                  src={business.avatar_url}
-                  alt={business.name}
-                  className="w-24 h-24 rounded-lg object-cover flex-shrink-0 border border-zinc-200 dark:border-zinc-700"
-                />
-              )}
-              <div className="min-w-0">
-                <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
-                  {business.name}
-                </h1>
-
-                {(geoAddress || business.location?.address) && (
-                  <p className="text-base text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mt-1">
-                    {geoAddress || business.location?.address}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1">
-                {/* Rating */}
-                {/* <div className="flex items-center gap-1.5">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={18} className="text-yellow-500 fill-yellow-500" />
-                    ))}
-                  </div>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100 text-base">{business.rating || '5.0'}</span>
-                  <span className="text-base text-zinc-500 dark:text-zinc-400">({business.reviews_count || 248})</span>
-                </div> */}
-
-                {/* <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span> */}
-
-                {/* Open/Closed */}
-                {openStatus && closingTime ? (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
-                    {t.openUntil.replace('{{time}}', closingTime)}
-                  </span>
-                ) : (
-                  <span className="text-base font-medium text-red-500 dark:text-red-400">{t.closedNow}</span>
-                )}
-
-
-                {/* Distance */}
-                {distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
-                    <span className="inline-block w-24 h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
-                  </>
-                )}
-                {distance && !distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
-                    <span className="text-base text-zinc-500 dark:text-zinc-400">
-                      {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
-                    </span>
-                  </>
-                )}
-                {distanceDenied && !distance && !distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600 text-base">&middot;</span>
-                    <button
-                      onClick={() => fetchDistance(true)}
-                      className="text-base text-primary hover:underline flex items-center gap-1"
-                    >
-                      <MapPin size={14} />
-                      {t.showDistance}
-                    </button>
-                  </>
-                )}
-              </div>
-              </div>
-            </div>
-
-            <div className="pt-2 pb-4">
+            <div className="pb-4">
               <h2 className="text-xl lg:text-2xl font-bold text-zinc-900 dark:text-zinc-100">{t.services}</h2>
             </div>
 
@@ -804,7 +687,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
 
           {/* ===== RIGHT: SIDEBAR (Desktop) ===== */}
           <div className="hidden lg:block lg:col-span-1" ref={aboutRef}>
-            <div className="sticky top-[52px] space-y-5 pt-6">
+            <div className="sticky top-4 space-y-5 pt-6">
               {/* Map */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
                 <div className="aspect-[4/3] bg-zinc-100 dark:bg-zinc-800 relative">
