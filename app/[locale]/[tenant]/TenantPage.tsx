@@ -561,7 +561,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
                 </p>
               )}
               {(geoAddress || business.location?.address) && (
-                <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1">
+                <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1 capitalize">
                   {geoAddress || business.location?.address}
                 </p>
               )}
