@@ -7,6 +7,7 @@ import { GradientBlobs } from "../components/hero/GradientBlobs";
 import { ForBusinessSection } from "../components/business/ForBusinessSection";
 import { BrowseByCitySection } from "../components/browse/BrowseByCitySection";
 import { NearestBusinesses } from "../components/venues/NearestBusinesses";
+import { getAuthStatus } from './[tenant]/actions';
 
 const SITE_URL = 'https://blyss.uz';
 
@@ -122,6 +123,10 @@ export default async function Home({
 }) {
   const { locale: localeParam } = await params;
   const locale: Locale = isValidLocale(localeParam) ? localeParam : DEFAULT_LOCALE;
+  const authStatus = await getAuthStatus();
+  const user = (authStatus.authenticated && 'user' in authStatus && authStatus.user)
+    ? authStatus.user as { phone: string; first_name: string; last_name: string }
+    : null;
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-gray-950 text-black dark:text-gray-100 overflow-x-hidden">
@@ -133,7 +138,7 @@ export default async function Home({
       <GradientBlobs />
 
       <div className="relative z-[1]">
-        <Navbar />
+        <Navbar locale={locale} user={user} />
 
         <main>
           <HeroSection />
