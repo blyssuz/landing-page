@@ -108,7 +108,7 @@ export function NearestBusinesses() {
       <section className="w-full max-w-7xl mx-auto px-6 pb-10">
         <div className="h-7 w-48 bg-gray-200 dark:bg-gray-800 rounded mb-6 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
             <div key={i}>
               <div className="aspect-[3/2] rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse mb-3" />
               <div className="h-5 w-3/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-2" />
