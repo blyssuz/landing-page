@@ -7,6 +7,7 @@ import { GradientBlobs } from "../components/hero/GradientBlobs";
 import { ForBusinessSection } from "../components/business/ForBusinessSection";
 import { BrowseByCitySection } from "../components/browse/BrowseByCitySection";
 import { NearestBusinesses } from "../components/venues/NearestBusinesses";
+import { useLocation } from '@/lib/location-context';
 
 const SITE_URL = 'https://blyss.uz';
 
@@ -123,6 +124,8 @@ export default async function Home({
   const { locale: localeParam } = await params;
   const locale: Locale = isValidLocale(localeParam) ? localeParam : DEFAULT_LOCALE;
 
+
+  const location = useLocation()
   return (
     <div className="relative min-h-screen bg-white dark:bg-gray-950 text-black dark:text-gray-100 overflow-x-hidden">
       <script
@@ -139,6 +142,8 @@ export default async function Home({
           <HeroSection />
 
           <NearestBusinesses />
+
+          {JSON.stringify(location)}
 
           <ForBusinessSection />
 
