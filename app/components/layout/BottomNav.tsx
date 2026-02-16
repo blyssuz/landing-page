@@ -26,7 +26,7 @@ export function BottomNav({ locale }: BottomNavProps) {
   ];
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom,10px)] lg:hidden">
+    <div className="fixed bottom-4 left-0 right-0 z-40 lg:hidden">
       <div className="flex items-center justify-around gap-2 overflow-hidden p-1.5 bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm rounded-full w-[92%] mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
