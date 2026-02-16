@@ -125,6 +125,7 @@ const UI: Record<Locale, Record<string, string>> = {
     backToBusiness: 'Orqaga qaytish',
     viewBookings: 'Buyurtmalarim',
     addMoreServices: 'Xizmat qo\'shish',
+    noEmployeeForService: 'Bu xizmatni bajaradigan mutaxassis yo\'q',
   },
   ru: {
     bookAppointment: 'Записаться',
@@ -160,6 +161,7 @@ const UI: Record<Locale, Record<string, string>> = {
     backToBusiness: 'Вернуться',
     viewBookings: 'Мои записи',
     addMoreServices: 'Добавить услугу',
+    noEmployeeForService: 'Нет специалиста для этой услуги',
   },
 };
 
@@ -528,6 +530,17 @@ export function BookingPage({
         // Re-fetch employees
         const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime);
         if (empResult?.services) {
+          // Check if newly added service has any available employees
+          const newSvcData = empResult.services.find((s: ServiceSlotData) => s.service_id === serviceId);
+          if (!newSvcData?.employees || newSvcData.employees.length === 0) {
+            // Revert: remove the service and restore previous state
+            setSelectedServiceIds(selectedServiceIds);
+            const revertSlots = await getAvailableSlots(businessId, selectedDate, selectedServiceIds);
+            setAvailableSlots(revertSlots?.available_start_times || []);
+            setError(t.noEmployeeForService);
+            return;
+          }
+
           setServiceEmployees(empResult.services);
           const defaults: Record<string, string | null> = {};
           for (const svc of empResult.services) {
@@ -924,7 +937,7 @@ export function BookingPage({
                       {svcData && svcData.employees && svcData.employees.length > 1 && (
                         <button
                           onClick={() => openEmployeeSheet(serviceId)}
-                          className="text-xs font-medium text-primary"
+                          className="text-sm font-medium bg-red-400 dark:bg-zinc-800 border border-3 dark:border-zinc-700 py-2 px-3 rounded-lg"
                         >
                           {t.change}
                         </button>
@@ -1043,75 +1056,85 @@ export function BookingPage({
         </div>
       )}
 
-      {/* ===== EMPLOYEE SELECTION BOTTOM SHEET ===== */}
-      {showEmployeeSheet && editingServiceId && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 animate-fadeIn"
-          onClick={() => {
+      {/* ===== EMPLOYEE SELECTION RIGHT DRAWER ===== */}
+      <AnimatePresence>
+        {showEmployeeSheet && editingServiceId && (
+          <div className="fixed inset-0 z-50" onClick={() => {
             setShowEmployeeSheet(false);
             setEditingServiceId(null);
-          }}
-        >
-          <div
-            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 rounded-t-3xl max-h-[70vh] overflow-y-auto animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white dark:bg-zinc-900 px-4 pt-4 pb-2 border-b border-gray-100 dark:border-zinc-800">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-900 dark:text-zinc-100">{t.selectSpecialist}</h3>
-                <button
-                  onClick={() => {
-                    setShowEmployeeSheet(false);
-                    setEditingServiceId(null);
-                  }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
-                >
-                  <X size={18} className="text-gray-500 dark:text-zinc-400" />
-                </button>
+          }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black/50"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white dark:bg-zinc-900 z-10 px-5 pt-5 pb-3 border-b border-gray-100 dark:border-zinc-800">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-zinc-100">{t.selectSpecialist}</h3>
+                  <button
+                    onClick={() => {
+                      setShowEmployeeSheet(false);
+                      setEditingServiceId(null);
+                    }}
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
+                  >
+                    <X size={20} className="text-gray-500 dark:text-zinc-400" />
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="p-4 space-y-2 pb-8">
-              {(() => {
-                const svcData = serviceEmployees.find(s => s.service_id === editingServiceId);
-                if (!svcData?.employees) return null;
+              <div className="p-5 space-y-2">
+                {(() => {
+                  const svcData = serviceEmployees.find(s => s.service_id === editingServiceId);
+                  if (!svcData?.employees) return null;
 
-                return svcData.employees.map(emp => {
-                  const isSelected = selectedEmployees[editingServiceId] === emp.id;
-                  const empName =
-                    [emp.first_name, emp.last_name].filter(Boolean).join(' ') || t.anySpecialist;
-                  return (
-                    <button
-                      key={emp.id}
-                      onClick={() => selectEmployee(editingServiceId, emp.id)}
-                      className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${isSelected
-                        ? 'border-2 border-primary bg-primary/5'
-                        : 'border border-gray-200 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
-                          <User size={18} className="text-gray-500 dark:text-zinc-400" />
+                  return svcData.employees.map(emp => {
+                    const isSelected = selectedEmployees[editingServiceId] === emp.id;
+                    const empName =
+                      [emp.first_name, emp.last_name].filter(Boolean).join(' ') || t.anySpecialist;
+                    return (
+                      <button
+                        key={emp.id}
+                        onClick={() => selectEmployee(editingServiceId, emp.id)}
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${isSelected
+                          ? 'border-2 border-primary bg-primary/5'
+                          : 'border border-gray-200 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
+                            <User size={18} className="text-gray-500 dark:text-zinc-400" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">{empName}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">{formatDuration(emp.duration_minutes)}</p>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">{empName}</p>
-                          <p className="text-xs text-gray-500 dark:text-zinc-400">{formatDuration(emp.duration_minutes)}</p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
+                            {formatPrice(emp.price)} {t.sum}
+                          </span>
+                          {isSelected && <Check size={18} className="text-primary" />}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
-                          {formatPrice(emp.price)} {t.sum}
-                        </span>
-                        {isSelected && <Check size={18} className="text-primary" />}
-                      </div>
-                    </button>
-                  );
-                });
-              })()}
-            </div>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
 
       {/* ===== ADD SERVICE RIGHT DRAWER ===== */}
