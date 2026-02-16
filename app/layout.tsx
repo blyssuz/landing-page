@@ -123,7 +123,7 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var p=new URLSearchParams(window.location.search).get('colorScheme');var s=p==='light'||p==='dark'?p:window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-color-scheme',s)}catch(e){}})()` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var p=new URLSearchParams(window.location.search).get('colorScheme');if(p==='light'||p==='dark'){sessionStorage.setItem('colorScheme',p)}var st=sessionStorage.getItem('colorScheme');var s=p==='light'||p==='dark'?p:st==='light'||st==='dark'?st:window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-color-scheme',s)}catch(e){}})()` }} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
