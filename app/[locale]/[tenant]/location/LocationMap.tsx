@@ -94,7 +94,7 @@ export function LocationMap({ locale, businessName, address, lat, lng, primaryCo
         href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute z-[1000] right-4 flex items-center gap-2 px-4 py-2.5 rounded-full text-white text-sm font-semibold shadow-lg"
+        className="absolute z-[1000] left-4 flex items-center gap-2 px-4 py-2.5 rounded-full text-white text-sm font-semibold shadow-lg"
         style={{ bottom: '88px', backgroundColor: primaryColor || '#088395' }}
       >
         <Navigation size={16} />
