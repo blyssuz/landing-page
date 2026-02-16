@@ -2,16 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, CalendarCheck } from 'lucide-react';
+import { Home, CalendarCheck, MapPin } from 'lucide-react';
 import type { Locale } from '@/lib/i18n';
 
 interface BottomNavProps {
   locale: Locale;
 }
 
-const T: Record<Locale, { home: string; bookings: string }> = {
-  uz: { home: 'Asosiy', bookings: 'Bronlarim' },
-  ru: { home: 'Главная', bookings: 'Записи' },
+const T: Record<Locale, { home: string; bookings: string; location: string }> = {
+  uz: { home: 'Asosiy', bookings: 'Bronlarim', location: 'Joylashuv' },
+  ru: { home: 'Главная', bookings: 'Записи', location: 'Локация' },
 };
 
 export function BottomNav({ locale }: BottomNavProps) {
@@ -19,9 +19,11 @@ export function BottomNav({ locale }: BottomNavProps) {
   const t = T[locale];
 
   const isBookings = pathname.endsWith('/bookings');
+  const isLocation = pathname.endsWith('/location');
 
   const tabs = [
-    { key: 'home', label: t.home, icon: Home, href: `/${locale}`, active: !isBookings },
+    { key: 'home', label: t.home, icon: Home, href: `/${locale}`, active: !isBookings && !isLocation },
+    { key: 'location', label: t.location, icon: MapPin, href: `/${locale}/location`, active: isLocation },
     { key: 'bookings', label: t.bookings, icon: CalendarCheck, href: `/${locale}/bookings`, active: isBookings },
   ];
 

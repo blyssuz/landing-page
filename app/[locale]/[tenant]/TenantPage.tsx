@@ -238,7 +238,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   const [geoAddress, setGeoAddress] = useState<string | null>(null);
   const [bookingServiceId, setBookingServiceId] = useState<string | null>(null);
   const [navigatingToBookings, setNavigatingToBookings] = useState(false);
-  const locationRetries = useRef(0);
+
 
 
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -246,6 +246,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
 
   const DISTANCE_CACHE_KEY = `distance_${business.tenant_url}`;
   const ADDRESS_CACHE_KEY = `address_v2_${business.tenant_url}_${locale}`;
+  const LOCATION_DENIED_KEY = 'blyss_location_denied';
   const CACHE_TTL = 24 * 60 * 60 * 1000;
 
   // Build gallery images from photos + cover
@@ -309,7 +310,6 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          locationRetries.current = 0;
           const slug = business.tenant_url.replace(/\.blyss\.uz$/, '');
           const data = await getDistance(
             slug,
@@ -330,11 +330,9 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
       () => {
         setDistanceLoading(false);
         setDistanceDenied(true);
+        try { sessionStorage.setItem(LOCATION_DENIED_KEY, '1'); } catch { /* ignore */ }
         if (isManual) {
-          locationRetries.current += 1;
-          if (locationRetries.current >= 1) {
-            setShowLocationModal(true);
-          }
+          setShowLocationModal(true);
         }
       }
     );
@@ -346,6 +344,13 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
       setDistance(cached);
       return;
     }
+    // Don't auto-request if user already denied location this session
+    try {
+      if (sessionStorage.getItem(LOCATION_DENIED_KEY)) {
+        setDistanceDenied(true);
+        return;
+      }
+    } catch { /* ignore */ }
     fetchDistance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [business.location, business.tenant_url]);
