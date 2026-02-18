@@ -75,6 +75,79 @@ const translations = {
       uz: '',
     },
   },
+  review: {
+    title: {
+      ru: 'Оцените визит',
+      uz: 'Tashrifni baholang',
+    },
+    subtitle: {
+      ru: 'Оцените каждую услугу',
+      uz: 'Har bir xizmatni baholang',
+    },
+    employee: {
+      ru: 'Мастер',
+      uz: 'Usta',
+    },
+    comment: {
+      ru: 'Комментарий (необязательно)',
+      uz: 'Izoh (ixtiyoriy)',
+    },
+    commentPlaceholder: {
+      ru: 'Расскажите о вашем визите...',
+      uz: 'Tashrifingiz haqida yozing...',
+    },
+    submit: {
+      ru: 'Отправить',
+      uz: 'Yuborish',
+    },
+    submitting: {
+      ru: 'Отправка...',
+      uz: 'Yuborilmoqda...',
+    },
+    success: {
+      ru: 'Спасибо за отзыв!',
+      uz: 'Fikringiz uchun rahmat!',
+    },
+    successMessage: {
+      ru: 'Ваша оценка помогает нам становиться лучше',
+      uz: 'Bahoyingiz bizga yaxshilanishga yordam beradi',
+    },
+    expired: {
+      ru: 'Срок ссылки истёк',
+      uz: 'Havola muddati tugagan',
+    },
+    expiredMessage: {
+      ru: 'Эта ссылка для отзыва больше не действительна',
+      uz: 'Bu baho havolasi endi amal qilmaydi',
+    },
+    notFound: {
+      ru: 'Отзыв не найден',
+      uz: 'Baho topilmadi',
+    },
+    notFoundMessage: {
+      ru: 'Ссылка недействительна или была удалена',
+      uz: 'Havola noto\'g\'ri yoki o\'chirilgan',
+    },
+    alreadySubmitted: {
+      ru: 'Отзыв уже отправлен',
+      uz: 'Baho allaqachon yuborilgan',
+    },
+    alreadySubmittedMessage: {
+      ru: 'Вы уже оценили этот визит. Спасибо!',
+      uz: 'Siz bu tashrifni allaqachon baholdingiz. Rahmat!',
+    },
+    rateAll: {
+      ru: 'Оцените все услуги для отправки',
+      uz: 'Yuborish uchun barcha xizmatlarni baholang',
+    },
+    stars: {
+      1: { ru: 'Плохо', uz: 'Yomon' },
+      2: { ru: 'Ниже среднего', uz: 'O\'rtadan past' },
+      3: { ru: 'Нормально', uz: 'O\'rtacha' },
+      4: { ru: 'Хорошо', uz: 'Yaxshi' },
+      5: { ru: 'Отлично', uz: 'A\'lo' },
+    },
+  },
 } as const
 
 export default translations
