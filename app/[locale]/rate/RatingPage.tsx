@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Clock, User, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
+import { Star, Clock, User, CheckCircle, AlertCircle, XCircle, ArrowLeft } from 'lucide-react'
 import type { Locale } from '@/lib/i18n'
 import translations from '@/lib/translations'
 import { submitReview } from './actions'
@@ -91,7 +91,7 @@ function formatDate(dateStr: string, locale: Locale) {
 }
 
 function formatPrice(price: number) {
-  return price.toLocaleString('uz-UZ')
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
 export default function RatingPage({ locale, initialState, review, token }: Props) {
@@ -136,6 +136,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         icon={<XCircle size={48} className="text-gray-400" />}
         title={t.notFound[locale]}
         message={t.notFoundMessage[locale]}
+        locale={locale}
       />
     )
   }
@@ -146,6 +147,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         icon={<AlertCircle size={48} className="text-amber-400" />}
         title={t.expired[locale]}
         message={t.expiredMessage[locale]}
+        locale={locale}
       />
     )
   }
@@ -156,6 +158,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         icon={<CheckCircle size={48} className="text-green-500" />}
         title={t.alreadySubmitted[locale]}
         message={t.alreadySubmittedMessage[locale]}
+        locale={locale}
       />
     )
   }
@@ -166,6 +169,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         icon={<CheckCircle size={48} className="text-green-500" />}
         title={t.success[locale]}
         message={t.successMessage[locale]}
+        locale={locale}
       />
     )
   }
@@ -176,6 +180,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-lg px-4 py-8">
+        
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-foreground">{review.business_name}</h1>
@@ -196,21 +201,6 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
                 <h3 className="text-lg font-semibold text-foreground">
                   {item.service_name[locale]}
                 </h3>
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="inline-flex items-center gap-1">
-                    <User size={14} />
-                    {item.employee_name}
-                  </span>
-                  {item.start_time && (
-                    <span className="inline-flex items-center gap-1">
-                      <Clock size={14} />
-                      {item.start_time}
-                    </span>
-                  )}
-                  {item.price > 0 && (
-                    <span>{formatPrice(item.price)} UZS</span>
-                  )}
-                </div>
               </div>
               <InteractiveStars
                 rating={ratings[item.booking_item_id] || 0}
@@ -265,17 +255,27 @@ function StatusScreen({
   icon,
   title,
   message,
+  locale,
 }: {
   icon: React.ReactNode
   title: string
   message: string
+  locale: Locale
 }) {
+  const t = translations.review
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="text-center animate-fadeInUp">
         <div className="mb-4 flex justify-center">{icon}</div>
         <h1 className="text-xl font-bold text-foreground">{title}</h1>
         <p className="mt-2 text-gray-500 dark:text-gray-400">{message}</p>
+        <a
+          href={`/${locale}`}
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+        >
+          <ArrowLeft size={16} />
+          {t.backToHome[locale]}
+        </a>
       </div>
     </div>
   )

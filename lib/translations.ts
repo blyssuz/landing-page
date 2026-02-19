@@ -140,6 +140,10 @@ const translations = {
       ru: 'Оцените все услуги для отправки',
       uz: 'Yuborish uchun barcha xizmatlarni baholang',
     },
+    backToHome: {
+      ru: 'На главную',
+      uz: 'Bosh sahifaga',
+    },
     stars: {
       1: { ru: 'Плохо', uz: 'Yomon' },
       2: { ru: 'Ниже среднего', uz: 'O\'rtadan past' },
