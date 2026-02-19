@@ -53,7 +53,8 @@ export default async function TenantRatePage({
   const review = result.data!
 
   // Validate token belongs to this tenant
-  if (review.tenant_url && review.tenant_url !== tenant) {
+  const reviewSlug = review.tenant_url?.replace('.blyss.uz', '') || null
+  if (reviewSlug && reviewSlug !== tenant) {
     return <RatingPage locale={locale as Locale} initialState="not_found" review={null} token={token} />
   }
 
