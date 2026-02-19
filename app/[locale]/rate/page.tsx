@@ -59,6 +59,7 @@ export default async function RatePage({
       initialState={initialState as 'form' | 'already_submitted'}
       review={review}
       token={token}
+      primaryColor={review.primary_color}
     />
   )
 }

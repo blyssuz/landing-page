@@ -25,7 +25,7 @@ export default async function TenantRatePage({
   params: Promise<{ locale: string; tenant: string }>
   searchParams: Promise<{ token?: string }>
 }) {
-  const { locale } = await params
+  const { locale, tenant } = await params
   const { token } = await searchParams
 
   if (!isValidLocale(locale)) {
@@ -51,6 +51,12 @@ export default async function TenantRatePage({
   }
 
   const review = result.data!
+
+  // Validate token belongs to this tenant
+  if (review.tenant_url && review.tenant_url !== tenant) {
+    return <RatingPage locale={locale as Locale} initialState="not_found" review={null} token={token} />
+  }
+
   const initialState = review.status === 'submitted' ? 'already_submitted' : 'form'
 
   return (
@@ -59,6 +65,7 @@ export default async function TenantRatePage({
       initialState={initialState as 'form' | 'already_submitted'}
       review={review}
       token={token}
+      primaryColor={review.primary_color}
     />
   )
 }

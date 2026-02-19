@@ -32,6 +32,7 @@ interface Props {
   initialState: PageState
   review: ReviewData | null
   token: string
+  primaryColor?: string | null
 }
 
 function InteractiveStars({
@@ -94,13 +95,14 @@ function formatPrice(price: number) {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-export default function RatingPage({ locale, initialState, review, token }: Props) {
+export default function RatingPage({ locale, initialState, review, token, primaryColor }: Props) {
   const t = translations.review
   const [state, setState] = useState<PageState>(initialState)
   const [ratings, setRatings] = useState<Record<string, number>>({})
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const colorStyle = primaryColor ? { '--primary': primaryColor } as React.CSSProperties : undefined
 
   const allRated = review ? review.items.every((item) => ratings[item.booking_item_id] > 0) : false
 
@@ -137,6 +139,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         title={t.notFound[locale]}
         message={t.notFoundMessage[locale]}
         locale={locale}
+        colorStyle={colorStyle}
       />
     )
   }
@@ -148,6 +151,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         title={t.expired[locale]}
         message={t.expiredMessage[locale]}
         locale={locale}
+        colorStyle={colorStyle}
       />
     )
   }
@@ -159,6 +163,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         title={t.alreadySubmitted[locale]}
         message={t.alreadySubmittedMessage[locale]}
         locale={locale}
+        colorStyle={colorStyle}
       />
     )
   }
@@ -170,6 +175,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
         title={t.success[locale]}
         message={t.successMessage[locale]}
         locale={locale}
+        colorStyle={colorStyle}
       />
     )
   }
@@ -178,7 +184,7 @@ export default function RatingPage({ locale, initialState, review, token }: Prop
   if (!review) return null
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={colorStyle}>
       <div className="mx-auto max-w-lg px-4 py-8">
         
         {/* Header */}
@@ -256,15 +262,17 @@ function StatusScreen({
   title,
   message,
   locale,
+  colorStyle,
 }: {
   icon: React.ReactNode
   title: string
   message: string
   locale: Locale
+  colorStyle?: React.CSSProperties
 }) {
   const t = translations.review
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4" style={colorStyle}>
       <div className="text-center animate-fadeInUp">
         <div className="mb-4 flex justify-center">{icon}</div>
         <h1 className="text-xl font-bold text-foreground">{title}</h1>
