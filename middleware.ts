@@ -15,6 +15,12 @@ export function middleware(request: NextRequest) {
   const subdomain = getSubdomain(hostWithoutPort)
   const pathname = url.pathname
 
+  // Skip locale redirect for Instagram OAuth callback (must match exact redirect URI)
+  if (pathname === '/instagram/callback') {
+    url.pathname = `/${DEFAULT_LOCALE}/instagram/callback`
+    return NextResponse.rewrite(url)
+  }
+
   // Extract path segments
   const segments = pathname.split('/').filter(Boolean)
   const firstSegment = segments[0] || ''
