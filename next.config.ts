@@ -24,10 +24,6 @@ const nextConfig: NextConfig = {
             value: 'nosniff',
           },
           {
-            key: 'X-Frame-Options',
-            value: 'ALLOW-FROM https://blyss.uz',
-          },
-          {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
@@ -41,7 +37,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://api.blyss.uz https://www.googleapis.com",
               "frame-src https://www.google.com",
-              "frame-ancestors 'self' https://*.blyss.uz https://blyss.uz",
+              "frame-ancestors 'self' https://*.blyss.uz https://blyss.uz https://web.telegram.org https://*.telegram.org",
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),
