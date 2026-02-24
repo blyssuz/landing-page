@@ -350,7 +350,19 @@ export function BookingPage({
   const getServicePrice = (serviceId: string) => {
     const svcData = serviceEmployees.find(s => s.service_id === serviceId);
     const emp = svcData?.employees?.find(e => e.id === selectedEmployees[serviceId]);
-    if (emp) return emp.price;
+    if (emp) {
+      if (emp.final_price != null && emp.final_price < (emp.original_price ?? emp.price)) {
+        return emp.final_price;
+      }
+      return emp.price;
+    }
+    return allServices.find(s => s.id === serviceId)?.price ?? 0;
+  };
+
+  const getServiceOriginalPrice = (serviceId: string) => {
+    const svcData = serviceEmployees.find(s => s.service_id === serviceId);
+    const emp = svcData?.employees?.find(e => e.id === selectedEmployees[serviceId]);
+    if (emp) return emp.original_price ?? emp.price;
     return allServices.find(s => s.id === serviceId)?.price ?? 0;
   };
 
@@ -362,6 +374,8 @@ export function BookingPage({
   };
 
   const totalPrice = selectedServiceIds.reduce((sum, sid) => sum + getServicePrice(sid), 0);
+  const totalOriginalPrice = selectedServiceIds.reduce((sum, sid) => sum + getServiceOriginalPrice(sid), 0);
+  const hasDiscount = totalOriginalPrice > totalPrice;
 
   // ─── Lock body scroll when sheets or modals are open ───
 
@@ -1016,9 +1030,20 @@ export function BookingPage({
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
             <div>
               <p className="text-sm lg:text-base text-gray-500 dark:text-zinc-400">{t.total}</p>
-              <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100">
-                {formatPrice(totalPrice)} {t.sum}
-              </p>
+              {hasDiscount ? (
+                <div>
+                  <p className="text-xl lg:text-2xl font-bold text-green-600 dark:text-green-400">
+                    {formatPrice(totalPrice)} {t.sum}
+                  </p>
+                  <p className="text-xs lg:text-sm text-gray-400 line-through">
+                    {formatPrice(totalOriginalPrice)} {t.sum}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100">
+                  {formatPrice(totalPrice)} {t.sum}
+                </p>
+              )}
             </div>
             <button
               onClick={handleConfirmBooking}
