@@ -133,7 +133,8 @@ export async function getSlotEmployees(
   date: string,
   serviceIds: string[],
   startTime: number,
-  employeeId?: string
+  employeeId?: string,
+  customerPhone?: string
 ) {
   try {
     const params = new URLSearchParams({
@@ -142,6 +143,7 @@ export async function getSlotEmployees(
       start_time: startTime.toString(),
     })
     if (employeeId) params.set('employee_id', employeeId)
+    if (customerPhone) params.set('customer_phone', customerPhone)
 
     const safeId = validateSlug(businessId)
     const response = await signedFetch(

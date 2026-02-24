@@ -418,7 +418,7 @@ export function BookingPage({
             setSelectedTime(saved.selectedTime);
 
             // Re-fetch employees
-            const empResult = await getSlotEmployees(businessId, saved.selectedDate, validServiceIds, saved.selectedTime);
+            const empResult = await getSlotEmployees(businessId, saved.selectedDate, validServiceIds, saved.selectedTime, undefined, savedUser?.phone);
             if (empResult?.services) {
               setServiceEmployees(empResult.services);
               // Restore employee selections, fall back to first available
@@ -498,7 +498,7 @@ export function BookingPage({
     setLoading(true);
 
     try {
-      const result = await getSlotEmployees(businessId, selectedDate, selectedServiceIds, time);
+      const result = await getSlotEmployees(businessId, selectedDate, selectedServiceIds, time, undefined, savedUser?.phone);
       if (result?.services) {
         setServiceEmployees(result.services);
         const defaults: Record<string, string | null> = {};
@@ -541,7 +541,7 @@ export function BookingPage({
         setSelectedEmployees({});
       } else if (selectedTime !== null) {
         // Re-fetch employees
-        const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime);
+        const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime, undefined, savedUser?.phone);
         if (empResult?.services) {
           // Check if newly added service has any available employees
           const newSvcData = empResult.services.find((s: ServiceSlotData) => s.service_id === serviceId);
@@ -603,7 +603,7 @@ export function BookingPage({
           setServiceEmployees([]);
           setSelectedEmployees({});
         } else {
-          const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime);
+          const empResult = await getSlotEmployees(businessId, selectedDate, newIds, selectedTime, undefined, savedUser?.phone);
           if (empResult?.services) {
             setServiceEmployees(empResult.services);
           }
