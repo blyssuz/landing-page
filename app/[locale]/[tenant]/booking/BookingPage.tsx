@@ -305,6 +305,7 @@ export function BookingPage({
 
   const [selectedDate, setSelectedDate] = useState('');
   const [availableSlots, setAvailableSlots] = useState<number[]>([]);
+  const [discountSlots, setDiscountSlots] = useState<Set<number>>(new Set());
   const [selectedTime, setSelectedTime] = useState<number | null>(null);
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(services.map(s => s.id));
   const [serviceEmployees, setServiceEmployees] = useState<ServiceSlotData[]>([]);
@@ -410,6 +411,7 @@ export function BookingPage({
           const slotsResult = await getAvailableSlots(businessId, saved.selectedDate, validServiceIds);
           const slots = slotsResult?.available_start_times || [];
           setAvailableSlots(slots);
+          setDiscountSlots(new Set(slotsResult?.slots_with_discounts || []));
 
           // Validate saved time is still available
           if (saved.selectedTime !== null && slots.includes(saved.selectedTime)) {
@@ -471,6 +473,7 @@ export function BookingPage({
     setServiceEmployees([]);
     setSelectedEmployees({});
     setAvailableSlots([]);
+    setDiscountSlots(new Set());
     setError('');
     setSlotsLoading(true);
 
@@ -478,6 +481,7 @@ export function BookingPage({
       const result = await getAvailableSlots(businessId, dateStr, selectedServiceIds);
       if (result?.available_start_times) {
         setAvailableSlots(result.available_start_times);
+        setDiscountSlots(new Set(result.slots_with_discounts || []));
       }
     } catch {
       setError(t.errorOccurred);
@@ -528,6 +532,7 @@ export function BookingPage({
       const slotsResult = await getAvailableSlots(businessId, selectedDate, newIds);
       const newSlots = slotsResult?.available_start_times || [];
       setAvailableSlots(newSlots);
+      setDiscountSlots(new Set(slotsResult?.slots_with_discounts || []));
 
       // If selected time is no longer valid, clear it
       if (selectedTime !== null && !newSlots.includes(selectedTime)) {
@@ -545,6 +550,7 @@ export function BookingPage({
             setSelectedServiceIds(selectedServiceIds);
             const revertSlots = await getAvailableSlots(businessId, selectedDate, selectedServiceIds);
             setAvailableSlots(revertSlots?.available_start_times || []);
+            setDiscountSlots(new Set(revertSlots?.slots_with_discounts || []));
             setError(t.noEmployeeForService);
             return;
           }
@@ -590,6 +596,7 @@ export function BookingPage({
         const slotsResult = await getAvailableSlots(businessId, selectedDate, newIds);
         const newSlots = slotsResult?.available_start_times || [];
         setAvailableSlots(newSlots);
+        setDiscountSlots(new Set(slotsResult?.slots_with_discounts || []));
 
         if (!newSlots.includes(selectedTime)) {
           setSelectedTime(null);
@@ -842,16 +849,22 @@ export function BookingPage({
                 <div key={hour} className="grid grid-cols-4 gap-2">
                   {slots.map(time => {
                     const isSelected = selectedTime === time;
+                    const hasDiscount = discountSlots.has(time);
                     return (
                       <button
                         key={time}
                         onClick={() => handleTimeSelect(time)}
-                        className={`py-3 rounded-xl text-sm lg:text-base font-medium transition-all ${isSelected
+                        className={`relative py-3 rounded-xl text-sm lg:text-base font-medium transition-all ${isSelected
                           ? 'bg-primary text-white'
-                          : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
+                          : hasDiscount
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-900 dark:text-zinc-100 ring-1 ring-emerald-200 dark:ring-emerald-800'
+                            : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
                           }`}
                       >
                         {secondsToTime(time)}
+                        {hasDiscount && !isSelected && (
+                          <span className="absolute -top-1 -right-1 text-[10px] bg-emerald-500 text-white px-1 rounded-full leading-tight font-semibold">%</span>
+                        )}
                       </button>
                     );
                   })}
