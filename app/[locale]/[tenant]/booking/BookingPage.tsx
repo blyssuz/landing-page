@@ -59,6 +59,14 @@ interface SlotEmployee {
   last_name: string;
   price: number;
   duration_minutes: number;
+  original_price?: number;
+  final_price?: number;
+  discount?: {
+    name: string;
+    discount_type: string;
+    discount_value: number;
+    source: string;
+  };
 }
 
 interface ServiceSlotData {
@@ -907,9 +915,20 @@ export function BookingPage({
                           </div>
 
                           <div className='flex flex-col text-end'>
-                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5">
-                              {formatPrice(price)}
-                            </h4>
+                            {selectedEmp?.final_price != null && selectedEmp.final_price < (selectedEmp.original_price ?? selectedEmp.price) ? (
+                              <>
+                                <span className="text-xs lg:text-sm text-gray-400 line-through">
+                                  {formatPrice(selectedEmp.original_price ?? selectedEmp.price)}
+                                </span>
+                                <h4 className="text-base lg:text-lg font-semibold text-green-600 dark:text-green-400 -mb-0.5">
+                                  {formatPrice(selectedEmp.final_price)}
+                                </h4>
+                              </>
+                            ) : (
+                              <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5">
+                                {formatPrice(price)}
+                              </h4>
+                            )}
                             <span className='text-sm lg:text-base'>{t.sum}</span>
                           </div>
                         </div>
@@ -1121,9 +1140,16 @@ export function BookingPage({
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
-                            {formatPrice(emp.price)} {t.sum}
-                          </span>
+                          {emp.final_price != null && emp.final_price < (emp.original_price ?? emp.price) ? (
+                            <span className="text-sm font-medium">
+                              <span className="text-gray-400 line-through mr-1">{formatPrice(emp.original_price ?? emp.price)}</span>
+                              <span className="text-green-600 dark:text-green-400">{formatPrice(emp.final_price)} {t.sum}</span>
+                            </span>
+                          ) : (
+                            <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
+                              {formatPrice(emp.price)} {t.sum}
+                            </span>
+                          )}
                           {isSelected && <Check size={18} className="text-primary" />}
                         </div>
                       </button>
