@@ -856,15 +856,16 @@ export function BookingPage({
                         onClick={() => handleTimeSelect(time)}
                         className={`relative py-3 rounded-xl text-sm lg:text-base font-medium transition-all ${isSelected
                           ? 'bg-primary text-white'
-                          : hasDiscount
-                            ? 'bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-900 dark:text-zinc-100 ring-1 ring-emerald-200 dark:ring-emerald-800'
-                            : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
+                          : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
                           }`}
                       >
-                        {secondsToTime(time)}
-                        {hasDiscount && !isSelected && (
+                        <span>
+                          {secondsToTime(time)}
+                        </span>
+                        {hasDiscount && <div className={`${isSelected ? 'bg-white' : 'bg-primary'} h-1 rounded-xl w-[25%] mx-auto mt-1`} />}
+                        {/* {hasDiscount && !isSelected && (
                           <span className="absolute -top-1 -right-1 text-[10px] bg-emerald-500 text-white px-1 rounded-full leading-tight font-semibold">%</span>
-                        )}
+                        )} */}
                       </button>
                     );
                   })}
@@ -898,86 +899,86 @@ export function BookingPage({
               {(() => {
                 let timeOffset = 0;
                 return selectedServiceIds.map(serviceId => {
-                const service = allServices.find(s => s.id === serviceId);
-                if (!service) return null;
+                  const service = allServices.find(s => s.id === serviceId);
+                  if (!service) return null;
 
-                const svcData = serviceEmployees.find(s => s.service_id === serviceId);
-                const selectedEmpId = selectedEmployees[serviceId];
-                const selectedEmp = svcData?.employees?.find(e => e.id === selectedEmpId);
-                const empName = selectedEmp
-                  ? [selectedEmp.first_name, selectedEmp.last_name].filter(Boolean).join(' ')
-                  : t.anySpecialist;
-                const price = selectedEmp?.price ?? service.price;
-                const duration = selectedEmp?.duration_minutes ?? service.duration_minutes;
+                  const svcData = serviceEmployees.find(s => s.service_id === serviceId);
+                  const selectedEmpId = selectedEmployees[serviceId];
+                  const selectedEmp = svcData?.employees?.find(e => e.id === selectedEmpId);
+                  const empName = selectedEmp
+                    ? [selectedEmp.first_name, selectedEmp.last_name].filter(Boolean).join(' ')
+                    : t.anySpecialist;
+                  const price = selectedEmp?.price ?? service.price;
+                  const duration = selectedEmp?.duration_minutes ?? service.duration_minutes;
 
-                const startSeconds = (selectedTime ?? 0) + timeOffset;
-                const endSeconds = startSeconds + duration * 60;
-                timeOffset += duration * 60;
+                  const startSeconds = (selectedTime ?? 0) + timeOffset;
+                  const endSeconds = startSeconds + duration * 60;
+                  timeOffset += duration * 60;
 
-                return (
-                  <div key={serviceId} className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
+                  return (
+                    <div key={serviceId} className="bg-gray-50 dark:bg-zinc-800 rounded-2xl p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
 
-                        <div className='flex justify-between'>
-                          <div className='flex flex-col text-start'>
-                            <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5 line-clamp-1">
-                              {getText(service.name)}
-                            </h4>
-                            <span className='text-sm lg:text-base text-gray-500 dark:text-zinc-400'>{secondsToTime(startSeconds)} - {secondsToTime(endSeconds)}</span>
-                          </div>
-
-                          <div className='flex flex-col text-end'>
-                            {selectedEmp?.final_price != null && selectedEmp.final_price < (selectedEmp.original_price ?? selectedEmp.price) ? (
-                              <>
-                                <span className="text-xs lg:text-sm text-gray-400 line-through">
-                                  {formatPrice(selectedEmp.original_price ?? selectedEmp.price)}
-                                </span>
-                                <h4 className="text-base lg:text-lg font-semibold text-green-600 dark:text-green-400 -mb-0.5">
-                                  {formatPrice(selectedEmp.final_price)}
-                                </h4>
-                              </>
-                            ) : (
-                              <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5">
-                                {formatPrice(price)}
+                          <div className='flex justify-between'>
+                            <div className='flex flex-col text-start'>
+                              <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5 line-clamp-1">
+                                {getText(service.name)}
                               </h4>
-                            )}
-                            <span className='text-sm lg:text-base'>{t.sum}</span>
+                              <span className='text-sm lg:text-base text-gray-500 dark:text-zinc-400'>{secondsToTime(startSeconds)} - {secondsToTime(endSeconds)}</span>
+                            </div>
+
+                            <div className='flex flex-col text-end'>
+                              {selectedEmp?.final_price != null && selectedEmp.final_price < (selectedEmp.original_price ?? selectedEmp.price) ? (
+                                <>
+                                  <h4 className="text-base lg:text-lg font-semibold text-green-600 dark:text-green-400 -mb-0.5">
+                                    {formatPrice(selectedEmp.final_price)}
+                                  </h4>
+                                  <span className="text-xs lg:text-sm text-gray-400 line-through">
+                                    {formatPrice(selectedEmp.original_price ?? selectedEmp.price)}
+                                  </span>
+                                </>
+                              ) : (
+                                <h4 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-zinc-100 -mb-0.5">
+                                  {formatPrice(price)}
+                                </h4>
+                              )}
+                              <span className='text-sm lg:text-base'>{t.sum}</span>
+                            </div>
                           </div>
-                        </div>
 
-                      </div>
-                      {selectedServiceIds.length > 1 && (
-                        <button
-                          onClick={() => handleRemoveService(serviceId)}
-                          className="p-1.5 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Employee row */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
-                          <User size={18} className="lg:hidden text-gray-500 dark:text-zinc-400" />
-                          <User size={22} className="hidden lg:block text-gray-500 dark:text-zinc-400" />
                         </div>
-                        <span className="text-sm lg:text-base text-gray-700 dark:text-zinc-300">{empName}</span>
+                        {selectedServiceIds.length > 1 && (
+                          <button
+                            onClick={() => handleRemoveService(serviceId)}
+                            className="p-1.5 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
-                      {svcData && svcData.employees && svcData.employees.length > 1 && (
-                        <button
-                          onClick={() => openEmployeeSheet(serviceId)}
-                          className="text-sm font-medium bg-red-400 dark:bg-zinc-800 border border-3 dark:border-zinc-700 py-2 px-3 rounded-lg"
-                        >
-                          {t.change}
-                        </button>
-                      )}
+
+                      {/* Employee row */}
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center">
+                            <User size={18} className="lg:hidden text-gray-500 dark:text-zinc-400" />
+                            <User size={22} className="hidden lg:block text-gray-500 dark:text-zinc-400" />
+                          </div>
+                          <span className="text-sm lg:text-base text-gray-700 dark:text-zinc-300">{empName}</span>
+                        </div>
+                        {svcData && svcData.employees && svcData.employees.length > 1 && (
+                          <button
+                            onClick={() => openEmployeeSheet(serviceId)}
+                            className="text-sm font-medium bg-red-400 dark:bg-zinc-800 border border-3 dark:border-zinc-700 py-2 px-3 rounded-lg"
+                          >
+                            {t.change}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              });
+                  );
+                });
               })()}
 
               {/* Add service button */}
