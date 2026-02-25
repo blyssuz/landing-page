@@ -6,6 +6,7 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
 export async function POST(req: NextRequest) {
   try {
     const { lat, lng, page } = await req.json();
+    console.log('visit:', { lat, lng, page });
 
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
