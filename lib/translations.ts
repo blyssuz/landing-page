@@ -67,8 +67,8 @@ const translations = {
   },
   browse: {
     title: {
-      ru: 'Поиск по городам',
-      uz: 'Shaharlar bo\'yicha qidirish',
+      ru: 'Поиск по регионам',
+      uz: 'Hududlar bo\'yicha qidirish',
     },
     inCity: {
       ru: 'в',

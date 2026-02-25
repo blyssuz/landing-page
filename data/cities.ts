@@ -1,395 +1,94 @@
 export interface ServiceLink {
-  name: string;
+  name: { ru: string; uz: string };
   slug: string;
 }
 
-export interface City {
-  name: string;
+export interface Region {
+  id: string;
+  name: { ru: string; uz: string };
   services: ServiceLink[];
 }
 
-export interface CountryCities {
-  [country: string]: City[];
-}
+const S = {
+  hairSalons: { name: { ru: 'Салоны красоты', uz: "Go'zallik salonlari" }, slug: 'hair-salons' },
+  barbers: { name: { ru: 'Барбершопы', uz: 'Sartaroshxonalar' }, slug: 'barbers' },
+  nailSalons: { name: { ru: 'Маникюр и педикюр', uz: 'Manikur va pedikur' }, slug: 'nail-salons' },
+  spas: { name: { ru: 'СПА', uz: 'SPA' }, slug: 'spas' },
+  massage: { name: { ru: 'Массаж', uz: 'Massaj' }, slug: 'massage' },
+  skincare: { name: { ru: 'Косметология', uz: 'Kosmetologiya' }, slug: 'skincare' },
+  makeup: { name: { ru: 'Визажисты', uz: 'Vizajistlar' }, slug: 'makeup' },
+  eyelash: { name: { ru: 'Наращивание ресниц', uz: "Kiprik qo'yish" }, slug: 'eyelash' },
+} as const;
 
-export const citiesByCountry: CountryCities = {
-  "Australia": [
-    {
-      name: "Sydney",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Melbourne",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Brisbane",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Waxing", slug: "waxing" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Perth",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Eyelash Extensions", slug: "eyelash-extensions" }
-      ]
-    },
-    {
-      name: "Adelaide",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Gold Coast",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Canberra",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" }
-      ]
-    }
-  ],
-  "Canada": [
-    {
-      name: "Toronto",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Vancouver",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Montreal",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Waxing", slug: "waxing" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Calgary",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Eyelash Extensions", slug: "eyelash-extensions" }
-      ]
-    },
-    {
-      name: "Ottawa",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Edmonton",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Winnipeg",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" }
-      ]
-    },
-    {
-      name: "Halifax",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" }
-      ]
-    }
-  ],
-  "United Kingdom": [
-    {
-      name: "London",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Manchester",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Birmingham",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Waxing", slug: "waxing" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Leeds",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Eyelash Extensions", slug: "eyelash-extensions" }
-      ]
-    },
-    {
-      name: "Glasgow",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Edinburgh",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Bristol",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" }
-      ]
-    },
-    {
-      name: "Liverpool",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" }
-      ]
-    }
-  ],
-  "United States": [
-    {
-      name: "New York",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Los Angeles",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Chicago",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Houston",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Waxing", slug: "waxing" }
-      ]
-    },
-    {
-      name: "Phoenix",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "San Francisco",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Eyelash Extensions", slug: "eyelash-extensions" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Miami",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Seattle",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Denver",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" }
-      ]
-    }
-  ],
-  "United Arab Emirates": [
-    {
-      name: "Dubai",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Spas", slug: "spas" },
-        { name: "Makeup Artists", slug: "makeup-artists" }
-      ]
-    },
-    {
-      name: "Abu Dhabi",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Sharjah",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Waxing", slug: "waxing" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    },
-    {
-      name: "Ajman",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Eyelash Extensions", slug: "eyelash-extensions" }
-      ]
-    },
-    {
-      name: "Ras Al Khaimah",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Barbers", slug: "barbers" },
-        { name: "Skincare", slug: "skincare" },
-        { name: "Massage Therapy", slug: "massage-therapy" }
-      ]
-    },
-    {
-      name: "Fujairah",
-      services: [
-        { name: "Hair Salons", slug: "hair-salons" },
-        { name: "Nail Salons", slug: "nail-salons" },
-        { name: "Spas", slug: "spas" },
-        { name: "Beauty Therapists", slug: "beauty-therapists" }
-      ]
-    }
-  ]
-};
+export const regions: Region[] = [
+  {
+    id: 'tashkent_city',
+    name: { ru: 'Ташкент', uz: 'Toshkent' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.spas, S.skincare],
+  },
+  {
+    id: 'tashkent_region',
+    name: { ru: 'Ташкентская область', uz: 'Toshkent viloyati' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.massage],
+  },
+  {
+    id: 'samarkand',
+    name: { ru: 'Самарканд', uz: 'Samarqand' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.spas, S.skincare],
+  },
+  {
+    id: 'bukhara',
+    name: { ru: 'Бухара', uz: 'Buxoro' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.massage],
+  },
+  {
+    id: 'fergana',
+    name: { ru: 'Фергана', uz: "Farg'ona" },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.spas],
+  },
+  {
+    id: 'andijan',
+    name: { ru: 'Андижан', uz: 'Andijon' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.massage],
+  },
+  {
+    id: 'namangan',
+    name: { ru: 'Наманган', uz: 'Namangan' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.skincare],
+  },
+  {
+    id: 'kashkadarya',
+    name: { ru: 'Кашкадарья', uz: 'Qashqadaryo' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.massage],
+  },
+  {
+    id: 'surkhandarya',
+    name: { ru: 'Сурхандарья', uz: 'Surxondaryo' },
+    services: [S.hairSalons, S.barbers, S.nailSalons],
+  },
+  {
+    id: 'khorezm',
+    name: { ru: 'Хорезм', uz: 'Xorazm' },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.massage],
+  },
+  {
+    id: 'navoi',
+    name: { ru: 'Навои', uz: 'Navoiy' },
+    services: [S.hairSalons, S.barbers, S.nailSalons],
+  },
+  {
+    id: 'jizzakh',
+    name: { ru: 'Джизак', uz: 'Jizzax' },
+    services: [S.hairSalons, S.barbers, S.nailSalons],
+  },
+  {
+    id: 'syrdarya',
+    name: { ru: 'Сырдарья', uz: 'Sirdaryo' },
+    services: [S.hairSalons, S.barbers, S.nailSalons],
+  },
+  {
+    id: 'karakalpakstan',
+    name: { ru: 'Каракалпакстан', uz: "Qoraqalpog'iston" },
+    services: [S.hairSalons, S.barbers, S.nailSalons, S.spas],
+  },
+];

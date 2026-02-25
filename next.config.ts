@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://api.blyss.uz https://www.googleapis.com",
               "frame-src https://www.google.com",
-              "frame-ancestors 'self' https://*.blyss.uz https://blyss.uz https://web.telegram.org https://*.telegram.org",
+              "frame-ancestors *",
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),
