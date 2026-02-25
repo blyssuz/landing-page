@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 const GOOGLE_GEOLOCATION_API_KEY = 'AIzaSyAJGY6AKA5S0eJQsPJCU0BqAanlhgpvJU0'
 const STORAGE_KEY = 'blyss_location'
+const VISIT_SENT_KEY = 'blyss_visit_sent'
 const TASHKENT_CENTER: UserLocation = { lat: 41.2995, lng: 69.2401 }
 const MAX_AGE_MS = 60 * 60 * 1000 // 1 hour
 
@@ -57,6 +58,18 @@ async function fetchGoogleGeolocation(): Promise<UserLocation | null> {
   return null
 }
 
+function reportVisit(loc: UserLocation) {
+  try {
+    if (sessionStorage.getItem(VISIT_SENT_KEY)) return
+    sessionStorage.setItem(VISIT_SENT_KEY, '1')
+    fetch('/api/visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: loc.lat, lng: loc.lng, page: window.location.pathname }),
+    }).catch(() => {})
+  } catch { /* ignore */ }
+}
+
 export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useState<UserLocation | null>(null)
 
@@ -64,6 +77,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     const cached = getCached()
     if (cached) {
       setLocation(cached)
+      reportVisit(cached)
       return
     }
 
@@ -71,6 +85,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       const resolved = loc ?? TASHKENT_CENTER
       setCache(resolved)
       setLocation(resolved)
+      reportVisit(resolved)
     })
   }, [])
 
