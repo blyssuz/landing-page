@@ -18,13 +18,20 @@ export function BottomNav({ locale }: BottomNavProps) {
   const pathname = usePathname();
   const t = T[locale];
 
+  // Extract tenant slug from pathname: /locale/tenant/... or /locale/b/slug/...
+  const segments = pathname.split('/').filter(Boolean);
+  const isBRoute = segments[1] === 'b';
+  const basePath = isBRoute
+    ? `/${locale}/b/${segments[2] || ''}`
+    : `/${locale}/${segments[1] || ''}`;
+
   const isBookings = pathname.endsWith('/bookings');
   const isLocation = pathname.endsWith('/location');
 
   const tabs = [
-    { key: 'home', label: t.home, icon: Home, href: `/${locale}`, active: !isBookings && !isLocation },
-    { key: 'location', label: t.location, icon: MapPin, href: `/${locale}/location`, active: isLocation },
-    { key: 'bookings', label: t.bookings, icon: CalendarCheck, href: `/${locale}/bookings`, active: isBookings },
+    { key: 'home', label: t.home, icon: Home, href: basePath, active: !isBookings && !isLocation },
+    { key: 'location', label: t.location, icon: MapPin, href: `${basePath}/location`, active: isLocation },
+    { key: 'bookings', label: t.bookings, icon: CalendarCheck, href: `${basePath}/bookings`, active: isBookings },
   ];
 
   return (
