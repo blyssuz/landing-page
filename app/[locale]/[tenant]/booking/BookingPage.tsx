@@ -134,6 +134,9 @@ const UI: Record<Locale, Record<string, string>> = {
     viewBookings: 'Buyurtmalarim',
     addMoreServices: 'Xizmat qo\'shish',
     noEmployeeForService: 'Bu xizmatni bajaradigan mutaxassis yo\'q',
+    morning: 'Ertalab',
+    afternoon: 'Kunduzi',
+    evening: 'Kechqurun',
   },
   ru: {
     bookAppointment: 'Записаться',
@@ -170,6 +173,9 @@ const UI: Record<Locale, Record<string, string>> = {
     viewBookings: 'Мои записи',
     addMoreServices: 'Добавить услугу',
     noEmployeeForService: 'Нет специалиста для этой услуги',
+    morning: 'Утро',
+    afternoon: 'День',
+    evening: 'Вечер',
   },
 };
 
@@ -316,6 +322,7 @@ export function BookingPage({
   const [error, setError] = useState('');
   const [errorCode, setErrorCode] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [timeTab, setTimeTab] = useState<'morning' | 'afternoon' | 'evening'>('morning');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEmployeeSheet, setShowEmployeeSheet] = useState(false);
   const [showAddServiceSheet, setShowAddServiceSheet] = useState(false);
@@ -396,7 +403,7 @@ export function BookingPage({
       if (validServiceIds.length === 0) {
         clearBookingState(businessId);
         const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
+        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
         return;
       }
 
@@ -411,7 +418,7 @@ export function BookingPage({
         clearBookingState(businessId);
         setSelectedServiceIds(validServiceIds);
         const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
+        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
         return;
       }
 
@@ -454,7 +461,7 @@ export function BookingPage({
     } else {
       // No saved state — auto-select first available date
       const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-      if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
+      if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -481,7 +488,7 @@ export function BookingPage({
 
   // ─── Handlers ───
 
-  const handleDateSelect = async (dateStr: string) => {
+  const handleDateSelect = async (dateStr: string, { scroll = true }: { scroll?: boolean } = {}) => {
     setSelectedDate(dateStr);
     setSelectedTime(null);
     setServiceEmployees([]);
@@ -494,8 +501,13 @@ export function BookingPage({
     try {
       const result = await getAvailableSlots(businessId, dateStr, selectedServiceIds);
       if (result?.available_start_times) {
-        setAvailableSlots(result.available_start_times);
+        const slots = result.available_start_times;
+        setAvailableSlots(slots);
         setDiscountSlots(new Set(result.slots_with_discounts || []));
+        // Auto-select first tab that has slots
+        if (slots.some((s: number) => s < 43200)) setTimeTab('morning');
+        else if (slots.some((s: number) => s >= 43200 && s < 61200)) setTimeTab('afternoon');
+        else if (slots.some((s: number) => s >= 61200)) setTimeTab('evening');
       }
     } catch {
       setError(t.errorOccurred);
@@ -503,7 +515,7 @@ export function BookingPage({
       setSlotsLoading(false);
     }
 
-    scrollToSection(timeSectionRef);
+    if (scroll) scrollToSection(timeSectionRef);
   };
 
   const handleTimeSelect = async (time: number) => {
@@ -835,7 +847,7 @@ export function BookingPage({
 
       {/* ===== TIME SLOTS SECTION ===== */}
       {selectedDate && (
-        <section ref={timeSectionRef} className="max-w-2xl mx-auto px-4 pt-8">
+        <section ref={timeSectionRef} className="max-w-2xl mx-auto px-4 pt-8 scroll-mt-20">
           <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-3">
             {t.selectTime}
           </h2>
@@ -850,18 +862,39 @@ export function BookingPage({
               <Clock size={60} className="hidden lg:block mx-auto text-gray-300 dark:text-zinc-600 mb-4" />
               <p className="text-gray-500 dark:text-zinc-400 text-sm lg:text-base">{t.noSlots}</p>
             </div>
-          ) : (
-            <div className="space-y-3 py-2">
-              {Object.entries(
-                availableSlots.reduce<Record<number, number[]>>((acc, time) => {
-                  const hour = Math.floor(time / 3600);
-                  if (!acc[hour]) acc[hour] = [];
-                  acc[hour].push(time);
-                  return acc;
-                }, {})
-              ).map(([hour, slots]) => (
-                <div key={hour} className="grid grid-cols-4 gap-2">
-                  {slots.map(time => {
+          ) : (() => {
+            const morningSlots = availableSlots.filter(s => s < 43200);
+            const afternoonSlots = availableSlots.filter(s => s >= 43200 && s < 61200);
+            const eveningSlots = availableSlots.filter(s => s >= 61200);
+            const tabs = [
+              { key: 'morning' as const, label: t.morning, slots: morningSlots },
+              { key: 'afternoon' as const, label: t.afternoon, slots: afternoonSlots },
+              { key: 'evening' as const, label: t.evening, slots: eveningSlots },
+            ].filter(tab => tab.slots.length > 0);
+            const activeTab = tabs.find(tab => tab.key === timeTab) || tabs[0];
+
+            return (
+              <div>
+                {/* Tabs */}
+                <div className="flex gap-2 mb-4">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setTimeTab(tab.key)}
+                      className={`flex-1 py-2.5 rounded-xl text-sm lg:text-base font-medium transition-all ${
+                        activeTab.key === tab.key
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Slots grid */}
+                <div className="grid grid-cols-4 gap-2">
+                  {activeTab.slots.map(time => {
                     const isSelected = selectedTime === time;
                     const hasDiscount = discountSlots.has(time);
                     return (
@@ -873,26 +906,21 @@ export function BookingPage({
                           : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-zinc-100'
                           }`}
                       >
-                        <span>
-                          {secondsToTime(time)}
-                        </span>
+                        <span>{secondsToTime(time)}</span>
                         {hasDiscount && <div className={`${isSelected ? 'bg-white' : 'bg-primary'} h-1 rounded-xl w-[25%] mx-auto mt-1`} />}
-                        {/* {hasDiscount && !isSelected && (
-                          <span className="absolute -top-1 -right-1 text-[10px] bg-emerald-500 text-white px-1 rounded-full leading-tight font-semibold">%</span>
-                        )} */}
                       </button>
                     );
                   })}
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </section>
       )}
 
       {/* ===== SELECTED SERVICES SECTION ===== */}
       {selectedTime !== null && (
-        <section ref={servicesSectionRef} className="max-w-2xl mx-auto px-4 pt-8">
+        <section ref={servicesSectionRef} className="max-w-2xl mx-auto px-4 pt-8 scroll-mt-20">
 
           <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-3">
             {t.yourServices}
@@ -1205,7 +1233,7 @@ export function BookingPage({
       {/* ===== ADD SERVICE RIGHT DRAWER ===== */}
       <AnimatePresence>
         {showAddServiceSheet && (
-          <div className="fixed inset-0 z-50" onClick={() => setShowAddServiceSheet(false)}>
+          <div className="fixed inset-0 z-50 lg:flex lg:items-center lg:justify-center" onClick={() => setShowAddServiceSheet(false)}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1213,12 +1241,13 @@ export function BookingPage({
               transition={{ duration: 0.2 }}
               className="absolute inset-0 bg-black/50"
             />
+            {/* Mobile: slide-in from right */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto"
+              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto lg:hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white dark:bg-zinc-900 z-10 px-5 pt-5 pb-3 border-b border-gray-100 dark:border-zinc-800">
@@ -1248,6 +1277,52 @@ export function BookingPage({
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm lg:text-base font-medium text-gray-900 dark:text-zinc-100">
+                        {formatPrice(service.price)} {t.sum}
+                      </span>
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Plus size={16} className="text-primary" />
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+            {/* Desktop: centered modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative hidden lg:block w-full max-w-lg max-h-[80vh] bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white dark:bg-zinc-900 z-10 px-5 pt-5 pb-3 border-b border-gray-100 dark:border-zinc-800 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-zinc-100">{t.addMoreServices}</h3>
+                  <button
+                    onClick={() => setShowAddServiceSheet(false)}
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
+                  >
+                    <X size={20} className="text-gray-500 dark:text-zinc-400" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-5 divide-y divide-gray-200 dark:divide-zinc-700">
+                {remainingServices.map(service => (
+                  <button
+                    key={service.id}
+                    onClick={() => handleAddService(service.id)}
+                    className="w-full flex items-center justify-between transition-all py-3 first:pt-0 last:pb-0 hover:bg-gray-50 dark:hover:bg-zinc-800/50 -mx-2 px-2 rounded-lg"
+                  >
+                    <div className="text-left flex-1">
+                      <p className="text-base font-medium text-gray-900 dark:text-zinc-100">{getText(service.name)}</p>
+                      <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
+                        {formatDuration(service.duration_minutes)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-base font-medium text-gray-900 dark:text-zinc-100">
                         {formatPrice(service.price)} {t.sum}
                       </span>
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">

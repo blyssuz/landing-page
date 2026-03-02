@@ -57,6 +57,21 @@ interface Photo {
   order: number;
 }
 
+interface ReviewStats {
+  average_rating: number;
+  total_reviews: number;
+  rating_distribution: Record<number, number>;
+}
+
+interface Review {
+  id: string;
+  customer_name: string;
+  comment: string;
+  submitted_at: string;
+  rating: number | null;
+  services: { service_name: MultilingualText | string; employee_name: string }[];
+}
+
 interface Business {
   name: string;
   bio?: string;
@@ -71,8 +86,7 @@ interface Business {
   tenant_url: string;
   avatar_url?: string | null;
   cover_url?: string | null;
-  rating?: number;
-  reviews_count?: number;
+  review_stats?: ReviewStats | null;
   social_media?: {
     instagram?: string;
   };
@@ -91,6 +105,7 @@ interface TenantPageProps {
   services: Service[];
   employees: Employee[];
   photos: Photo[];
+  reviews: Review[];
   tenantSlug: string;
   businessId: string;
   locale: Locale;
@@ -171,6 +186,10 @@ const UI_TEXT: Record<Locale, Record<string, string>> = {
     specialists: 'Mutaxassislar',
     noSpecialists: 'Mutaxassislar mavjud emas',
     myBookings: 'Mening bronlarim',
+    reviewsTitle: 'Sharhlar',
+    noReviews: 'Hali sharhlar yo\'q',
+    showAllReviews: 'Barcha sharhlarni ko\'rish',
+    reviewCount: 'ta sharh',
   },
   ru: {
     openUntil: 'Открыто до {{time}}',
@@ -215,6 +234,10 @@ const UI_TEXT: Record<Locale, Record<string, string>> = {
     specialists: 'Специалисты',
     noSpecialists: 'Специалисты отсутствуют',
     myBookings: 'Мои записи',
+    reviewsTitle: 'Отзывы',
+    noReviews: 'Пока нет отзывов',
+    showAllReviews: 'Показать все отзывы',
+    reviewCount: 'отзывов',
   },
 };
 
@@ -223,7 +246,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
   ru: 'RU',
 };
 
-export function TenantPage({ business, services, employees, photos, tenantSlug, businessId, locale, savedUser }: TenantPageProps) {
+export function TenantPage({ business, services, employees, photos, reviews, tenantSlug, businessId, locale, savedUser }: TenantPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
@@ -238,6 +261,7 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   const [geoAddress, setGeoAddress] = useState<string | null>(null);
   const [bookingServiceId, setBookingServiceId] = useState<string | null>(null);
   const [navigatingToBookings, setNavigatingToBookings] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
 
 
@@ -508,8 +532,8 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-900" style={{ '--primary': primaryColor } as React.CSSProperties}>
 
-      {/* ===== COVER PHOTO ===== */}
-      {hasCover ? (
+      {/* ===== COVER PHOTO (only when available) ===== */}
+      {hasCover && (
         <div
           className="relative h-[180px] lg:h-[300px] cursor-pointer overflow-hidden"
           onClick={() => { setCurrentImageIndex(0); setShowGallery(true); }}
@@ -526,93 +550,191 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
             <LanguageSwitcherDesktop />
           </div>
         </div>
-      ) : (
-        <div className="relative h-[120px] lg:h-[200px]" style={{ backgroundColor: primaryColor }}>
-          <div className="absolute top-3 right-3 lg:top-4 lg:right-4">
-            <LanguageSwitcherDesktop className="shadow-none" />
+      )}
+
+      {/* ===== NO COVER: Profile header ===== */}
+      {!hasCover && (
+        <div className="border-b border-zinc-200 dark:border-zinc-800">
+          <div className="max-w-[1350px] mx-auto px-4 lg:px-6">
+            {/* Language switcher row */}
+            <div className="flex items-center justify-end pt-3 pb-2 lg:pt-4 lg:pb-3">
+              <div className="lg:hidden">
+                <LanguageSwitcher />
+              </div>
+              <div className="hidden lg:block">
+                <LanguageSwitcherDesktop />
+              </div>
+            </div>
+
+            {/* Profile card */}
+            <div className="flex items-start gap-4 lg:gap-6 pb-5 lg:pb-7">
+              <div
+                className={`w-[72px] h-[72px] lg:w-[104px] lg:h-[104px] rounded-full bg-white dark:bg-zinc-900 bg-center bg-cover flex-shrink-0 ${business.avatar_url ? 'ring-2 ring-zinc-100 dark:ring-zinc-800' : ''} overflow-hidden`}
+                style={business.avatar_url ? { backgroundImage: `url(${business.avatar_url})` } : undefined}
+              >
+                {!business.avatar_url && (
+                  <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 ring-2 ring-zinc-200 dark:ring-zinc-700 rounded-full">
+                    <User size={28} className="text-zinc-400 dark:text-zinc-500 lg:hidden" />
+                    <User size={36} className="text-zinc-400 dark:text-zinc-500 hidden lg:block" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0 pt-0.5 lg:pt-1">
+                <h1 className="text-xl lg:text-3xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+                  {business.name}
+                </h1>
+                {business.review_stats && business.review_stats.total_reviews > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Star size={14} className="fill-amber-400 text-amber-400" />
+                    <span className="text-sm lg:text-base font-semibold text-zinc-900 dark:text-zinc-100">{business.review_stats.average_rating}</span>
+                    <span className="text-sm lg:text-base text-zinc-400 dark:text-zinc-500">({business.review_stats.total_reviews} {t.reviewCount})</span>
+                  </div>
+                )}
+                {business.bio && (
+                  <p className="text-sm lg:text-base text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2">
+                    {business.bio}
+                  </p>
+                )}
+                {(geoAddress || business.location?.address) && (
+                  <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1.5 capitalize flex items-center gap-1">
+                    <MapPin size={14} className="shrink-0" />
+                    <span className="line-clamp-1">{geoAddress || business.location?.address}</span>
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1.5">
+                  {openStatus && closingTime ? (
+                    <span className="text-sm lg:text-base font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                      <Clock size={14} className="shrink-0" />
+                      {t.openUntil.replace('{{time}}', closingTime)}
+                    </span>
+                  ) : (
+                    <span className="text-sm lg:text-base font-medium text-red-500 dark:text-red-400 flex items-center gap-1">
+                      <Clock size={14} className="shrink-0" />
+                      {t.closedNow}
+                    </span>
+                  )}
+                  {distanceLoading && (
+                    <>
+                      <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                      <span className="inline-block w-24 h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </>
+                  )}
+                  {distance && !distanceLoading && (
+                    <>
+                      <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                      <span className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400">
+                        {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
+                      </span>
+                    </>
+                  )}
+                  {distanceDenied && !distance && !distanceLoading && (
+                    <>
+                      <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                      <button
+                        onClick={() => fetchDistance(true)}
+                        className="text-sm lg:text-base text-primary hover:underline flex items-center gap-1"
+                      >
+                        <MapPin size={14} />
+                        {t.showDistance}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ===== MAIN CONTENT (grid starts right after cover) ===== */}
+      {/* ===== MAIN CONTENT ===== */}
       <div className="max-w-[1350px] mx-auto px-4 lg:px-6 pb-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-5">
 
           {/* ===== LEFT COLUMN: Avatar + Info + Services ===== */}
           <div className="lg:col-span-2">
 
-            {/* Avatar overlapping cover */}
-            <div className="-mt-14 lg:-mt-16 relative z-10">
-              <div
-                className={`w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-white dark:bg-zinc-900 bg-center bg-cover border-[3px] border-white dark:border-zinc-900 ${business.avatar_url ? '' : 'border border-zinc-200 dark:border-zinc-700'} overflow-hidden`}
-                style={business.avatar_url ? { backgroundImage: `url(${business.avatar_url})` } : undefined}
-              >
-                {!business.avatar_url && (
-                  <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
-                    <User size={36} className="text-zinc-400 dark:text-zinc-500" />
+            {/* Avatar + info (only when cover exists — overlapping style) */}
+            {hasCover && (
+              <>
+                <div className="-mt-14 lg:-mt-16 relative z-10">
+                  <div
+                    className={`w-28 h-28 lg:w-32 lg:h-32 rounded-full bg-white dark:bg-zinc-900 bg-center bg-cover border-[3px] border-white dark:border-zinc-900 ${business.avatar_url ? '' : 'border border-zinc-200 dark:border-zinc-700'} overflow-hidden`}
+                    style={business.avatar_url ? { backgroundImage: `url(${business.avatar_url})` } : undefined}
+                  >
+                    {!business.avatar_url && (
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+                        <User size={36} className="text-zinc-400 dark:text-zinc-500" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
 
-            {/* Business name + meta */}
-            <div className="mt-3 mb-6">
-              <h1 className="text-2xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
-                {business.name}
-              </h1>
-              {business.bio && (
-                <p className="text-sm lg:text-base text-zinc-600 dark:text-zinc-400 mt-1">
-                  {business.bio}
-                </p>
-              )}
-              {(geoAddress || business.location?.address) && (
-                <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1 capitalize flex items-center gap-1">
-                  <MapPin size={14} className="shrink-0" />
-                  {geoAddress || business.location?.address}
-                </p>
-              )}
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1.5">
-                {openStatus && closingTime ? (
-                  <span className="text-sm lg:text-base font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
-                    <Clock size={14} className="shrink-0" />
-                    {t.openUntil.replace('{{time}}', closingTime)}
-                  </span>
-                ) : (
-                  <span className="text-sm lg:text-base font-medium text-red-500 dark:text-red-400 flex items-center gap-1">
-                    <Clock size={14} className="shrink-0" />
-                    {t.closedNow}
-                  </span>
-                )}
-                {distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
-                    <span className="inline-block w-24 h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
-                  </>
-                )}
-                {distance && !distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
-                    <span className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400">
-                      {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
-                    </span>
-                  </>
-                )}
-                {distanceDenied && !distance && !distanceLoading && (
-                  <>
-                    <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
-                    <button
-                      onClick={() => fetchDistance(true)}
-                      className="text-sm lg:text-base text-primary hover:underline flex items-center gap-1"
-                    >
-                      <MapPin size={14} />
-                      {t.showDistance}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+                <div className="mt-3 mb-6">
+                  <h1 className="text-2xl lg:text-4xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+                    {business.name}
+                  </h1>
+                  {business.review_stats && business.review_stats.total_reviews > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Star size={14} className="fill-amber-400 text-amber-400" />
+                      <span className="text-sm lg:text-base font-semibold text-zinc-900 dark:text-zinc-100">{business.review_stats.average_rating}</span>
+                      <span className="text-sm lg:text-base text-zinc-400 dark:text-zinc-500">({business.review_stats.total_reviews} {t.reviewCount})</span>
+                    </div>
+                  )}
+                  {business.bio && (
+                    <p className="text-sm lg:text-base text-zinc-600 dark:text-zinc-400 mt-1">
+                      {business.bio}
+                    </p>
+                  )}
+                  {(geoAddress || business.location?.address) && (
+                    <p className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400 mt-1 capitalize flex items-center gap-1">
+                      <MapPin size={14} className="shrink-0" />
+                      {geoAddress || business.location?.address}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mt-1.5">
+                    {openStatus && closingTime ? (
+                      <span className="text-sm lg:text-base font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <Clock size={14} className="shrink-0" />
+                        {t.openUntil.replace('{{time}}', closingTime)}
+                      </span>
+                    ) : (
+                      <span className="text-sm lg:text-base font-medium text-red-500 dark:text-red-400 flex items-center gap-1">
+                        <Clock size={14} className="shrink-0" />
+                        {t.closedNow}
+                      </span>
+                    )}
+                    {distanceLoading && (
+                      <>
+                        <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                        <span className="inline-block w-24 h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                      </>
+                    )}
+                    {distance && !distanceLoading && (
+                      <>
+                        <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                        <span className="text-sm lg:text-base text-zinc-500 dark:text-zinc-400">
+                          {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
+                        </span>
+                      </>
+                    )}
+                    {distanceDenied && !distance && !distanceLoading && (
+                      <>
+                        <span className="text-zinc-300 dark:text-zinc-600">&middot;</span>
+                        <button
+                          onClick={() => fetchDistance(true)}
+                          className="text-sm lg:text-base text-primary hover:underline flex items-center gap-1"
+                        >
+                          <MapPin size={14} />
+                          {t.showDistance}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
-            <div className="pb-4">
+            <div className={`pb-4 ${!hasCover ? 'pt-5 lg:pt-6' : ''}`}>
               <h2 className="text-xl lg:text-2xl font-bold text-zinc-900 dark:text-zinc-100">{t.services}</h2>
             </div>
 
@@ -721,6 +843,68 @@ export function TenantPage({ business, services, employees, photos, tenantSlug, 
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* ===== REVIEWS SECTION ===== */}
+            {reviews.length > 0 && (
+              <div className="mt-8">
+                <div className="pt-2 pb-4 mb-2 flex items-center justify-between">
+                  <h2 className="text-xl lg:text-2xl font-bold text-zinc-900 dark:text-zinc-100">{t.reviewsTitle}</h2>
+                  {business.review_stats && business.review_stats.total_reviews > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Star size={16} className="fill-amber-400 text-amber-400" />
+                      <span className="text-base lg:text-lg font-semibold text-zinc-900 dark:text-zinc-100">{business.review_stats.average_rating}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {(showAllReviews ? reviews : reviews.slice(0, 3)).map((review) => {
+                    const reviewDate = review.submitted_at
+                      ? new Date(review.submitted_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'uz-UZ', { day: 'numeric', month: 'short', year: 'numeric' })
+                      : '';
+                    return (
+                      <div
+                        key={review.id}
+                        className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                              <span className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{review.customer_name.charAt(0)}</span>
+                            </div>
+                            <div>
+                              <p className="text-sm lg:text-base font-medium text-zinc-900 dark:text-zinc-100">{review.customer_name}</p>
+                              <p className="text-xs text-zinc-400 dark:text-zinc-500">{reviewDate}</p>
+                            </div>
+                          </div>
+                          {review.rating && (
+                            <div className="flex items-center gap-1">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={14}
+                                  className={i < Math.round(review.rating!) ? 'fill-amber-400 text-amber-400' : 'text-zinc-200 dark:text-zinc-700'}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        {review.comment && (
+                          <p className="text-sm lg:text-base text-zinc-600 dark:text-zinc-400 mt-1">{review.comment}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {reviews.length > 3 && !showAllReviews && (
+                  <button
+                    onClick={() => setShowAllReviews(true)}
+                    className="mt-4 text-sm lg:text-base font-medium text-primary hover:underline"
+                  >
+                    {t.showAllReviews} ({reviews.length})
+                  </button>
+                )}
               </div>
             )}
           </div>

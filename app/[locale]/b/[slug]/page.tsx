@@ -86,6 +86,29 @@ async function getBusinessData(businessId: string): Promise<{ data: BusinessData
   }
 }
 
+interface Review {
+  id: string
+  customer_name: string
+  comment: string
+  submitted_at: string
+  rating: number | null
+  services: { service_name: MultilingualText | string; employee_name: string }[]
+}
+
+async function getBusinessReviews(businessId: string): Promise<Review[]> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+    const response = await signedFetch(`${apiUrl}/public/businesses/${businessId}/reviews?page=1&page_size=10`, {
+      cache: 'no-store'
+    })
+    if (!response.ok) return []
+    const json = await response.json()
+    return json.data || []
+  } catch {
+    return []
+  }
+}
+
 const OG_LOCALE_MAP: Record<Locale, string> = {
   ru: 'ru_RU',
   uz: 'uz_UZ',
@@ -167,7 +190,10 @@ export default async function BusinessPage({
   }
 
   const { business, photos, services, employees } = businessData
-  const authStatus = await getAuthStatus()
+  const [authStatus, reviews] = await Promise.all([
+    getAuthStatus(),
+    getBusinessReviews(business.id),
+  ])
   const savedUser = (authStatus.authenticated && 'user' in authStatus && authStatus.user)
     ? authStatus.user as { phone: string; first_name: string; last_name: string }
     : null
@@ -178,6 +204,7 @@ export default async function BusinessPage({
       services={services}
       employees={employees || []}
       photos={photos || []}
+      reviews={reviews}
       tenantSlug={slug}
       businessId={business.id}
       locale={locale}
