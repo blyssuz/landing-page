@@ -874,7 +874,11 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
                               <span className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{review.customer_name.charAt(0)}</span>
                             </div>
                             <div>
-                              <p className="text-sm lg:text-base font-medium text-zinc-900 dark:text-zinc-100">{review.customer_name}</p>
+                              {review.services.length > 0 && (
+                                <p className="text-sm lg:text-base font-medium text-zinc-900 dark:text-zinc-100 line-clamp-1">
+                                  {review.services.map(svc => getText(svc.service_name)).join(', ')}
+                                </p>
+                              )}
                               <p className="text-xs text-zinc-400 dark:text-zinc-500">{reviewDate}</p>
                             </div>
                           </div>
