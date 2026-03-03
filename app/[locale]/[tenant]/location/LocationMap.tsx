@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ChevronLeft, Navigation } from 'lucide-react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import type L from 'leaflet';
 import type { Locale } from '@/lib/i18n';
 import { BottomNav } from '@/app/components/layout/BottomNav';
 
@@ -25,12 +25,26 @@ const T = {
 export function LocationMap({ locale, businessName, address, lat, lng, primaryColor }: LocationMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const pathname = usePathname();
   const t = T[locale];
+
+  // Derive back URL by removing /location from the current path
+  const backHref = pathname.replace(/\/location$/, '') || `/${locale}`;
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current, {
+    let map: L.Map;
+
+    (async () => {
+      const leaflet = await import('leaflet');
+      // @ts-expect-error -- CSS module import
+      await import('leaflet/dist/leaflet.css');
+      const L = leaflet.default;
+
+      if (!mapRef.current || mapInstanceRef.current) return;
+
+    map = L.map(mapRef.current, {
       zoomControl: false,
       attributionControl: false,
     }).setView([lat, lng], 16);
@@ -59,10 +73,13 @@ export function LocationMap({ locale, businessName, address, lat, lng, primaryCo
     L.marker([lat, lng], { icon: markerIcon }).addTo(map);
 
     mapInstanceRef.current = map;
+    })();
 
     return () => {
-      map.remove();
-      mapInstanceRef.current = null;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
   }, [lat, lng, primaryColor]);
 
@@ -72,7 +89,7 @@ export function LocationMap({ locale, businessName, address, lat, lng, primaryCo
       <div className="absolute top-0 left-0 right-0 z-[1000] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link
-            href={`/${locale}`}
+            href={backHref}
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <ChevronLeft size={20} className="text-zinc-900 dark:text-zinc-100" />
