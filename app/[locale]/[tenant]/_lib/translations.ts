@@ -83,6 +83,9 @@ export const UI_TEXT: Record<Locale, Record<string, string>> = {
     beTheFirst: "Birinchi bo'ling!",
     noTeam: 'Mutaxassislar mavjud emas',
     showFewerReviews: "Kamroq ko'rsatish",
+    share: 'Ulashish',
+    map: 'Xarita',
+    linkCopied: 'Havola nusxalandi',
   },
   ru: {
     openUntil: 'Открыто до {{time}}',
@@ -135,6 +138,9 @@ export const UI_TEXT: Record<Locale, Record<string, string>> = {
     beTheFirst: 'Будьте первым!',
     noTeam: 'Специалисты отсутствуют',
     showFewerReviews: 'Показать меньше',
+    share: 'Поделиться',
+    map: 'Карта',
+    linkCopied: 'Ссылка скопирована',
   },
 };
 
