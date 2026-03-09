@@ -17,9 +17,9 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 - [ ] **DS-06**: Design system includes Skeleton component with shimmer animation for loading states
 - [ ] **DS-07**: Design system includes StarRating component (display and interactive input modes)
 - [ ] **DS-08**: Design system includes SectionHeading component with consistent typography
-- [ ] **DS-09**: Typography system defines type scale (headings, body, caption) with consistent line-heights and tracking
-- [ ] **DS-10**: Color system uses CSS custom properties with per-tenant `--primary` theming throughout all components
-- [ ] **DS-11**: Warm visual language: rounded corners, soft shadows, generous whitespace, inviting color palette
+- [x] **DS-09**: Typography system defines type scale (headings, body, caption) with consistent line-heights and tracking
+- [x] **DS-10**: Color system uses CSS custom properties with per-tenant `--primary` theming throughout all components
+- [x] **DS-11**: Warm visual language: rounded corners, soft shadows, generous whitespace, inviting color palette
 
 ### Tenant Page — Hero & Header
 
@@ -93,9 +93,9 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 ### Architecture
 
 - [ ] **AR-01**: TenantPage.tsx decomposed from ~1800-line monolith into ~20 focused components
-- [ ] **AR-02**: Components organized in co-located `_components/` directories with `_lib/` for utilities
+- [x] **AR-02**: Components organized in co-located `_components/` directories with `_lib/` for utilities
 - [ ] **AR-03**: Single responsive markup per component (no duplicate mobile/desktop rendering)
-- [ ] **AR-04**: All user-facing strings use the translation system (centralized or co-located)
+- [x] **AR-04**: All user-facing strings use the translation system (centralized or co-located)
 
 ## v2 Requirements
 
@@ -140,9 +140,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DS-06 | Phase 1 | Pending |
 | DS-07 | Phase 1 | Pending |
 | DS-08 | Phase 1 | Pending |
-| DS-09 | Phase 1 | Pending |
-| DS-10 | Phase 1 | Pending |
-| DS-11 | Phase 1 | Pending |
+| DS-09 | Phase 1 | Complete |
+| DS-10 | Phase 1 | Complete |
+| DS-11 | Phase 1 | Complete |
 | TH-01 | Phase 2 | Pending |
 | TH-02 | Phase 2 | Pending |
 | TH-03 | Phase 2 | Pending |
@@ -189,9 +189,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IX-04 | Phase 1 | Pending |
 | IX-05 | Phase 3 | Pending |
 | AR-01 | Phase 2 | Pending |
-| AR-02 | Phase 1 | Pending |
+| AR-02 | Phase 1 | Complete |
 | AR-03 | Phase 1 | Pending |
-| AR-04 | Phase 1 | Pending |
+| AR-04 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 60 total
