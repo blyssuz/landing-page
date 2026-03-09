@@ -108,32 +108,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PH-01 | TBD | Pending |
-| PH-02 | TBD | Pending |
-| PH-03 | TBD | Pending |
-| PH-04 | TBD | Pending |
-| PH-05 | TBD | Pending |
-| PG-01 | TBD | Pending |
-| PG-02 | TBD | Pending |
-| SV-01 | TBD | Pending |
-| SV-02 | TBD | Pending |
-| SV-03 | TBD | Pending |
-| SV-04 | TBD | Pending |
-| TM-01 | TBD | Pending |
-| RV-01 | TBD | Pending |
-| RV-02 | TBD | Pending |
-| AB-01 | TBD | Pending |
-| AB-02 | TBD | Pending |
-| AB-03 | TBD | Pending |
-| IX-01 | TBD | Pending |
-| IX-02 | TBD | Pending |
-| IX-03 | TBD | Pending |
+| PH-01 | Phase 5 | Pending |
+| PH-02 | Phase 5 | Pending |
+| PH-03 | Phase 5 | Pending |
+| PH-04 | Phase 5 | Pending |
+| PH-05 | Phase 5 | Pending |
+| PG-01 | Phase 5 | Pending |
+| PG-02 | Phase 5 | Pending |
+| SV-01 | Phase 6 | Pending |
+| SV-02 | Phase 6 | Pending |
+| SV-03 | Phase 6 | Pending |
+| SV-04 | Phase 6 | Pending |
+| TM-01 | Phase 6 | Pending |
+| RV-01 | Phase 7 | Pending |
+| RV-02 | Phase 7 | Pending |
+| AB-01 | Phase 7 | Pending |
+| AB-02 | Phase 7 | Pending |
+| AB-03 | Phase 7 | Pending |
+| IX-01 | Phase 7 | Pending |
+| IX-02 | Phase 7 | Pending |
+| IX-03 | Phase 7 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after v2.0 milestone definition*
+*Last updated: 2026-03-09 after v2.0 roadmap creation*
