@@ -48,10 +48,10 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 
 ### Tenant Page — About & Navigation
 
-- [ ] **TA-01**: About section shows working hours (expandable weekly schedule), contact info (phone, Instagram), and location link
-- [ ] **TA-02**: Desktop layout uses right sidebar for business info (hours, contact, location, Book CTA) visible while scrolling
-- [ ] **TA-03**: Sticky tab navigation with IntersectionObserver-driven active state and spring-animated indicator
-- [ ] **TA-04**: Mobile bottom navigation with prominent booking action and tap feedback animation
+- [x] **TA-01**: About section shows working hours (expandable weekly schedule), contact info (phone, Instagram), and location link
+- [x] **TA-02**: Desktop layout uses right sidebar for business info (hours, contact, location, Book CTA) visible while scrolling
+- [x] **TA-03**: Sticky tab navigation with IntersectionObserver-driven active state and spring-animated indicator
+- [x] **TA-04**: Mobile bottom navigation with prominent booking action and tap feedback animation
 - [ ] **TA-05**: Per-section skeleton loading screens matching actual content layout with shimmer animation
 
 ### Booking Flow
@@ -159,10 +159,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TR-02 | Phase 2 | Complete |
 | TR-03 | Phase 2 | Complete |
 | TR-04 | Phase 2 | Complete |
-| TA-01 | Phase 2 | Pending |
-| TA-02 | Phase 2 | Pending |
-| TA-03 | Phase 2 | Pending |
-| TA-04 | Phase 2 | Pending |
+| TA-01 | Phase 2 | Complete |
+| TA-02 | Phase 2 | Complete |
+| TA-03 | Phase 2 | Complete |
+| TA-04 | Phase 2 | Complete |
 | TA-05 | Phase 2 | Pending |
 | BK-01 | Phase 3 | Pending |
 | BK-02 | Phase 3 | Pending |
