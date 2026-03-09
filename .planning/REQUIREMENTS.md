@@ -33,8 +33,8 @@ Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap 
 
 ### Photo Gallery
 
-- [ ] **PG-01**: Visitor sees a horizontal strip of photo thumbnails below the profile header
-- [ ] **PG-02**: Visitor can tap any thumbnail to open a fullscreen lightbox gallery
+- [x] **PG-01**: Visitor sees a horizontal strip of photo thumbnails below the profile header
+- [x] **PG-02**: Visitor can tap any thumbnail to open a fullscreen lightbox gallery
 
 ### Services
 
@@ -113,8 +113,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PH-03 | Phase 5 | Complete |
 | PH-04 | Phase 5 | Complete |
 | PH-05 | Phase 5 | Complete |
-| PG-01 | Phase 5 | Pending |
-| PG-02 | Phase 5 | Pending |
+| PG-01 | Phase 5 | Complete |
+| PG-02 | Phase 5 | Complete |
 | SV-01 | Phase 6 | Pending |
 | SV-02 | Phase 6 | Pending |
 | SV-03 | Phase 6 | Pending |

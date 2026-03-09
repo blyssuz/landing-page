@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### v2.0 Tenant Page Redesign
 
-- [ ] **Phase 5: Profile Header & Photo Strip** - Above-fold identity: avatar, status, Book button, quick actions, and photo thumbnails
+- [x] **Phase 5: Profile Header & Photo Strip** - Above-fold identity: avatar, status, Book button, quick actions, and photo thumbnails (completed 2026-03-09)
 - [ ] **Phase 6: Services & Team** - Decision content: expandable service rows with category filter, tap-to-book, and team avatar strip
 - [ ] **Phase 7: Reviews, About & Interactions** - Trust layer and polish: review cards, collapsible info rows, floating Book pill, scroll animations, desktop layout
 
@@ -136,6 +136,6 @@ Phases execute in numeric order: 5 -> 6 -> 7
 | 2. Tenant Page -- Presentation & Layout | v1.0 | 4/4 | Complete | 2026-03-09 |
 | 3. Services, Booking & Interactions | v1.0 | - | Deferred | - |
 | 4. Landing Page & Auxiliary Pages | v1.0 | - | Deferred | - |
-| 5. Profile Header & Photo Strip | v2.0 | 1/2 | In progress | - |
+| 5. Profile Header & Photo Strip | 2/2 | Complete   | 2026-03-09 | - |
 | 6. Services & Team | v2.0 | 0/0 | Not started | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
