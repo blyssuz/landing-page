@@ -23,10 +23,10 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 
 ### Tenant Page — Hero & Header
 
-- [ ] **TH-01**: Hero gallery shows Airbnb-style 5-photo mosaic layout on desktop (1 large + 4 small grid)
-- [ ] **TH-02**: Hero gallery shows swipeable photo carousel on mobile with dot indicators
-- [ ] **TH-03**: Fullscreen gallery lightbox with swipe navigation between photos and swipe-down-to-close
-- [ ] **TH-04**: "See all photos" button opens fullscreen gallery when business has more than 5 photos
+- [x] **TH-01**: Hero gallery shows Airbnb-style 5-photo mosaic layout on desktop (1 large + 4 small grid)
+- [x] **TH-02**: Hero gallery shows swipeable photo carousel on mobile with dot indicators
+- [x] **TH-03**: Fullscreen gallery lightbox with swipe navigation between photos and swipe-down-to-close
+- [x] **TH-04**: "See all photos" button opens fullscreen gallery when business has more than 5 photos
 - [ ] **TH-05**: Business header displays name, avatar, and tagline with clear typographic hierarchy
 - [ ] **TH-06**: Metadata badges row shows open/closed status, star rating with count, and distance from user
 - [ ] **TH-07**: Language switcher (RU/UZ) accessible from header area
@@ -143,10 +143,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DS-09 | Phase 1 | Complete |
 | DS-10 | Phase 1 | Complete |
 | DS-11 | Phase 1 | Complete |
-| TH-01 | Phase 2 | Pending |
-| TH-02 | Phase 2 | Pending |
-| TH-03 | Phase 2 | Pending |
-| TH-04 | Phase 2 | Pending |
+| TH-01 | Phase 2 | Complete |
+| TH-02 | Phase 2 | Complete |
+| TH-03 | Phase 2 | Complete |
+| TH-04 | Phase 2 | Complete |
 | TH-05 | Phase 2 | Pending |
 | TH-06 | Phase 2 | Pending |
 | TH-07 | Phase 2 | Pending |
