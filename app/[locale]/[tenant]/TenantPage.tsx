@@ -14,7 +14,7 @@ import { GalleryLightbox } from './_components/HeroGallery/GalleryLightbox';
 import { ProfileHeader } from './_components/ProfileHeader';
 import { PhotoStrip } from './_components/PhotoStrip';
 import { ServicesSection } from './_components/ServicesSection';
-import { TeamSection } from './_components/TeamSection';
+import { TeamStrip } from './_components/TeamStrip';
 import { ReviewsSection } from './_components/ReviewsSection';
 import { AboutSection } from './_components/AboutSection';
 
@@ -92,11 +92,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
         </div>
 
         {/* Team section */}
-        {employees.length > 0 && (
-          <div className="mt-8">
-            <TeamSection employees={employees} locale={locale} translations={{ specialists: t.specialists, noTeam: t.noTeam }} />
-          </div>
-        )}
+        <TeamStrip employees={employees} locale={locale} translations={{ specialists: t.specialists }} />
 
         {/* Reviews section */}
         {reviews.length > 0 && (
