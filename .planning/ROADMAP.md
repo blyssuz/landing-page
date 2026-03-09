@@ -46,11 +46,13 @@ Plans:
   3. Team section shows employees in a horizontally scrollable row with photos (or gradient-initial fallback), names, and roles
   4. Reviews section shows aggregate rating with distribution bars and individual review cards; "show all" toggle appears when more than 3 reviews exist
   5. About area displays working hours (expandable schedule), contact info (phone, Instagram), and location link -- on desktop this appears as a sticky right sidebar
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Shared foundation (_lib/ types, utils, translations, hooks) + Hero gallery components
+- [ ] 02-02-PLAN.md — Business header, metadata badges, language switcher, team section, reviews section
+- [ ] 02-03-PLAN.md — Tab navigation, about/sidebar, working hours, contact info, bottom navigation
+- [ ] 02-04-PLAN.md — Per-section skeleton loading screens + slim orchestrator rewrite of TenantPage.tsx
 
 ### Phase 3: Tenant Page -- Services, Booking & Interactions
 **Goal**: Users can browse services, complete the full booking flow (select service, pick date/time/specialist, authenticate, confirm), and experience smooth animations throughout
@@ -91,7 +93,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design System Foundation | 0/3 | Planned | - |
-| 2. Tenant Page -- Presentation & Layout | 0/0 | Not started | - |
+| 1. Design System Foundation | 3/3 | Complete | 2026-03-09 |
+| 2. Tenant Page -- Presentation & Layout | 0/4 | Planned | - |
 | 3. Tenant Page -- Services, Booking & Interactions | 0/0 | Not started | - |
 | 4. Landing Page & Auxiliary Pages | 0/0 | Not started | - |
