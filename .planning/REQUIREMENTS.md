@@ -10,13 +10,13 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 ### Design System
 
 - [x] **DS-01**: Design system includes custom Button component with primary, secondary, ghost, and outline variants using Tailwind only
-- [ ] **DS-02**: Design system includes Card component with consistent padding, rounded corners, and soft shadow
+- [x] **DS-02**: Design system includes Card component with consistent padding, rounded corners, and soft shadow
 - [x] **DS-03**: Design system includes Modal component with scroll lock, focus trap, escape-to-close, and click-outside-to-close
-- [ ] **DS-04**: Design system includes Badge component for metadata display (rating, status, distance)
-- [ ] **DS-05**: Design system includes Avatar component with image support and gradient-initial fallback
-- [ ] **DS-06**: Design system includes Skeleton component with shimmer animation for loading states
+- [x] **DS-04**: Design system includes Badge component for metadata display (rating, status, distance)
+- [x] **DS-05**: Design system includes Avatar component with image support and gradient-initial fallback
+- [x] **DS-06**: Design system includes Skeleton component with shimmer animation for loading states
 - [x] **DS-07**: Design system includes StarRating component (display and interactive input modes)
-- [ ] **DS-08**: Design system includes SectionHeading component with consistent typography
+- [x] **DS-08**: Design system includes SectionHeading component with consistent typography
 - [x] **DS-09**: Typography system defines type scale (headings, body, caption) with consistent line-heights and tracking
 - [x] **DS-10**: Color system uses CSS custom properties with per-tenant `--primary` theming throughout all components
 - [x] **DS-11**: Warm visual language: rounded corners, soft shadows, generous whitespace, inviting color palette
@@ -87,14 +87,14 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 - [ ] **IX-01**: Section scroll-reveal animations (fade-in + slide-up) on all major sections using Motion
 - [ ] **IX-02**: Micro-interactions: button press scale, card hover lift, tab spring transitions
 - [ ] **IX-03**: Success animations on booking confirmation and review submission
-- [ ] **IX-04**: Mobile-first responsive design — every component designed for phone first, scales up to desktop
+- [x] **IX-04**: Mobile-first responsive design — every component designed for phone first, scales up to desktop
 - [ ] **IX-05**: Thoughtful empty states with icon + descriptive text when no reviews, photos, or specialists
 
 ### Architecture
 
 - [ ] **AR-01**: TenantPage.tsx decomposed from ~1800-line monolith into ~20 focused components
 - [x] **AR-02**: Components organized in co-located `_components/` directories with `_lib/` for utilities
-- [ ] **AR-03**: Single responsive markup per component (no duplicate mobile/desktop rendering)
+- [x] **AR-03**: Single responsive markup per component (no duplicate mobile/desktop rendering)
 - [x] **AR-04**: All user-facing strings use the translation system (centralized or co-located)
 
 ## v2 Requirements
@@ -133,13 +133,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DS-01 | Phase 1 | Complete |
-| DS-02 | Phase 1 | Pending |
+| DS-02 | Phase 1 | Complete |
 | DS-03 | Phase 1 | Complete |
-| DS-04 | Phase 1 | Pending |
-| DS-05 | Phase 1 | Pending |
-| DS-06 | Phase 1 | Pending |
+| DS-04 | Phase 1 | Complete |
+| DS-05 | Phase 1 | Complete |
+| DS-06 | Phase 1 | Complete |
 | DS-07 | Phase 1 | Complete |
-| DS-08 | Phase 1 | Pending |
+| DS-08 | Phase 1 | Complete |
 | DS-09 | Phase 1 | Complete |
 | DS-10 | Phase 1 | Complete |
 | DS-11 | Phase 1 | Complete |
@@ -186,11 +186,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IX-01 | Phase 3 | Pending |
 | IX-02 | Phase 3 | Pending |
 | IX-03 | Phase 3 | Pending |
-| IX-04 | Phase 1 | Pending |
+| IX-04 | Phase 1 | Complete |
 | IX-05 | Phase 3 | Pending |
 | AR-01 | Phase 2 | Pending |
 | AR-02 | Phase 1 | Complete |
-| AR-03 | Phase 1 | Pending |
+| AR-03 | Phase 1 | Complete |
 | AR-04 | Phase 1 | Complete |
 
 **Coverage:**

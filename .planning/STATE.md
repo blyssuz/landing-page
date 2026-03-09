@@ -68,6 +68,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Native <dialog> showModal() for Modal -- automatic focus trap via inert, no JS focus management
 - [Phase 01]: Fixed-body scroll lock for iOS Safari (position:fixed + saved scrollY)
 - [Phase 01]: StarRating interactive mode uses full stars only; half-star display preserved for read-only mode
+- [Phase 01]: Avatar uses raw img instead of next/image for external user-provided URLs
+- [Phase 01]: Skeleton dimensions via inline style for flexible width/height (string or number)
 
 ### Pending Todos
 
