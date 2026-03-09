@@ -89,11 +89,11 @@ Plans:
   3. Visitor can tap a full-width Book button above the fold; the button uses the tenant's primary color and navigates to the booking flow
   4. Visitor can tap Call (opens phone dialer), Map (opens Google Maps), or Share (triggers native share or copies link) quick-action buttons below the Book button
   5. Visitor sees a horizontal strip of photo thumbnails below the header and can tap any thumbnail to open a fullscreen lightbox gallery; language toggle (UZ/RU) is accessible at the top of the page
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — ProfileHeader component (avatar, name, status, Book CTA, quick actions) + translation keys
+- [ ] 05-02-PLAN.md — PhotoStrip component + TenantPage orchestrator rewrite + old component cleanup
 
 ### Phase 6: Services & Team
 **Goal**: Visitors can browse services, filter by category, expand for details, and book -- plus see the team at a glance
@@ -136,6 +136,6 @@ Phases execute in numeric order: 5 -> 6 -> 7
 | 2. Tenant Page -- Presentation & Layout | v1.0 | 4/4 | Complete | 2026-03-09 |
 | 3. Services, Booking & Interactions | v1.0 | - | Deferred | - |
 | 4. Landing Page & Auxiliary Pages | v1.0 | - | Deferred | - |
-| 5. Profile Header & Photo Strip | v2.0 | 0/0 | Not started | - |
+| 5. Profile Header & Photo Strip | v2.0 | 0/2 | Planning complete | - |
 | 6. Services & Team | v2.0 | 0/0 | Not started | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
