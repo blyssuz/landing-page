@@ -70,15 +70,16 @@ export function ProfileHeader({
       )}
 
       {/* Status row */}
-      <div className={cn('flex items-center gap-1.5 text-lg mt-2')}>
+      <div className="mt-2 space-y-1">
+        {/* Open/closed status */}
         <button
           type="button"
           onClick={onStatusClick}
-          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+          className="flex items-center gap-1.5 text-base hover:opacity-70 transition-opacity"
         >
           <span
             className={cn(
-              'w-3 h-3 rounded-full',
+              'w-2.5 h-2.5 rounded-full flex-shrink-0',
               openStatus ? 'bg-emerald-500' : 'bg-red-400'
             )}
           />
@@ -91,38 +92,40 @@ export function ProfileHeader({
           </span>
         </button>
 
-        {business.review_stats && (
-          <>
-            <span className="text-stone-300">&middot;</span>
-            <button
-              type="button"
-              onClick={onReviewsClick}
-              className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
-            >
-              <StarRating
-                rating={business.review_stats.average_rating}
-              />
-              <span className="font-medium text-stone-900">
-                {business.review_stats.average_rating.toFixed(1)}
-              </span>
-              <span className="text-stone-500">
-                ({business.review_stats.total_reviews} {t.reviewCount})
-              </span>
-            </button>
-          </>
-        )}
+        {/* Reviews + distance row */}
+        {(business.review_stats || distance) && (
+          <div className="flex items-center gap-1.5 text-base">
+            {business.review_stats && (
+              <button
+                type="button"
+                onClick={onReviewsClick}
+                className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+              >
+                <StarRating
+                  rating={business.review_stats.average_rating}
+                />
+                <span className="font-medium text-stone-900">
+                  {business.review_stats.average_rating.toFixed(1)}
+                </span>
+                <span className="text-stone-500">
+                  ({business.review_stats.total_reviews} {t.reviewCount})
+                </span>
+              </button>
+            )}
 
-        {distance && (
-          <>
-            <span className="text-stone-300">&middot;</span>
-            <button
-              type="button"
-              onClick={onDistanceClick}
-              className="text-stone-500 hover:opacity-70 transition-opacity"
-            >
-              {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
-            </button>
-          </>
+            {distance && (
+              <>
+                {business.review_stats && <span className="text-stone-300">&middot;</span>}
+                <button
+                  type="button"
+                  onClick={onDistanceClick}
+                  className="text-stone-500 hover:opacity-70 transition-opacity"
+                >
+                  {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
+                </button>
+              </>
+            )}
+          </div>
         )}
       </div>
 

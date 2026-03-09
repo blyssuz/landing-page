@@ -58,7 +58,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
 
   return (
  <div className=''>
-     <div className="bg-white min-h-screen max-w-3xl px-3 mx-auto shadow-lg" style={{ '--primary': primaryColor } as React.CSSProperties}>
+     <div className="bg-white min-h-screen max-w-3xl lg:px-3 mx-auto shadow-lg" style={{ '--primary': primaryColor } as React.CSSProperties}>
      
      {/* Profile Header */}
       <ProfileHeader
