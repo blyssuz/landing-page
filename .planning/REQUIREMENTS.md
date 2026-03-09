@@ -45,7 +45,7 @@ Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap 
 
 ### Team
 
-- [ ] **TM-01**: Visitor sees team members as a compact horizontal avatar strip (when >1 employee)
+- [x] **TM-01**: Visitor sees team members as a compact horizontal avatar strip (when >1 employee)
 
 ### Reviews
 
@@ -119,7 +119,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SV-02 | Phase 6 | Complete |
 | SV-03 | Phase 6 | Complete |
 | SV-04 | Phase 6 | Complete |
-| TM-01 | Phase 6 | Pending |
+| TM-01 | Phase 6 | Complete |
 | RV-01 | Phase 7 | Pending |
 | RV-02 | Phase 7 | Pending |
 | AB-01 | Phase 7 | Pending |
