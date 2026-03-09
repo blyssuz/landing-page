@@ -21,18 +21,18 @@ const TeamCard = React.forwardRef<HTMLDivElement, TeamCardProps>(
     return (
       <div
         ref={ref}
-        className="flex flex-col items-center flex-shrink-0 w-[120px] lg:w-[140px] p-3 lg:p-4 snap-start cursor-default"
+        className="flex flex-col items-center flex-shrink-0 w-[120px] lg:w-[140px] snap-start cursor-default"
       >
         <Avatar
           name={avatarName}
-          size="lg"
-          className="w-12 h-12 lg:w-16 lg:h-16"
+          size="xl"
+          className="w-[72px] h-[72px] lg:w-[88px] lg:h-[88px]"
         />
-        <p className="text-sm font-medium text-stone-900 mt-2 lg:mt-3 text-center line-clamp-1 w-full">
+        <p className="text-[15px] font-medium text-stone-900 mt-2.5 text-center line-clamp-1 w-full">
           {displayName}
         </p>
         {name && employee.position && (
-          <p className="text-xs text-stone-500 text-center line-clamp-1 w-full mt-0.5">
+          <p className="text-[13px] text-stone-500 text-center line-clamp-1 w-full mt-0.5">
             {employee.position}
           </p>
         )}
