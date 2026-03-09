@@ -9,13 +9,13 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 
 ### Design System
 
-- [ ] **DS-01**: Design system includes custom Button component with primary, secondary, ghost, and outline variants using Tailwind only
+- [x] **DS-01**: Design system includes custom Button component with primary, secondary, ghost, and outline variants using Tailwind only
 - [ ] **DS-02**: Design system includes Card component with consistent padding, rounded corners, and soft shadow
-- [ ] **DS-03**: Design system includes Modal component with scroll lock, focus trap, escape-to-close, and click-outside-to-close
+- [x] **DS-03**: Design system includes Modal component with scroll lock, focus trap, escape-to-close, and click-outside-to-close
 - [ ] **DS-04**: Design system includes Badge component for metadata display (rating, status, distance)
 - [ ] **DS-05**: Design system includes Avatar component with image support and gradient-initial fallback
 - [ ] **DS-06**: Design system includes Skeleton component with shimmer animation for loading states
-- [ ] **DS-07**: Design system includes StarRating component (display and interactive input modes)
+- [x] **DS-07**: Design system includes StarRating component (display and interactive input modes)
 - [ ] **DS-08**: Design system includes SectionHeading component with consistent typography
 - [x] **DS-09**: Typography system defines type scale (headings, body, caption) with consistent line-heights and tracking
 - [x] **DS-10**: Color system uses CSS custom properties with per-tenant `--primary` theming throughout all components
@@ -132,13 +132,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DS-01 | Phase 1 | Pending |
+| DS-01 | Phase 1 | Complete |
 | DS-02 | Phase 1 | Pending |
-| DS-03 | Phase 1 | Pending |
+| DS-03 | Phase 1 | Complete |
 | DS-04 | Phase 1 | Pending |
 | DS-05 | Phase 1 | Pending |
 | DS-06 | Phase 1 | Pending |
-| DS-07 | Phase 1 | Pending |
+| DS-07 | Phase 1 | Complete |
 | DS-08 | Phase 1 | Pending |
 | DS-09 | Phase 1 | Complete |
 | DS-10 | Phase 1 | Complete |
