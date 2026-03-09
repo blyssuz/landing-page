@@ -29,11 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. All components use CSS custom property `--primary` for brand color -- no hardcoded hex values for brand elements
   4. Typography scale (headings, body, caption) and spacing are visually consistent across all primitives
   5. Component files are organized in `app/components/ui/` with co-located utilities in `_lib/` directories, and every component uses single responsive markup (no duplicate mobile/desktop rendering)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Warm color system, Nunito Sans font, animation presets, _lib/ utility
+- [ ] 01-02-PLAN.md — New components: Card, Badge, Avatar, Skeleton, SectionHeading, Input
+- [ ] 01-03-PLAN.md — Refactored components: Button, PillButton, StarRating + new Modal
 
 ### Phase 2: Tenant Page -- Presentation & Layout
 **Goal**: The tenant page displays business identity, photos, team, reviews, and about information in a warm, trust-building layout with clear visual hierarchy
@@ -90,7 +91,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design System Foundation | 0/0 | Not started | - |
+| 1. Design System Foundation | 0/3 | Planned | - |
 | 2. Tenant Page -- Presentation & Layout | 0/0 | Not started | - |
 | 3. Tenant Page -- Services, Booking & Interactions | 0/0 | Not started | - |
 | 4. Landing Page & Auxiliary Pages | 0/0 | Not started | - |
