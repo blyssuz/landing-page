@@ -27,9 +27,9 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 - [x] **TH-02**: Hero gallery shows swipeable photo carousel on mobile with dot indicators
 - [x] **TH-03**: Fullscreen gallery lightbox with swipe navigation between photos and swipe-down-to-close
 - [x] **TH-04**: "See all photos" button opens fullscreen gallery when business has more than 5 photos
-- [ ] **TH-05**: Business header displays name, avatar, and tagline with clear typographic hierarchy
-- [ ] **TH-06**: Metadata badges row shows open/closed status, star rating with count, and distance from user
-- [ ] **TH-07**: Language switcher (RU/UZ) accessible from header area
+- [x] **TH-05**: Business header displays name, avatar, and tagline with clear typographic hierarchy
+- [x] **TH-06**: Metadata badges row shows open/closed status, star rating with count, and distance from user
+- [x] **TH-07**: Language switcher (RU/UZ) accessible from header area
 
 ### Tenant Page — Services
 
@@ -41,10 +41,10 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 
 ### Tenant Page — Team & Reviews
 
-- [ ] **TR-01**: Team section shows employee cards in horizontal scroll with photo/avatar, name, role
-- [ ] **TR-02**: Reviews section shows aggregate star rating with Airbnb-style rating distribution bars
-- [ ] **TR-03**: Individual review cards show reviewer initial/avatar, star rating, relative date, comment, and service context
-- [ ] **TR-04**: "Show all reviews" expand toggle when business has more than 3 reviews
+- [x] **TR-01**: Team section shows employee cards in horizontal scroll with photo/avatar, name, role
+- [x] **TR-02**: Reviews section shows aggregate star rating with Airbnb-style rating distribution bars
+- [x] **TR-03**: Individual review cards show reviewer initial/avatar, star rating, relative date, comment, and service context
+- [x] **TR-04**: "Show all reviews" expand toggle when business has more than 3 reviews
 
 ### Tenant Page — About & Navigation
 
@@ -147,18 +147,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TH-02 | Phase 2 | Complete |
 | TH-03 | Phase 2 | Complete |
 | TH-04 | Phase 2 | Complete |
-| TH-05 | Phase 2 | Pending |
-| TH-06 | Phase 2 | Pending |
-| TH-07 | Phase 2 | Pending |
+| TH-05 | Phase 2 | Complete |
+| TH-06 | Phase 2 | Complete |
+| TH-07 | Phase 2 | Complete |
 | TS-01 | Phase 3 | Pending |
 | TS-02 | Phase 3 | Pending |
 | TS-03 | Phase 3 | Pending |
 | TS-04 | Phase 3 | Pending |
 | TS-05 | Phase 3 | Pending |
-| TR-01 | Phase 2 | Pending |
-| TR-02 | Phase 2 | Pending |
-| TR-03 | Phase 2 | Pending |
-| TR-04 | Phase 2 | Pending |
+| TR-01 | Phase 2 | Complete |
+| TR-02 | Phase 2 | Complete |
+| TR-03 | Phase 2 | Complete |
+| TR-04 | Phase 2 | Complete |
 | TA-01 | Phase 2 | Pending |
 | TA-02 | Phase 2 | Pending |
 | TA-03 | Phase 2 | Pending |
@@ -200,4 +200,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after roadmap creation*
+*Last updated: 2026-03-09 after Plan 02-02 completion*
