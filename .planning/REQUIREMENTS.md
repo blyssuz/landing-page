@@ -38,10 +38,10 @@ Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap 
 
 ### Services
 
-- [ ] **SV-01**: Visitor sees a flat list of services with name, duration, and price per row
-- [ ] **SV-02**: Visitor can filter services by category pills when multiple categories exist
-- [ ] **SV-03**: Visitor can tap a service row to expand it and reveal description + Book button
-- [ ] **SV-04**: Tapping Book sets booking intent cookie and navigates to booking flow
+- [x] **SV-01**: Visitor sees a flat list of services with name, duration, and price per row
+- [x] **SV-02**: Visitor can filter services by category pills when multiple categories exist
+- [x] **SV-03**: Visitor can tap a service row to expand it and reveal description + Book button
+- [x] **SV-04**: Tapping Book sets booking intent cookie and navigates to booking flow
 
 ### Team
 
@@ -115,10 +115,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PH-05 | Phase 5 | Complete |
 | PG-01 | Phase 5 | Complete |
 | PG-02 | Phase 5 | Complete |
-| SV-01 | Phase 6 | Pending |
-| SV-02 | Phase 6 | Pending |
-| SV-03 | Phase 6 | Pending |
-| SV-04 | Phase 6 | Pending |
+| SV-01 | Phase 6 | Complete |
+| SV-02 | Phase 6 | Complete |
+| SV-03 | Phase 6 | Complete |
+| SV-04 | Phase 6 | Complete |
 | TM-01 | Phase 6 | Pending |
 | RV-01 | Phase 7 | Pending |
 | RV-02 | Phase 7 | Pending |

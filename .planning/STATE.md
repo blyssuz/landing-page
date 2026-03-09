@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Tenant Page Redesign
-status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-09T13:46:29.724Z"
-last_activity: 2026-03-09 — Completed 05-02 PhotoStrip + TenantPage rewrite
+status: in-progress
+stopped_at: Completed 06-01 ServicesSection
+last_updated: "2026-03-09T14:46:32Z"
+last_activity: 2026-03-09 — Completed 06-01 ServicesSection extraction
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 11
+  completed_plans: 10
   percent: 100
 ---
 
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Every page a customer sees should feel trustworthy and polished enough that they'd book without hesitation
-**Current focus:** Milestone v2.0 — Phase 5 complete, ready for Phase 6
+**Current focus:** Milestone v2.0 — Phase 6 in progress
 
 ## Current Position
 
-Phase: 5 of 7 (Profile Header & Photo Strip) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Phase complete
-Last activity: 2026-03-09 — Completed 05-02 PhotoStrip + TenantPage rewrite
+Phase: 6 of 7 (Services & Team)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-09 — Completed 06-01 ServicesSection extraction
 
-Progress: [██████████] 100%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9 (7 v1.0 + 2 v2.0)
+- Total plans completed: 10 (7 v1.0 + 3 v2.0)
 - Average duration: ~2min (v2.0 only)
-- Total execution time: ~4min (v2.0 only)
+- Total execution time: ~6min (v2.0 only)
 
 **By Phase:**
 
@@ -46,11 +46,12 @@ Progress: [██████████] 100%
 | 1. Design System | 3 | N/A | N/A |
 | 2. Presentation | 4 | N/A | N/A |
 | 5. Profile Header & Photo Strip | 2/2 | 4min | 2min |
+| 6. Services & Team | 1/2 | 2min | 2min |
 
 **Recent Trend:**
 - v1.0 Phase 1-2 completed in single session
 - Trend: Stable
-| Phase 05 P02 | 2min | 2 tasks | 15 files |
+| Phase 06 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Progress: [██████████] 100%
 - [v2.0 P5-02]: Search bar removed from services (Phase 6 redesigns services)
 - [v2.0 P5-02]: Tab navigation + section refs removed (vertical scroll replaces tabs)
 - [v2.0 P5-02]: GalleryLightbox reused for photo strip (confirmed reusable from v1.0)
+- [v2.0 P6-01]: BookButton extracted as private helper to avoid duplication between expandable/non-expandable rows
+- [v2.0 P6-01]: Category change resets expandedId to null for clean accordion UX
 
 ### Pending Todos
 
@@ -78,10 +81,10 @@ None yet.
 
 - ~~v1.0 Phase 2 components must be cleanly removed/replaced during v2.0 build~~ DONE in P5-02
 - ~~GalleryLightbox from v1.0 may be reusable for photo strip lightbox (evaluate in Phase 5)~~ CONFIRMED reusable in P5-02
-- Existing booking flow (cookie intent + navigation) must continue working with new service rows (Phase 6)
+- ~~Existing booking flow (cookie intent + navigation) must continue working with new service rows (Phase 6)~~ CONFIRMED working in P6-01
 
 ## Session Continuity
 
-Last session: 2026-03-09T13:46:29.722Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-services-team/06-CONTEXT.md
+Last session: 2026-03-09T14:46:32Z
+Stopped at: Completed 06-01 ServicesSection
+Resume file: .planning/phases/06-services-team/06-01-SUMMARY.md

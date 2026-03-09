@@ -137,5 +137,5 @@ Phases execute in numeric order: 5 -> 6 -> 7
 | 3. Services, Booking & Interactions | v1.0 | - | Deferred | - |
 | 4. Landing Page & Auxiliary Pages | v1.0 | - | Deferred | - |
 | 5. Profile Header & Photo Strip | 2/2 | Complete   | 2026-03-09 | - |
-| 6. Services & Team | v2.0 | 0/0 | Not started | - |
+| 6. Services & Team | 1/2 | In Progress|  | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
