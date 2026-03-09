@@ -25,11 +25,11 @@ Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap 
 
 ### Profile Header
 
-- [ ] **PH-01**: Visitor sees centered business avatar, name, and tagline above the fold
-- [ ] **PH-02**: Visitor sees open/closed status, star rating, and distance in a single inline status row
-- [ ] **PH-03**: Visitor can tap a full-width Book button above the fold without scrolling
-- [ ] **PH-04**: Visitor can tap Call, Map, or Share quick-action buttons below the Book button
-- [ ] **PH-05**: Language toggle (UZ/RU) is accessible at the top of the page
+- [x] **PH-01**: Visitor sees centered business avatar, name, and tagline above the fold
+- [x] **PH-02**: Visitor sees open/closed status, star rating, and distance in a single inline status row
+- [x] **PH-03**: Visitor can tap a full-width Book button above the fold without scrolling
+- [x] **PH-04**: Visitor can tap Call, Map, or Share quick-action buttons below the Book button
+- [x] **PH-05**: Language toggle (UZ/RU) is accessible at the top of the page
 
 ### Photo Gallery
 
@@ -108,11 +108,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PH-01 | Phase 5 | Pending |
-| PH-02 | Phase 5 | Pending |
-| PH-03 | Phase 5 | Pending |
-| PH-04 | Phase 5 | Pending |
-| PH-05 | Phase 5 | Pending |
+| PH-01 | Phase 5 | Complete |
+| PH-02 | Phase 5 | Complete |
+| PH-03 | Phase 5 | Complete |
+| PH-04 | Phase 5 | Complete |
+| PH-05 | Phase 5 | Complete |
 | PG-01 | Phase 5 | Pending |
 | PG-02 | Phase 5 | Pending |
 | SV-01 | Phase 6 | Pending |

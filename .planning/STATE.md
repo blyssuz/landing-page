@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 ## Current Position
 
 Phase: 5 of 7 (Profile Header & Photo Strip)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-09 — Roadmap created for v2.0 milestone
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-09 — Completed 05-01 ProfileHeader component
 
-Progress: [=======...] 70% (v1.0 phases 1-2 complete, v2.0 phases 5-7 pending)
+Progress: [=======...] 74% (v1.0 phases 1-2 complete, v2.0 phase 5 plan 1/2 done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (v1.0)
-- Average duration: N/A (not tracked in v1.0)
-- Total execution time: N/A
+- Total plans completed: 8 (7 v1.0 + 1 v2.0)
+- Average duration: ~2min (v2.0 only)
+- Total execution time: ~2min (v2.0 only)
 
 **By Phase:**
 
@@ -29,6 +29,7 @@ Progress: [=======...] 70% (v1.0 phases 1-2 complete, v2.0 phases 5-7 pending)
 |-------|-------|-------|----------|
 | 1. Design System | 3 | N/A | N/A |
 | 2. Presentation | 4 | N/A | N/A |
+| 5. Profile Header & Photo Strip | 1/2 | 2min | 2min |
 
 **Recent Trend:**
 - v1.0 Phase 1-2 completed in single session
@@ -46,6 +47,8 @@ Progress: [=======...] 70% (v1.0 phases 1-2 complete, v2.0 phases 5-7 pending)
 - [v2.0]: Floating Book pill replaces fixed bottom nav
 - [v2.0]: Expandable service rows instead of always-visible Book buttons
 - [v2.0]: All Phase 2 components get replaced; _lib/ utilities stay
+- [v2.0 P5-01]: ProfileHeader uses plain function export (not forwardRef) for top-level sections
+- [v2.0 P5-01]: Map button disabled (not hidden) when no location data to preserve grid layout
 
 ### Pending Todos
 
@@ -60,5 +63,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-09
-Stopped at: Roadmap created for v2.0, ready to plan Phase 5
+Stopped at: Completed 05-01-PLAN.md (ProfileHeader component)
 Resume file: None
