@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Clock, User, CheckCircle, AlertCircle, XCircle, ArrowLeft } from 'lucide-react'
+import { Star, CheckCircle, AlertCircle, XCircle, ArrowLeft } from 'lucide-react'
 import type { Locale } from '@/lib/i18n'
 import translations from '@/lib/translations'
 import { submitReview } from './actions'
@@ -65,7 +65,7 @@ function InteractiveStars({
               className={
                 star <= active
                   ? 'text-amber-400 drop-shadow-sm'
-                  : 'text-gray-300 dark:text-gray-600'
+                  : 'text-stone-300'
               }
               fill={star <= active ? 'currentColor' : 'none'}
             />
@@ -73,7 +73,7 @@ function InteractiveStars({
         ))}
       </div>
       {active > 0 && (
-        <span className="text-sm text-gray-500 dark:text-gray-400 animate-fadeIn">
+        <span className="text-sm text-stone-500">
           {t.stars[active as 1 | 2 | 3 | 4 | 5][locale]}
         </span>
       )}
@@ -89,10 +89,6 @@ function formatDate(dateStr: string, locale: Locale) {
   }
   const months = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr']
   return `${parseInt(day)}-${months[parseInt(month) - 1]} ${year}`
-}
-
-function formatPrice(price: number) {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
 export default function RatingPage({ locale, initialState, review, token, primaryColor }: Props) {
@@ -135,7 +131,7 @@ export default function RatingPage({ locale, initialState, review, token, primar
   if (state === 'not_found') {
     return (
       <StatusScreen
-        icon={<XCircle size={48} className="text-gray-400" />}
+        icon={<XCircle size={48} className="text-stone-400" />}
         title={t.notFound[locale]}
         message={t.notFoundMessage[locale]}
         locale={locale}
@@ -184,16 +180,16 @@ export default function RatingPage({ locale, initialState, review, token, primar
   if (!review) return null
 
   return (
-    <div className="min-h-screen bg-background" style={colorStyle}>
-      <div className="mx-auto max-w-lg px-4 py-8">
-        
+    <div className="min-h-screen bg-white" style={colorStyle}>
+      <div className="mx-auto max-w-3xl shadow-lg px-4 py-8">
+
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-foreground">{review.business_name}</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-stone-900">{review.business_name}</h1>
+          <p className="mt-1 text-base text-stone-500">
             {formatDate(review.booking_date, locale)}
           </p>
-          <p className="mt-3 text-base text-gray-600 dark:text-gray-300">{t.subtitle[locale]}</p>
+          <p className="mt-3 text-lg text-stone-600">{t.subtitle[locale]}</p>
         </div>
 
         {/* Service items */}
@@ -201,10 +197,10 @@ export default function RatingPage({ locale, initialState, review, token, primar
           {review.items.map((item) => (
             <div
               key={item.booking_item_id}
-              className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 p-5 transition-shadow"
+              className="rounded-2xl border border-stone-100 bg-stone-50 p-5"
             >
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-stone-900">
                   {item.service_name[locale]}
                 </h3>
               </div>
@@ -219,7 +215,7 @@ export default function RatingPage({ locale, initialState, review, token, primar
 
         {/* Comment */}
         <div className="mt-6">
-          <label className="mb-2 block text-sm font-medium text-gray-600 dark:text-gray-300">
+          <label className="mb-2 block text-base font-medium text-stone-600">
             {t.comment[locale]}
           </label>
           <textarea
@@ -228,18 +224,18 @@ export default function RatingPage({ locale, initialState, review, token, primar
             placeholder={t.commentPlaceholder[locale]}
             maxLength={1000}
             rows={3}
-            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-4 py-3 text-foreground placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary focus:ring-1 focus:ring-primary resize-none transition-colors"
+            className="w-full rounded-2xl bg-stone-50 border-0 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-colors"
           />
         </div>
 
         {/* Error */}
         {error && (
-          <p className="mt-3 text-center text-sm text-red-500">{error}</p>
+          <p className="mt-3 text-center text-base text-red-500">{error}</p>
         )}
 
         {/* Hint */}
         {!allRated && (
-          <p className="mt-4 text-center text-sm text-gray-400 dark:text-gray-500">
+          <p className="mt-4 text-center text-base text-stone-400">
             {t.rateAll[locale]}
           </p>
         )}
@@ -248,7 +244,7 @@ export default function RatingPage({ locale, initialState, review, token, primar
         <button
           onClick={handleSubmit}
           disabled={!allRated || submitting}
-          className="mt-6 w-full rounded-xl bg-primary py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="mt-6 w-full rounded-2xl bg-primary py-3.5 text-base font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {submitting ? t.submitting[locale] : t.submit[locale]}
         </button>
@@ -272,14 +268,14 @@ function StatusScreen({
 }) {
   const t = translations.review
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4" style={colorStyle}>
-      <div className="text-center animate-fadeInUp">
+    <div className="flex min-h-screen items-center justify-center bg-white px-4" style={colorStyle}>
+      <div className="text-center">
         <div className="mb-4 flex justify-center">{icon}</div>
-        <h1 className="text-xl font-bold text-foreground">{title}</h1>
-        <p className="mt-2 text-gray-500 dark:text-gray-400">{message}</p>
+        <h1 className="text-2xl font-bold text-stone-900">{title}</h1>
+        <p className="mt-2 text-base text-stone-500">{message}</p>
         <a
           href={`/${locale}`}
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+          className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-base font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
         >
           <ArrowLeft size={16} />
           {t.backToHome[locale]}
