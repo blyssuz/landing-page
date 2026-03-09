@@ -14,7 +14,7 @@ export function TeamStrip({ employees, translations: t }: TeamStripProps) {
 
   return (
     <div className="mt-8">
-      <h2 className="text-xl font-semibold text-stone-900 mb-4">{t.specialists}</h2>
+      <h2 className="text-2xl font-semibold text-stone-900 mb-4">{t.specialists}</h2>
       <div className="flex gap-4 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {employees.map((employee) => {
           const name = [employee.first_name, employee.last_name].filter(Boolean).join(' ');
@@ -28,11 +28,11 @@ export function TeamStrip({ employees, translations: t }: TeamStripProps) {
                 size="xl"
                 className="w-14 h-14 text-sm"
               />
-              <p className="text-xs font-medium text-stone-900 mt-1.5 text-center line-clamp-1 w-16">
+              <p className="text-sm font-medium text-stone-900 mt-1.5 text-center line-clamp-1 w-16">
                 {displayName}
               </p>
               {name && employee.position && (
-                <p className="text-[11px] text-stone-500 text-center line-clamp-1 w-16 mt-0.5">
+                <p className="text-xs text-stone-500 text-center line-clamp-1 w-16 mt-0.5">
                   {employee.position}
                 </p>
               )}

@@ -7,8 +7,8 @@ import { MapPin } from 'lucide-react';
 import { setBookingIntent } from './actions';
 import type { TenantPageProps, Service } from './_lib/types';
 import type { Locale } from '@/lib/i18n';
-import { UI_TEXT } from './_lib/translations';
-import { isOpenNow, getClosingTime } from './_lib/utils';
+import { UI_TEXT, DAY_NAMES } from './_lib/translations';
+import { isOpenNow, getClosingTime, getNextOpenInfo } from './_lib/utils';
 import { useDistance } from './_lib/use-distance';
 import { GalleryLightbox } from './_components/HeroGallery/GalleryLightbox';
 import { ProfileHeader } from './_components/ProfileHeader';
@@ -17,6 +17,8 @@ import { ServicesSection } from './_components/ServicesSection';
 import { TeamStrip } from './_components/TeamStrip';
 import { ReviewsSection } from './_components/ReviewsSection';
 import { AboutSection } from './_components/AboutSection';
+import { DaySchedule } from './_components/WorkingHours';
+import { LocationMap } from './_components/LocationMap';
 
 export function TenantPage({ business, services, employees, photos, reviews, tenantSlug, businessId, locale, savedUser }: TenantPageProps) {
   const router = useRouter();
@@ -26,11 +28,14 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bookingServiceId, setBookingServiceId] = useState<string | null>(null);
+  const [showHoursModal, setShowHoursModal] = useState(false);
 
   const primaryColor = business.primary_color || '#088395';
   const openStatus = isOpenNow(business.working_hours);
   const closingTime = getClosingTime(business.working_hours);
+  const nextOpen = !openStatus ? getNextOpenInfo(business.working_hours) : null;
   const t = UI_TEXT[locale];
+  const dayNames = DAY_NAMES[locale];
   const hasPhotos = photos.length > 0;
   const pathSegments = pathname.split('/').filter(Boolean);
   const basePath = pathSegments[1] === 'b' ? `/${locale}/b/${pathSegments[2]}` : `/${locale}`;
@@ -52,8 +57,10 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
   const openGallery = (i: number) => { setCurrentImageIndex(i); setShowGallery(true); };
 
   return (
-    <div className="min-h-screen bg-white" style={{ '--primary': primaryColor } as React.CSSProperties}>
-      {/* Profile Header */}
+ <div className=''>
+     <div className="bg-white min-h-screen max-w-3xl px-3 mx-auto shadow-lg" style={{ '--primary': primaryColor } as React.CSSProperties}>
+     
+     {/* Profile Header */}
       <ProfileHeader
         business={business}
         locale={locale}
@@ -61,16 +68,21 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
         onBook={() => router.push(`${basePath}/booking`)}
         openStatus={openStatus}
         closingTime={closingTime}
+        nextOpenText={nextOpen ? t.opensAt.replace('{{day}}', dayNames[nextOpen.dayKey]).replace('{{time}}', nextOpen.time) : undefined}
+        onStatusClick={() => setShowHoursModal(true)}
+        onReviewsClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+        onDistanceClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
         distance={distance}
         distanceLoading={distanceLoading}
         translations={t}
       />
 
       {/* Photo Strip */}
-      {hasPhotos && <PhotoStrip photos={photos} onPhotoClick={openGallery} />}
+      {/* {hasPhotos && <PhotoStrip photos={photos} onPhotoClick={openGallery} />} */}
 
       {/* Main Content -- single column, no sidebar */}
       <div className="px-4 pb-24">
+
         {/* Services section */}
         <div className="pt-6">
           <ServicesSection
@@ -96,16 +108,47 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
 
         {/* Reviews section */}
         {reviews.length > 0 && (
-          <div className="mt-8">
+          <div id="reviews" className="mt-8 scroll-mt-4">
             <ReviewsSection reviews={reviews} reviewStats={business.review_stats ?? null} locale={locale} translations={{ reviewsTitle: t.reviewsTitle, reviewCount: t.reviewCount, showAllReviews: t.showAllReviews, showFewerReviews: t.showFewerReviews, noReviews: t.noReviews, beTheFirst: t.beTheFirst }} />
           </div>
         )}
 
         {/* About section */}
         <div className="mt-8">
-          <AboutSection business={business} locale={locale} geoAddress={geoAddress} translations={t} />
+          <AboutSection business={business} locale={locale} translations={t} />
         </div>
+
+        {/* Location map */}
+        {business.location?.lat && business.location?.lng && (
+          <div id="location" className="mt-8 scroll-mt-4">
+            <h2 className="text-2xl font-semibold text-stone-900 mb-4">{t.location}</h2>
+            <LocationMap
+              lat={business.location.lat}
+              lng={business.location.lng}
+              businessName={business.name}
+              address={geoAddress || business.location.address}
+              directionsLabel={t.getDirections}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Working Hours modal */}
+      <AnimatePresence>
+        {showHoursModal && business.working_hours && (
+          <motion.div className="fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHoursModal(false)}>
+            <motion.div className="bg-white w-full lg:w-[420px] rounded-t-[28px] lg:rounded-2xl overflow-hidden" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-center pt-3 lg:hidden"><div className="w-10 h-1 bg-stone-300 rounded-full" /></div>
+              <div className="px-6 pt-5 pb-2">
+                <h3 className="text-2xl xl:text-3xl font-bold text-stone-900">{t.workingHours}</h3>
+              </div>
+              <div className="px-4 pb-6">
+                <DaySchedule workingHours={business.working_hours} dayNames={dayNames} closedLabel={t.closed} />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Location permission modal */}
       <AnimatePresence>
@@ -129,5 +172,6 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
       {/* Gallery Lightbox */}
       <GalleryLightbox photos={allPhotos} initialIndex={currentImageIndex} open={showGallery} onClose={() => setShowGallery(false)} translations={{ allPhotos: t.allPhotos, interior: t.interior, exterior: t.exterior }} />
     </div>
+ </div>
   );
 }

@@ -47,6 +47,31 @@ export function getClosingTime(
 }
 
 /**
+ * Get info about when the business next opens (day key + start time string).
+ * Returns null if no open days found.
+ */
+export function getNextOpenInfo(
+  workingHours?: Record<string, { start: number; end: number; is_open: boolean }>
+): { dayKey: string; time: string } | null {
+  if (!workingHours) return null;
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const now = new Date();
+  const todayIndex = now.getDay();
+  const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60;
+
+  for (let offset = 0; offset < 7; offset++) {
+    const dayIndex = (todayIndex + offset) % 7;
+    const dayKey = days[dayIndex];
+    const hours = workingHours[dayKey];
+    if (!hours?.is_open) continue;
+    // If today, only count if we haven't passed the start time yet
+    if (offset === 0 && currentSeconds >= hours.start) continue;
+    return { dayKey, time: secondsToTime(hours.start) };
+  }
+  return null;
+}
+
+/**
  * Format a price number with space-separated thousands (e.g. 150 000).
  */
 export function formatPrice(price: number): string {

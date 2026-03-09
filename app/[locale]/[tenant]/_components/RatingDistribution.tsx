@@ -18,7 +18,7 @@ const RatingDistribution = React.forwardRef<
   return (
     <div ref={ref} className="mb-5 lg:mb-6">
       {/* Large gold stars — Fresha style */}
-      <div className="flex items-center gap-1 mb-1.5">
+      {/* <div className="flex items-center gap-1 mb-1.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
@@ -30,13 +30,14 @@ const RatingDistribution = React.forwardRef<
             }
           />
         ))}
-      </div>
+      </div> */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[17px] font-semibold text-stone-900">
-          {average_rating}
+        {/* <span className="text-lg font-semibold text-stone-900">
+          {average_rating.toFixed(1)}
         </span>
-        <span className="text-[17px] text-stone-500">
-          ({total_reviews})
+        <span className="text-lg text-stone-500">·</span> */}
+        <span className="text-lg text-stone-500">
+          {total_reviews} {reviewCountLabel}
         </span>
       </div>
     </div>

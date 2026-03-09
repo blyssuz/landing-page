@@ -37,15 +37,15 @@ const ReviewsSection = React.forwardRef<HTMLDivElement, ReviewsSectionProps>(
 
     return (
       <div ref={ref} className="scroll-mt-16">
-        <h2 className="text-[24px] lg:text-[28px] font-semibold text-stone-900 leading-[32px] lg:leading-[36px] pb-4 lg:pb-5">
+        <h2 className="text-2xl font-bold text-stone-900 mb-2">
           {t.reviewsTitle}
         </h2>
 
         {reviews.length === 0 ? (
           <div className="py-12 text-center">
             <Star size={32} className="mx-auto text-stone-300 mb-3" />
-            <p className="text-stone-400 text-[15px]">{t.noReviews}</p>
-            <p className="text-stone-400 text-[13px] mt-1">{t.beTheFirst}</p>
+            <p className="text-stone-400 text-base">{t.noReviews}</p>
+            <p className="text-stone-400 text-sm mt-1">{t.beTheFirst}</p>
           </div>
         ) : (
           <>
@@ -74,7 +74,7 @@ const ReviewsSection = React.forwardRef<HTMLDivElement, ReviewsSectionProps>(
             {reviews.length > 3 && (
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="w-full mt-3 py-3 text-[16px] font-medium text-stone-900 border border-stone-200 rounded-full hover:bg-stone-50 transition-colors"
+                className="w-full mt-3 py-3 text-base font-medium text-stone-900 border border-stone-200 rounded-full hover:bg-stone-50 transition-colors"
               >
                 {showAll
                   ? t.showFewerReviews

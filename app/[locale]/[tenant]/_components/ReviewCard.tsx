@@ -21,20 +21,23 @@ const ReviewCard = React.forwardRef<HTMLDivElement, ReviewCardProps>(
         <div className="flex items-center gap-2.5 lg:gap-3 mb-2">
           <Avatar
             name={review.customer_name}
-            size="sm"
-            className="w-10 h-10 lg:w-11 lg:h-11"
+            size="lg"
+            className="w-10 h-10 lg:w-11 lg:h-11 font-bold"
           />
           <div className="min-w-0">
-            <p className="text-[17px] font-medium text-stone-900 line-clamp-1">
+            <p className="text-lg font-medium text-stone-900 line-clamp-1">
               {review.customer_name}
             </p>
-            <p className="text-[15px] text-stone-500">
+            <p className="text-base text-stone-500">
               {review.submitted_at
                 ? getRelativeDate(review.submitted_at)
                 : ''}
+              {review.services?.length > 0 && (
+                <> · {review.services.map(s => getText(s.service_name)).join(', ')}</>
+              )}
             </p>
           </div>
-        </div>
+        </div>  
 
         {/* Star rating — prominent gold stars like Fresha */}
         {review.rating !== null && review.rating > 0 && (
@@ -55,7 +58,7 @@ const ReviewCard = React.forwardRef<HTMLDivElement, ReviewCardProps>(
 
         {/* Comment text */}
         {review.comment && (
-          <p className="text-[17px] text-stone-900 leading-relaxed">
+          <p className="text-lg text-stone-900 leading-relaxed">
             {review.comment}
           </p>
         )}

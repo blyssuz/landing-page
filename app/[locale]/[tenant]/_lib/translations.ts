@@ -34,7 +34,8 @@ export const DAY_ORDER = [
 export const UI_TEXT: Record<Locale, Record<string, string>> = {
   uz: {
     openUntil: '{{time}} gacha ochiq',
-    closedNow: 'Hozir yopiq',
+    closedNow: 'Yopiq',
+    opensAt: '{{day}} {{time}} da ochiladi',
     call: "Qo'ng'iroq qilish",
     location: 'Manzil',
     workingHours: 'Ish vaqti',
@@ -89,7 +90,8 @@ export const UI_TEXT: Record<Locale, Record<string, string>> = {
   },
   ru: {
     openUntil: 'Открыто до {{time}}',
-    closedNow: 'Сейчас закрыто',
+    closedNow: 'Закрыто',
+    opensAt: 'откроется в {{day}} в {{time}}',
     call: 'Позвонить',
     location: 'Адрес',
     workingHours: 'Время работы',

@@ -78,6 +78,11 @@ function getSubdomain(host: string): string | null {
     return parts[0]
   }
 
+  // Handle Cloudflare tunnel: treat trycloudflare.com as tenant from TUNNEL_TENANT env
+  if (host.endsWith('.trycloudflare.com')) {
+    return process.env.TUNNEL_TENANT || null
+  }
+
   return null
 }
 

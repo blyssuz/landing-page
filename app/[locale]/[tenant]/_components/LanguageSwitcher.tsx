@@ -3,8 +3,12 @@
 import React from 'react';
 import { LOCALES } from '@/lib/i18n';
 import type { Locale } from '@/lib/i18n';
-import { LOCALE_LABELS } from '../_lib/translations';
 import { cn } from '@/app/components/ui/_lib/cn';
+
+const FLAG: Record<Locale, string> = {
+  uz: '🇺🇿',
+  ru: '🇷🇺',
+};
 
 export interface LanguageSwitcherProps {
   locale: Locale;
@@ -18,7 +22,7 @@ const LanguageSwitcher = React.forwardRef<HTMLDivElement, LanguageSwitcherProps>
       <div
         ref={ref}
         className={cn(
-          'flex bg-white/90 backdrop-blur rounded-full p-0.5',
+          'inline-flex border border-stone-200 rounded-full overflow-hidden',
           className
         )}
       >
@@ -27,13 +31,13 @@ const LanguageSwitcher = React.forwardRef<HTMLDivElement, LanguageSwitcherProps>
             key={loc}
             onClick={() => onSwitch(loc)}
             className={cn(
-              'px-2.5 py-1 rounded-full text-xs font-semibold transition-colors',
+              'px-3.5 py-1  text-lg transition-colors',
               locale === loc
-                ? 'bg-primary text-white'
-                : 'bg-stone-200 text-stone-600'
+                ? 'bg-[var(--primary)]'
+                : 'bg-white hover:bg-stone-50'
             )}
           >
-            {LOCALE_LABELS[loc]}
+            {FLAG[loc]}
           </button>
         ))}
       </div>

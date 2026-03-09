@@ -16,7 +16,7 @@ interface WorkingHoursProps {
   variant?: 'inline' | 'collapsible';
 }
 
-function DaySchedule({
+export function DaySchedule({
   workingHours,
   dayNames,
   closedLabel,
@@ -35,7 +35,7 @@ function DaySchedule({
         return (
           <div
             key={day}
-            className={`flex justify-between text-sm py-2 px-3 rounded-lg transition-colors ${
+            className={`flex justify-between text-lg py-2 px-3 rounded-lg transition-colors ${
               isToday ? 'bg-primary/10' : ''
             }`}
           >
@@ -83,7 +83,7 @@ export function WorkingHours({
   if (variant === 'inline') {
     return (
       <div>
-        <h4 className="text-base font-semibold text-stone-900 mb-3">{title}</h4>
+        <h4 className="text-lg font-semibold text-stone-900 mb-3">{title}</h4>
         <DaySchedule
           workingHours={workingHours}
           dayNames={dayNames}
@@ -94,19 +94,28 @@ export function WorkingHours({
   }
 
   // Collapsible variant (mobile)
+  const todayKey = getTodayKey();
+  const todayHours = workingHours[todayKey];
+  const todayTimeStr = todayHours?.is_open
+    ? `${secondsToTime(todayHours.start)} – ${secondsToTime(todayHours.end)}`
+    : closedLabel;
+
   return (
     <div className="bg-white rounded-xl border border-stone-100 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-3.5"
+        className="w-full flex items-center justify-between p-4"
       >
-        <div className="flex items-center gap-2.5">
-          <Clock size={16} className="text-primary" />
-          <span className="text-sm font-semibold text-stone-900">{title}</span>
+        <div className="flex items-center gap-3">
+          <Clock size={20} className="text-primary" />
+          <div className="text-left">
+            <span className="text-base font-semibold text-stone-900 block">{title}</span>
+            <span className="text-base text-stone-500">{dayNames[todayKey]} · {todayTimeStr}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {openUntilText && (
-            <span className="text-xs font-medium text-emerald-600">
+            <span className="text-sm font-medium text-emerald-600">
               {openUntilText}
             </span>
           )}
@@ -114,7 +123,7 @@ export function WorkingHours({
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <ChevronDown size={16} className="text-stone-400" />
+            <ChevronDown size={20} className="text-stone-400" />
           </motion.div>
         </div>
       </button>
