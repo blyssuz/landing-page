@@ -189,7 +189,9 @@ export default function RatingPage({ locale, initialState, review, token, primar
           <p className="mt-1 text-base text-stone-500">
             {formatDate(review.booking_date, locale)}
           </p>
-          <p className="mt-3 text-lg text-stone-600">{t.subtitle[locale]}</p>
+          {review.items.length > 1 && (
+            <p className="mt-3 text-lg text-stone-600">{t.subtitle[locale]}</p>
+          )}
         </div>
 
         {/* Service items */}
