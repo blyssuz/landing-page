@@ -92,40 +92,34 @@ export function ProfileHeader({
           </span>
         </button>
 
-        {/* Reviews + distance row */}
-        {(business.review_stats || distance) && (
-          <div className="flex items-center gap-1.5 text-base">
-            {business.review_stats && (
-              <button
-                type="button"
-                onClick={onReviewsClick}
-                className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
-              >
-                <StarRating
-                  rating={business.review_stats.average_rating}
-                />
-                <span className="font-medium text-stone-900">
-                  {business.review_stats.average_rating.toFixed(1)}
-                </span>
-                <span className="text-stone-500">
-                  ({business.review_stats.total_reviews} {t.reviewCount})
-                </span>
-              </button>
-            )}
+        {/* Reviews */}
+        {business.review_stats && (
+          <button
+            type="button"
+            onClick={onReviewsClick}
+            className="flex items-center gap-1.5 text-base hover:opacity-70 transition-opacity"
+          >
+            <StarRating
+              rating={business.review_stats.average_rating}
+            />
+            <span className="font-medium text-stone-900">
+              {business.review_stats.average_rating.toFixed(1)}
+            </span>
+            <span className="text-stone-500">
+              ({business.review_stats.total_reviews} {t.reviewCount})
+            </span>
+          </button>
+        )}
 
-            {distance && (
-              <>
-                {business.review_stats && <span className="text-stone-300">&middot;</span>}
-                <button
-                  type="button"
-                  onClick={onDistanceClick}
-                  className="text-stone-500 hover:opacity-70 transition-opacity"
-                >
-                  {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
-                </button>
-              </>
-            )}
-          </div>
+        {/* Distance */}
+        {distance && (
+          <button
+            type="button"
+            onClick={onDistanceClick}
+            className="text-base text-stone-500 hover:opacity-70 transition-opacity"
+          >
+            {t.distanceAway.replace('{{distance}}', `${distance.distance} ${distance.metric}`)}
+          </button>
         )}
       </div>
 
