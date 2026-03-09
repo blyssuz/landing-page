@@ -13,7 +13,7 @@ This roadmap transforms the BLYSS landing page and tenant pages from their curre
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Design System Foundation** - Custom Tailwind component primitives, typography/color system, and architectural scaffolding
-- [ ] **Phase 2: Tenant Page -- Presentation & Layout** - Hero gallery, business header, team, reviews, about/sidebar, and page shell decomposition
+- [x] **Phase 2: Tenant Page -- Presentation & Layout** - Hero gallery, business header, team, reviews, about/sidebar, and page shell decomposition (completed 2026-03-09)
 - [ ] **Phase 3: Tenant Page -- Services, Booking & Interactions** - Service listing, full booking flow, sticky navigation, and animations
 - [ ] **Phase 4: Landing Page & Auxiliary Pages** - Landing page rebuild, bookings list, rating page, and location page
 
@@ -94,6 +94,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Design System Foundation | 3/3 | Complete | 2026-03-09 |
-| 2. Tenant Page -- Presentation & Layout | 3/4 | In Progress|  |
+| 2. Tenant Page -- Presentation & Layout | 4/4 | Complete   | 2026-03-09 |
 | 3. Tenant Page -- Services, Booking & Interactions | 0/0 | Not started | - |
 | 4. Landing Page & Auxiliary Pages | 0/0 | Not started | - |

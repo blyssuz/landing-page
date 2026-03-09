@@ -52,7 +52,7 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 - [x] **TA-02**: Desktop layout uses right sidebar for business info (hours, contact, location, Book CTA) visible while scrolling
 - [x] **TA-03**: Sticky tab navigation with IntersectionObserver-driven active state and spring-animated indicator
 - [x] **TA-04**: Mobile bottom navigation with prominent booking action and tap feedback animation
-- [ ] **TA-05**: Per-section skeleton loading screens matching actual content layout with shimmer animation
+- [x] **TA-05**: Per-section skeleton loading screens matching actual content layout with shimmer animation
 
 ### Booking Flow
 
@@ -92,7 +92,7 @@ Requirements for the UI rebuild. Each maps to roadmap phases.
 
 ### Architecture
 
-- [ ] **AR-01**: TenantPage.tsx decomposed from ~1800-line monolith into ~20 focused components
+- [x] **AR-01**: TenantPage.tsx decomposed from ~1800-line monolith into ~20 focused components
 - [x] **AR-02**: Components organized in co-located `_components/` directories with `_lib/` for utilities
 - [x] **AR-03**: Single responsive markup per component (no duplicate mobile/desktop rendering)
 - [x] **AR-04**: All user-facing strings use the translation system (centralized or co-located)
@@ -163,7 +163,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TA-02 | Phase 2 | Complete |
 | TA-03 | Phase 2 | Complete |
 | TA-04 | Phase 2 | Complete |
-| TA-05 | Phase 2 | Pending |
+| TA-05 | Phase 2 | Complete |
 | BK-01 | Phase 3 | Pending |
 | BK-02 | Phase 3 | Pending |
 | BK-03 | Phase 3 | Pending |
@@ -188,7 +188,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IX-03 | Phase 3 | Pending |
 | IX-04 | Phase 1 | Complete |
 | IX-05 | Phase 3 | Pending |
-| AR-01 | Phase 2 | Pending |
+| AR-01 | Phase 2 | Complete |
 | AR-02 | Phase 1 | Complete |
 | AR-03 | Phase 1 | Complete |
 | AR-04 | Phase 1 | Complete |
