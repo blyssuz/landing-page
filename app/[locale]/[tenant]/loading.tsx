@@ -1,69 +1,80 @@
-import { HeroSkeleton } from './_components/skeletons/HeroSkeleton';
-import { HeaderSkeleton } from './_components/skeletons/HeaderSkeleton';
-import { TabsSkeleton } from './_components/skeletons/TabsSkeleton';
+import { Skeleton } from '@/app/components/ui/Skeleton';
 import { TeamSkeleton } from './_components/skeletons/TeamSkeleton';
 import { ReviewsSkeleton } from './_components/skeletons/ReviewsSkeleton';
-import { SidebarSkeleton } from './_components/skeletons/SidebarSkeleton';
 import { AboutSkeleton } from './_components/skeletons/AboutSkeleton';
-import { Skeleton } from '@/app/components/ui/Skeleton';
 
 export default function TenantLoading() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <HeroSkeleton />
-
-      {/* Tabs */}
-      <TabsSkeleton />
-
-      {/* Main content */}
-      <div className="max-w-[1350px] mx-auto px-4 lg:px-6 pb-24 lg:pb-20">
-        <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
-          {/* Left column */}
-          <div>
-            {/* Business header */}
-            <HeaderSkeleton />
-
-            {/* Services heading */}
-            <div className="pt-5 lg:pt-6 pb-3 lg:pb-4">
-              <Skeleton variant="text" className="h-5 lg:h-7 w-24 lg:w-28" />
-            </div>
-
-            {/* Search bar */}
-            <div className="mb-3 lg:mb-5">
-              <Skeleton variant="rectangular" className="h-10 lg:h-12 w-full !rounded-xl lg:!rounded-2xl" />
-            </div>
-
-            {/* Service cards */}
-            <div className="bg-white rounded-xl lg:rounded-2xl border border-stone-100 overflow-hidden">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center justify-between px-3 lg:px-5 py-3 lg:py-4 ${
-                    i > 0 ? 'border-t border-stone-100' : ''
-                  }`}
-                >
-                  <div className="flex-1 pr-3 lg:pr-4">
-                    <Skeleton variant="text" className="h-3.5 lg:h-4 w-36 lg:w-40" />
-                    <Skeleton variant="text" className="h-3 lg:h-3.5 w-24 lg:w-28 mt-1.5 lg:mt-2" />
-                  </div>
-                  <Skeleton variant="rectangular" className="h-7 lg:h-9 w-20 lg:w-28 !rounded-full" />
-                </div>
-              ))}
-            </div>
-
-            {/* Team */}
-            <TeamSkeleton />
-
-            {/* Reviews */}
-            <ReviewsSkeleton />
-          </div>
-
-          {/* Right sidebar (desktop) */}
-          <SidebarSkeleton />
+    <div className="min-h-screen bg-white">
+      {/* Profile Header skeleton */}
+      <div className="px-4 pt-4 pb-2">
+        {/* Language toggle placeholder */}
+        <div className="flex justify-between items-center mb-6">
+          <Skeleton variant="rectangular" className="h-8 w-20 !rounded-full" />
+          <div />
         </div>
 
-        {/* Mobile about */}
+        {/* Avatar */}
+        <div className="flex justify-center">
+          <Skeleton variant="circular" className="w-[88px] h-[88px]" />
+        </div>
+
+        {/* Name */}
+        <div className="flex justify-center mt-4">
+          <Skeleton variant="text" className="h-7 w-48" />
+        </div>
+
+        {/* Tagline */}
+        <div className="flex justify-center mt-2">
+          <Skeleton variant="text" className="h-4 w-32" />
+        </div>
+
+        {/* Status row */}
+        <div className="flex justify-center mt-3">
+          <Skeleton variant="text" className="h-4 w-56" />
+        </div>
+
+        {/* Book button */}
+        <div className="mt-5">
+          <Skeleton variant="rectangular" className="h-12 w-full !rounded-xl" />
+        </div>
+
+        {/* Quick actions */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} variant="rectangular" className="h-16 !rounded-xl" />
+          ))}
+        </div>
+      </div>
+
+      {/* Photo strip skeleton */}
+      <div className="px-4 py-3">
+        <div className="flex gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} variant="rectangular" className="w-14 h-14 flex-shrink-0 !rounded-lg" />
+          ))}
+        </div>
+      </div>
+
+      {/* Services skeleton */}
+      <div className="px-4 pt-6">
+        <Skeleton variant="text" className="h-6 w-24 mb-4" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className={`flex items-center justify-between py-4 ${i > 0 ? 'border-t border-stone-100' : ''}`}>
+            <div className="flex-1 pr-4">
+              <Skeleton variant="text" className="h-4 w-36" />
+              <Skeleton variant="text" className="h-3 w-20 mt-1.5" />
+              <Skeleton variant="text" className="h-3 w-24 mt-1.5" />
+            </div>
+            <Skeleton variant="rectangular" className="h-8 w-24 !rounded-full" />
+          </div>
+        ))}
+      </div>
+
+      {/* Remaining sections */}
+      <div className="px-4">
+        <TeamSkeleton />
+        <ReviewsSkeleton />
         <AboutSkeleton />
       </div>
     </div>
