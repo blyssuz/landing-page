@@ -132,72 +132,72 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DS-01 | — | Pending |
-| DS-02 | — | Pending |
-| DS-03 | — | Pending |
-| DS-04 | — | Pending |
-| DS-05 | — | Pending |
-| DS-06 | — | Pending |
-| DS-07 | — | Pending |
-| DS-08 | — | Pending |
-| DS-09 | — | Pending |
-| DS-10 | — | Pending |
-| DS-11 | — | Pending |
-| TH-01 | — | Pending |
-| TH-02 | — | Pending |
-| TH-03 | — | Pending |
-| TH-04 | — | Pending |
-| TH-05 | — | Pending |
-| TH-06 | — | Pending |
-| TH-07 | — | Pending |
-| TS-01 | — | Pending |
-| TS-02 | — | Pending |
-| TS-03 | — | Pending |
-| TS-04 | — | Pending |
-| TS-05 | — | Pending |
-| TR-01 | — | Pending |
-| TR-02 | — | Pending |
-| TR-03 | — | Pending |
-| TR-04 | — | Pending |
-| TA-01 | — | Pending |
-| TA-02 | — | Pending |
-| TA-03 | — | Pending |
-| TA-04 | — | Pending |
-| TA-05 | — | Pending |
-| BK-01 | — | Pending |
-| BK-02 | — | Pending |
-| BK-03 | — | Pending |
-| BK-04 | — | Pending |
-| BK-05 | — | Pending |
-| BK-06 | — | Pending |
-| BK-07 | — | Pending |
-| BK-08 | — | Pending |
-| BK-09 | — | Pending |
-| LP-01 | — | Pending |
-| LP-02 | — | Pending |
-| LP-03 | — | Pending |
-| LP-04 | — | Pending |
-| LP-05 | — | Pending |
-| AX-01 | — | Pending |
-| AX-02 | — | Pending |
-| AX-03 | — | Pending |
-| AX-04 | — | Pending |
-| AX-05 | — | Pending |
-| IX-01 | — | Pending |
-| IX-02 | — | Pending |
-| IX-03 | — | Pending |
-| IX-04 | — | Pending |
-| IX-05 | — | Pending |
-| AR-01 | — | Pending |
-| AR-02 | — | Pending |
-| AR-03 | — | Pending |
-| AR-04 | — | Pending |
+| DS-01 | Phase 1 | Pending |
+| DS-02 | Phase 1 | Pending |
+| DS-03 | Phase 1 | Pending |
+| DS-04 | Phase 1 | Pending |
+| DS-05 | Phase 1 | Pending |
+| DS-06 | Phase 1 | Pending |
+| DS-07 | Phase 1 | Pending |
+| DS-08 | Phase 1 | Pending |
+| DS-09 | Phase 1 | Pending |
+| DS-10 | Phase 1 | Pending |
+| DS-11 | Phase 1 | Pending |
+| TH-01 | Phase 2 | Pending |
+| TH-02 | Phase 2 | Pending |
+| TH-03 | Phase 2 | Pending |
+| TH-04 | Phase 2 | Pending |
+| TH-05 | Phase 2 | Pending |
+| TH-06 | Phase 2 | Pending |
+| TH-07 | Phase 2 | Pending |
+| TS-01 | Phase 3 | Pending |
+| TS-02 | Phase 3 | Pending |
+| TS-03 | Phase 3 | Pending |
+| TS-04 | Phase 3 | Pending |
+| TS-05 | Phase 3 | Pending |
+| TR-01 | Phase 2 | Pending |
+| TR-02 | Phase 2 | Pending |
+| TR-03 | Phase 2 | Pending |
+| TR-04 | Phase 2 | Pending |
+| TA-01 | Phase 2 | Pending |
+| TA-02 | Phase 2 | Pending |
+| TA-03 | Phase 2 | Pending |
+| TA-04 | Phase 2 | Pending |
+| TA-05 | Phase 2 | Pending |
+| BK-01 | Phase 3 | Pending |
+| BK-02 | Phase 3 | Pending |
+| BK-03 | Phase 3 | Pending |
+| BK-04 | Phase 3 | Pending |
+| BK-05 | Phase 3 | Pending |
+| BK-06 | Phase 3 | Pending |
+| BK-07 | Phase 3 | Pending |
+| BK-08 | Phase 3 | Pending |
+| BK-09 | Phase 3 | Pending |
+| LP-01 | Phase 4 | Pending |
+| LP-02 | Phase 4 | Pending |
+| LP-03 | Phase 4 | Pending |
+| LP-04 | Phase 4 | Pending |
+| LP-05 | Phase 4 | Pending |
+| AX-01 | Phase 4 | Pending |
+| AX-02 | Phase 4 | Pending |
+| AX-03 | Phase 4 | Pending |
+| AX-04 | Phase 4 | Pending |
+| AX-05 | Phase 4 | Pending |
+| IX-01 | Phase 3 | Pending |
+| IX-02 | Phase 3 | Pending |
+| IX-03 | Phase 3 | Pending |
+| IX-04 | Phase 1 | Pending |
+| IX-05 | Phase 3 | Pending |
+| AR-01 | Phase 2 | Pending |
+| AR-02 | Phase 1 | Pending |
+| AR-03 | Phase 1 | Pending |
+| AR-04 | Phase 1 | Pending |
 
 **Coverage:**
-- v1 requirements: 55 total
-- Mapped to phases: 0
-- Unmapped: 55
+- v1 requirements: 60 total
+- Mapped to phases: 60
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after initial definition*
+*Last updated: 2026-03-09 after roadmap creation*
