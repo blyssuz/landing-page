@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LocationProvider } from "@/lib/location-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito-sans",
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 });
 
 const SITE_URL = 'https://blyss.uz';
@@ -126,7 +123,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `document.documentElement.setAttribute('data-color-scheme','light')` }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${nunitoSans.variable} antialiased`}
       >
         <ThemeProvider>
           <LocationProvider>{children}</LocationProvider>
