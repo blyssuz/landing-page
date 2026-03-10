@@ -204,7 +204,7 @@ function ServiceDetailModal({
           <button
             onClick={onBook}
             disabled={bookingLoading}
-            className="w-full mt-auto py-3.5 bg-[var(--primary)] text-white rounded-full font-semibold text-base active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+            className="w-full mt-auto py-3.5 mt-4 bg-[var(--primary)] text-white rounded-full font-semibold text-base active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
           >
             {bookingLoading && (
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
