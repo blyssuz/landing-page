@@ -380,7 +380,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-end lg:items-center justify-center bg-black/50 transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/50 overflow-y-auto transition-opacity duration-200 ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={(e) => {
@@ -388,15 +388,10 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
       }}
     >
       <div
-        className={`bg-white rounded-t-[28px] lg:rounded-2xl p-6 sm:p-8 w-full lg:w-2xl shadow-2xl relative transition-all duration-200 ${
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        className={`bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md lg:w-2xl mx-4 my-auto shadow-2xl relative transition-all duration-200 ${
+          visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pb-4 lg:hidden">
-          <div className="w-10 h-1 bg-stone-300 rounded-full" />
-        </div>
-
         {/* Close button */}
         <button
           onClick={handleClose}
