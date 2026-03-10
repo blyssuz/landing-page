@@ -2,8 +2,8 @@ import { Skeleton } from '@/app/components/ui/Skeleton';
 
 export default function RateLoading() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto max-w-3xl shadow-lg px-4 py-8">
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-3xl bg-white shadow-lg min-h-screen px-4 py-8">
         {/* Header */}
         <div className="mb-8 text-center flex flex-col items-center">
           <Skeleton variant="text" className="h-9 w-48" />

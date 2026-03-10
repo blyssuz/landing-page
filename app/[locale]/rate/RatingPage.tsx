@@ -180,8 +180,8 @@ export default function RatingPage({ locale, initialState, review, token, primar
   if (!review) return null
 
   return (
-    <div className="min-h-screen bg-white" style={colorStyle}>
-      <div className="mx-auto max-w-3xl shadow-lg px-4 py-8">
+    <div className="min-h-screen" style={colorStyle}>
+      <div className="mx-auto max-w-3xl bg-white shadow-lg min-h-screen px-4 py-8">
 
         {/* Header */}
         <div className="mb-8 text-center">
@@ -270,8 +270,8 @@ function StatusScreen({
 }) {
   const t = translations.review
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4" style={colorStyle}>
-      <div className="text-center">
+    <div className="min-h-screen" style={colorStyle}>
+      <div className="flex min-h-screen items-center justify-center mx-auto max-w-3xl bg-white shadow-lg px-4">
         <div className="mb-4 flex justify-center">{icon}</div>
         <h1 className="text-2xl font-bold text-stone-900">{title}</h1>
         <p className="mt-2 text-base text-stone-500">{message}</p>
