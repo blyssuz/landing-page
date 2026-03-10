@@ -91,4 +91,5 @@ export interface TenantPageProps {
   businessId: string;
   locale: Locale;
   savedUser: SavedUser | null;
+  isFromInstagram?: boolean;
 }

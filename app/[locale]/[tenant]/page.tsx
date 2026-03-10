@@ -200,10 +200,13 @@ export async function generateMetadata({
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ tenant: string; locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { tenant: tenantSlug, locale: localeParam } = await params
+  const [{ tenant: tenantSlug, locale: localeParam }, sp] = await Promise.all([params, searchParams])
+  const isFromInstagram = sp.utm_source === 'ig' || 'fbclid' in sp
   const locale: Locale = isValidLocale(localeParam) ? localeParam : DEFAULT_LOCALE
   const tenant = await getTenant()
   const { data: businessData, status } = await getBusinessData(tenantSlug)
@@ -301,6 +304,7 @@ export default async function Page({
       businessId={business.id}
       locale={locale}
       savedUser={savedUser}
+      isFromInstagram={isFromInstagram}
     />
   </div>
 }
