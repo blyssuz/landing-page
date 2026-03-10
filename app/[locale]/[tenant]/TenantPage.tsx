@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin } from 'lucide-react';
@@ -24,6 +24,12 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
   const router = useRouter();
   const pathname = usePathname();
   const { distance, distanceLoading, distanceDenied, geoAddress, fetchDistance, showLocationModal, setShowLocationModal } = useDistance(business, locale);
+
+  const isFromInstagram = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('utm_source') === 'ig' || params.has('fbclid');
+  }, []);
 
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -76,6 +82,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
         distanceLoading={distanceLoading}
         translations={t}
         geoAddress={geoAddress}
+        minimal={isFromInstagram}
       />
 
       {/* Photo Strip */}

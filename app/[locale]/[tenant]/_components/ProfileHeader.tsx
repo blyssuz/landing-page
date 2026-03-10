@@ -22,6 +22,7 @@ interface ProfileHeaderProps {
   distance: { distance: number; metric: string } | null;
   distanceLoading: boolean;
   translations: Record<string, string>;
+  minimal?: boolean;
 }
 
 export function ProfileHeader({
@@ -39,8 +40,41 @@ export function ProfileHeader({
   distance,
   distanceLoading,
   translations: t,
+  minimal,
 }: ProfileHeaderProps) {
   const hasAvatar = !!business.avatar_url;
+
+  if (minimal) {
+    return (
+      <div className={cn('px-4 pt-4 pb-2 text-left')}>
+        {/* Top bar: language switcher only */}
+        <div className="flex justify-end items-center mb-2">
+          <LanguageSwitcher locale={locale} onSwitch={onSwitchLocale} />
+        </div>
+
+        {/* Open/closed status */}
+        <button
+          type="button"
+          onClick={onStatusClick}
+          className="flex items-center gap-1.5 text-base hover:opacity-70 transition-opacity"
+        >
+          <span
+            className={cn(
+              'w-2.5 h-2.5 rounded-full flex-shrink-0',
+              openStatus ? 'bg-emerald-500' : 'bg-red-400'
+            )}
+          />
+          <span className="text-stone-600">
+            {openStatus && closingTime
+              ? t.openUntil.replace('{{time}}', closingTime)
+              : nextOpenText
+                ? `${t.closedNow} · ${nextOpenText}`
+                : t.closedNow}
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('px-4 pt-4 pb-2 text-left')}>
