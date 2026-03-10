@@ -75,6 +75,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
         distance={distance}
         distanceLoading={distanceLoading}
         translations={t}
+        geoAddress={geoAddress}
       />
 
       {/* Photo Strip */}

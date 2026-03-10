@@ -106,6 +106,15 @@ export function useDistance(business: Business, locale: Locale): UseDistanceRetu
       setDistance(cached);
       return;
     }
+    // Skip geolocation request when opened from Instagram (in-app browser)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('utm_source') === 'ig' || params.has('fbclid')) {
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
     try {
       if (sessionStorage.getItem(LOCATION_DENIED_KEY)) {
         setDistanceDenied(true);

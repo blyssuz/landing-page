@@ -1,5 +1,6 @@
 'use client';
 
+import { MapPin } from 'lucide-react';
 import { Avatar } from '@/app/components/ui/Avatar';
 import { StarRating } from '@/app/components/ui/StarRating';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -12,6 +13,7 @@ interface ProfileHeaderProps {
   onSwitchLocale: (locale: Locale) => void;
   onBook: () => void;
   openStatus: boolean;
+  geoAddress: string | null;
   closingTime: string | null;
   nextOpenText?: string;
   onStatusClick?: () => void;
@@ -29,6 +31,7 @@ export function ProfileHeader({
   onBook,
   openStatus,
   closingTime,
+  geoAddress,
   nextOpenText,
   onStatusClick,
   onReviewsClick,
@@ -43,7 +46,13 @@ export function ProfileHeader({
     <div className={cn('px-4 pt-4 pb-2 text-left')}>
       {/* Top bar */}
       <div className="flex justify-between items-center mb-6">
-        <div />
+        <button
+          type="button"
+          onClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
+          className="w-9 h-9 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+        >
+          <MapPin size={18} className="text-stone-600" />
+        </button>
         <LanguageSwitcher locale={locale} onSwitch={onSwitchLocale} />
       </div>
 
@@ -62,15 +71,41 @@ export function ProfileHeader({
         {business.name}
       </h1>
 
+      {geoAddress && (
+        <div className="text-stone-600 mt-2">
+          {geoAddress}
+{}        </div>
+      )}
+
       {/* Tagline */}
-      {(business.tagline || business.bio) && (
+      {/* {(business.tagline || business.bio) && (
         <p className="mt-1 text-base text-stone-500">
           {business.tagline || business.bio}
         </p>
-      )}
+      )} */}
 
       {/* Status row */}
-      <div className="mt-2 space-y-1">
+      <div className="mt-1 space-y-1">
+
+        {/* Reviews */}
+        {business.review_stats && (
+          <button
+            type="button"
+            onClick={onReviewsClick}
+            className="flex items-center gap-1.5 text-base hover:opacity-70 transition-opacity"
+          >
+            <StarRating
+              rating={business.review_stats.average_rating}
+            />
+            <span className="font-medium text-stone-900">
+              {business.review_stats.average_rating.toFixed(1)}
+            </span>
+            <span className="text-stone-500">
+              ({business.review_stats.total_reviews} {t.reviewCount})
+            </span>
+          </button>
+        )}
+
         {/* Open/closed status */}
         <button
           type="button"
@@ -91,25 +126,6 @@ export function ProfileHeader({
                 : t.closedNow}
           </span>
         </button>
-
-        {/* Reviews */}
-        {business.review_stats && (
-          <button
-            type="button"
-            onClick={onReviewsClick}
-            className="flex items-center gap-1.5 text-base hover:opacity-70 transition-opacity"
-          >
-            <StarRating
-              rating={business.review_stats.average_rating}
-            />
-            <span className="font-medium text-stone-900">
-              {business.review_stats.average_rating.toFixed(1)}
-            </span>
-            <span className="text-stone-500">
-              ({business.review_stats.total_reviews} {t.reviewCount})
-            </span>
-          </button>
-        )}
 
         {/* Distance */}
         {distance && (
