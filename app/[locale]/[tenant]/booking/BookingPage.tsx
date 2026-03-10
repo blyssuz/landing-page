@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/i18n';
 import {
   ChevronLeft,
-  ChevronRight,
   Clock,
   Check,
   User,
@@ -108,7 +107,7 @@ const UI: Record<Locale, Record<string, string>> = {
     loading: 'Yuklanmoqda...',
     confirmBooking: 'Band qilish',
     total: 'Jami',
-    sum: "so'm",
+    sum: "SO'M",
     minute: 'daq',
     hour: 'soat',
     anySpecialist: 'Har qanday mutaxassis',
@@ -147,7 +146,7 @@ const UI: Record<Locale, Record<string, string>> = {
     loading: 'Загрузка...',
     confirmBooking: 'Записаться',
     total: 'Итого',
-    sum: 'сум',
+    sum: 'СУМ',
     minute: 'мин',
     hour: 'ч',
     anySpecialist: 'Любой специалист',
@@ -208,10 +207,10 @@ function formatDateYMD(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-function generateNext30Days(): Date[] {
+function generateNext7Days(): Date[] {
   const days: Date[] = [];
   const today = new Date();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() + i);
     days.push(d);
@@ -322,14 +321,13 @@ export function BookingPage({
   const [error, setError] = useState('');
   const [errorCode, setErrorCode] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [timeTab, setTimeTab] = useState<'morning' | 'afternoon' | 'evening'>('morning');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEmployeeSheet, setShowEmployeeSheet] = useState(false);
   const [showAddServiceSheet, setShowAddServiceSheet] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [bookingResult, setBookingResult] = useState<Record<string, unknown> | null>(null);
 
-  const dates = generateNext30Days();
+  const dates = generateNext7Days();
   const timeSectionRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
   const datesScrollRef = useRef<HTMLDivElement>(null);
@@ -403,7 +401,7 @@ export function BookingPage({
       if (validServiceIds.length === 0) {
         clearBookingState(businessId);
         const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
+        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
         return;
       }
 
@@ -418,7 +416,7 @@ export function BookingPage({
         clearBookingState(businessId);
         setSelectedServiceIds(validServiceIds);
         const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
+        if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
         return;
       }
 
@@ -461,7 +459,7 @@ export function BookingPage({
     } else {
       // No saved state — auto-select first available date
       const firstOpen = dates.find(d => isDayOpen(d, workingHours));
-      if (firstOpen) handleDateSelect(formatDateYMD(firstOpen), { scroll: false });
+      if (firstOpen) handleDateSelect(formatDateYMD(firstOpen));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -488,7 +486,7 @@ export function BookingPage({
 
   // ─── Handlers ───
 
-  const handleDateSelect = async (dateStr: string, { scroll = true }: { scroll?: boolean } = {}) => {
+  const handleDateSelect = async (dateStr: string) => {
     setSelectedDate(dateStr);
     setSelectedTime(null);
     setServiceEmployees([]);
@@ -504,10 +502,6 @@ export function BookingPage({
         const slots = result.available_start_times;
         setAvailableSlots(slots);
         setDiscountSlots(new Set(result.slots_with_discounts || []));
-        // Auto-select first tab that has slots
-        if (slots.some((s: number) => s < 43200)) setTimeTab('morning');
-        else if (slots.some((s: number) => s >= 43200 && s < 61200)) setTimeTab('afternoon');
-        else if (slots.some((s: number) => s >= 61200)) setTimeTab('evening');
       }
     } catch {
       setError(t.errorOccurred);
@@ -515,7 +509,6 @@ export function BookingPage({
       setSlotsLoading(false);
     }
 
-    if (scroll) scrollToSection(timeSectionRef);
   };
 
   const handleTimeSelect = async (time: number) => {
@@ -543,7 +536,6 @@ export function BookingPage({
       setLoading(false);
     }
 
-    scrollToSection(servicesSectionRef);
   };
 
   const handleAddService = async (serviceId: string) => {
@@ -775,156 +767,128 @@ export function BookingPage({
         </div>
       )}
 
-      {/* ===== CALENDAR SECTION ===== */}
-      <section className="pt-6">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-2xl font-bold text-stone-900">
-            {MONTH_NAMES_FULL[locale][new Date().getMonth()]} {new Date().getFullYear()}
-          </p>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => datesScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 transition-colors"
-            >
-              <ChevronLeft size={24} className="text-stone-700" />
-            </button>
-            <button
-              onClick={() => datesScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 transition-colors"
-            >
-              <ChevronRight size={24} className="text-stone-700" />
-            </button>
-          </div>
-        </div>
-        <div ref={datesScrollRef} className="flex gap-2 overflow-x-auto py-2 scrollbar-hide -mx-4 px-4">
-          {dates.map((date, idx) => {
-            const dateStr = formatDateYMD(date);
-            const isSelected = selectedDate === dateStr;
-            const isToday = idx === 0;
-            const isTomorrow = idx === 1;
-            const isOpen = isDayOpen(date, workingHours);
-            const dayName = isToday
-              ? t.today
-              : isTomorrow
-                ? t.tomorrow
-                : DAY_NAMES_SHORT[locale][date.getDay()];
-            const monthName = MONTH_NAMES[locale][date.getMonth()];
-
-            if (!isOpen) {
-              return (
-                <button
-                  key={dateStr}
-                  disabled
-                  className="flex-shrink-0 flex flex-col items-center w-[4.5rem] py-5 rounded-2xl bg-stone-50 opacity-40 cursor-not-allowed"
-                >
-                  <span className="text-sm text-stone-400">{dayName}</span>
-                  <span className="text-xl font-bold mt-0.5 text-stone-300 line-through">{date.getDate()}</span>
-                </button>
-              );
-            }
-
-            return (
-              <button
-                key={dateStr}
-                onClick={() => handleDateSelect(dateStr)}
-                className={`flex-shrink-0 flex flex-col items-center w-[4.5rem] py-5 rounded-2xl transition-all ${isSelected
-                  ? 'bg-primary text-white'
-                  : 'bg-stone-50 hover:bg-stone-100 text-stone-900'
-                  }`}
-              >
-                <span
-                  className={`text-sm ${isSelected ? 'text-white/70' : 'text-stone-500'
-                    }`}
-                >
-                  {dayName}
-                </span>
-                <span className="text-xl font-bold mt-0.5">{date.getDate()}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ===== TIME SLOTS SECTION ===== */}
-      {selectedDate && (
-        <section ref={timeSectionRef} className="pt-8 scroll-mt-20">
-          <h2 className="text-2xl font-bold text-stone-900 mb-3">
-            {t.selectTime}
-          </h2>
-
-          {slotsLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <HashLoader size={30} color={primaryColor} />
+      {/* ===== DATE & TIME SECTION ===== */}
+      {selectedTime !== null ? (
+        <section className="pt-6">
+          <button
+            onClick={() => { setSelectedTime(null); setServiceEmployees([]); setSelectedEmployees({}); }}
+            className="w-full flex items-center justify-between py-4 px-5 rounded-xl text-base font-bold border-2 border-primary"
+          >
+            <span>
+              {(() => {
+                const d = new Date(selectedDate + 'T00:00:00');
+                const idx = dates.findIndex(dt => formatDateYMD(dt) === selectedDate);
+                if (idx === 0) return `${t.today} · ${secondsToTime(selectedTime)}`;
+                if (idx === 1) return `${t.tomorrow} · ${secondsToTime(selectedTime)}`;
+                return `${DAY_NAMES_SHORT[locale][d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[locale][d.getMonth()]} · ${secondsToTime(selectedTime)}`;
+              })()}
+            </span>
+            <span className="text-sm font-medium bg-stone-100 border border-stone-200 py-2 px-3 rounded-lg text-stone-600">{t.change}</span>
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="pt-6">
+            <div className="mb-3">
+              <p className="text-2xl font-bold text-stone-900">
+                {t.selectDate}
+              </p>
             </div>
-          ) : availableSlots.length === 0 ? (
-            <div className="text-center py-16">
-              <Clock size={40} className="lg:hidden mx-auto text-stone-300 mb-3" />
-              <Clock size={60} className="hidden lg:block mx-auto text-stone-300 mb-4" />
-              <p className="text-stone-500 text-base">{t.noSlots}</p>
-            </div>
-          ) : (() => {
-            const morningSlots = availableSlots.filter(s => s < 43200);
-            const afternoonSlots = availableSlots.filter(s => s >= 43200 && s < 61200);
-            const eveningSlots = availableSlots.filter(s => s >= 61200);
-            const tabs = [
-              { key: 'morning' as const, label: t.morning, slots: morningSlots },
-              { key: 'afternoon' as const, label: t.afternoon, slots: afternoonSlots },
-              { key: 'evening' as const, label: t.evening, slots: eveningSlots },
-            ].filter(tab => tab.slots.length > 0);
-            const activeTab = tabs.find(tab => tab.key === timeTab) || tabs[0];
+            <div ref={datesScrollRef} className="flex gap-4 overflow-x-auto py-2 scrollbar-hide -mx-4 px-4">
+              {dates.map((date, idx) => {
+                const dateStr = formatDateYMD(date);
+                const isSelected = selectedDate === dateStr;
+                const isToday = idx === 0;
+                const isTomorrow = idx === 1;
+                const isOpen = isDayOpen(date, workingHours);
+                const dayName = isToday
+                  ? t.today
+                  : isTomorrow
+                    ? t.tomorrow
+                    : DAY_NAMES_SHORT[locale][date.getDay()];
 
-            return (
-              <div>
-                {/* Tabs */}
-                <div className="flex gap-2 mb-4">
-                  {tabs.map(tab => (
+                if (!isOpen) {
+                  return (
                     <button
-                      key={tab.key}
-                      onClick={() => setTimeTab(tab.key)}
-                      className={`flex-1 py-2.5 rounded-xl text-base font-medium transition-all ${
-                        activeTab.key === tab.key
-                          ? 'bg-primary text-white'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                      }`}
+                      key={dateStr}
+                      disabled
+                      className="flex-shrink-0 flex flex-col items-center gap-1.5 opacity-40 cursor-not-allowed"
                     >
-                      {tab.label}
+                      <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-stone-300 line-through">{date.getDate()}</span>
+                      </div>
+                      <span className="text-base text-stone-400">{dayName}</span>
                     </button>
-                  ))}
-                </div>
+                  );
+                }
 
-                {/* Slots grid */}
-                <div className="grid grid-cols-4 gap-2">
-                  {activeTab.slots.map(time => {
-                    const isSelected = selectedTime === time;
+                return (
+                  <button
+                    key={dateStr}
+                    onClick={() => handleDateSelect(dateStr)}
+                    className="flex-shrink-0 flex flex-col items-center gap-1.5 transition-all"
+                  >
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isSelected
+                      ? 'bg-primary text-white'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-900'
+                      }`}>
+                      <span className="text-2xl font-bold">{date.getDate()}</span>
+                    </div>
+                    <span className={`text-base ${isSelected ? 'text-primary font-semibold' : 'text-stone-500'}`}>
+                      {dayName}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ===== TIME SLOTS SECTION ===== */}
+          {selectedDate && (
+            <section ref={timeSectionRef} className="pt-4 scroll-mt-20">
+              {slotsLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <HashLoader size={30} color={primaryColor} />
+                </div>
+              ) : availableSlots.length === 0 ? (
+                <div className="text-center py-16">
+                  <Clock size={40} className="lg:hidden mx-auto text-stone-300 mb-3" />
+                  <Clock size={60} className="hidden lg:block mx-auto text-stone-300 mb-4" />
+                  <p className="text-stone-500 text-base">{t.noSlots}</p>
+                </div>
+              ) : (
+                <motion.div
+                  className="flex flex-col gap-2"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {availableSlots.map(time => {
                     const hasDiscount = discountSlots.has(time);
                     return (
-                      <button
+                      <motion.button
                         key={time}
                         onClick={() => handleTimeSelect(time)}
-                        className={`relative py-3 rounded-xl text-base font-medium transition-all ${isSelected
-                          ? 'bg-primary text-white'
-                          : 'bg-stone-50 hover:bg-stone-100 text-stone-900'
-                          }`}
+                        className="flex items-center justify-between py-4 px-5 rounded-xl text-base font-bold hover:border-primary text-stone-900 border border-stone-200 transition-colors"
+                        layout
                       >
                         <span>{secondsToTime(time)}</span>
-                        {hasDiscount && <div className={`${isSelected ? 'bg-white' : 'bg-primary'} h-1 rounded-xl w-[25%] mx-auto mt-1`} />}
-                      </button>
+                        {hasDiscount && <div className="bg-primary h-1.5 w-1.5 rounded-full" />}
+                      </motion.button>
                     );
                   })}
-                </div>
-              </div>
-            );
-          })()}
-        </section>
+                </motion.div>
+              )}
+            </section>
+          )}
+        </>
       )}
 
       {/* ===== SELECTED SERVICES SECTION ===== */}
       {selectedTime !== null && (
         <section ref={servicesSectionRef} className="pt-8 scroll-mt-20">
 
-          <h2 className="text-2xl font-bold text-stone-900 mb-3">
-            {t.yourServices}
-          </h2>
+          <h2 className="text-2xl font-bold text-stone-900 mb-3">{t.yourServices}</h2>
 
           {loading && serviceEmployees.length === 0 ? (
             <div className="flex items-center justify-center py-16">
@@ -967,7 +931,7 @@ export function BookingPage({
                               <h4 className="text-lg font-semibold text-stone-900 -mb-0.5 line-clamp-1">
                                 {getText(service.name)}
                               </h4>
-                              <span className='text-base text-stone-500'> - {secondsToTime(endSeconds)}</span>
+                              <span className='text-base text-stone-500'>{secondsToTime(startSeconds)} - {secondsToTime(endSeconds)}</span>
                             </div>
 
                             <div className='flex flex-col text-end'>
@@ -1012,7 +976,7 @@ export function BookingPage({
                         {svcData && svcData.employees && svcData.employees.length > 1 && (
                           <button
                             onClick={() => openEmployeeSheet(serviceId)}
-                            className="text-sm font-medium bg-red-400 border border-3 py-2 px-3 rounded-lg"
+                            className="text-sm font-medium bg-stone-100 border border-stone-200 py-2 px-3 rounded-lg text-stone-600"
                           >
                             {t.change}
                           </button>
@@ -1230,29 +1194,32 @@ export function BookingPage({
       </AnimatePresence>
 
 
-      {/* ===== ADD SERVICE RIGHT DRAWER ===== */}
+      {/* ===== ADD SERVICE BOTTOM SHEET ===== */}
       <AnimatePresence>
         {showAddServiceSheet && (
-          <div className="fixed inset-0 z-50 lg:flex lg:items-center lg:justify-center" onClick={() => setShowAddServiceSheet(false)}>
+          <motion.div
+            className="fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAddServiceSheet(false)}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-black/50"
-            />
-            {/* Mobile: slide-in from right */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              className="bg-white w-full lg:w-2xl rounded-t-[28px] lg:rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-2xl overflow-y-auto lg:hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white z-10 px-5 pt-5 pb-3 border-b border-stone-100">
+              {/* Drag handle (mobile) */}
+              <div className="flex justify-center pt-3 lg:hidden">
+                <div className="w-10 h-1 bg-stone-300 rounded-full" />
+              </div>
+
+              <div className="px-5 pt-5 pb-3 lg:px-8 lg:pt-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-stone-900">{t.addMoreServices}</h3>
+                  <h3 className="text-2xl lg:text-3xl font-semibold text-stone-900">{t.addMoreServices}</h3>
                   <button
                     onClick={() => setShowAddServiceSheet(false)}
                     className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-100"
@@ -1262,78 +1229,32 @@ export function BookingPage({
                 </div>
               </div>
 
-              <div className="p-5 divide-y divide-stone-200">
-                {remainingServices.map(service => (
+              <div className="px-5 pb-6 lg:px-8 lg:pb-8">
+                {remainingServices.map((service, idx) => (
                   <button
                     key={service.id}
                     onClick={() => handleAddService(service.id)}
-                    className="w-full flex items-center justify-between transition-all py-3 first:pt-0 last:pb-0"
+                    className={`w-full flex items-center justify-between py-4 ${idx > 0 ? 'border-t border-stone-100' : ''} active:bg-stone-50 transition-colors`}
                   >
-                    <div className="text-left flex-1">
-                      <p className="text-base font-medium text-stone-900">{getText(service.name)}</p>
-                      <p className="text-sm text-stone-500 mt-0.5">
+                    <div className="text-left flex-1 min-w-0 pr-4">
+                      <p className="text-lg font-semibold text-stone-900 line-clamp-1">{getText(service.name)}</p>
+                      <p className="text-base text-stone-500 mt-0.5">
                         {formatDuration(service.duration_minutes)}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-base font-medium text-stone-900">
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="text-base lg:text-lg font-semibold text-stone-900">
                         {formatPrice(service.price)} {t.sum}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Plus size={16} className="text-primary" />
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Plus size={18} className="text-primary" />
                       </div>
                     </div>
                   </button>
                 ))}
               </div>
             </motion.div>
-            {/* Desktop: centered modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="relative hidden lg:block w-full max-w-lg max-h-[80vh] bg-white rounded-2xl shadow-2xl overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="sticky top-0 bg-white z-10 px-5 pt-5 pb-3 border-b border-stone-100 rounded-t-2xl">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-stone-900">{t.addMoreServices}</h3>
-                  <button
-                    onClick={() => setShowAddServiceSheet(false)}
-                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-100"
-                  >
-                    <X size={20} className="text-stone-500" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-5 divide-y divide-stone-200">
-                {remainingServices.map(service => (
-                  <button
-                    key={service.id}
-                    onClick={() => handleAddService(service.id)}
-                    className="w-full flex items-center justify-between transition-all py-3 first:pt-0 last:pb-0 hover:bg-stone-50 -mx-2 px-2 rounded-lg"
-                  >
-                    <div className="text-left flex-1">
-                      <p className="text-base font-medium text-stone-900">{getText(service.name)}</p>
-                      <p className="text-sm text-stone-500 mt-0.5">
-                        {formatDuration(service.duration_minutes)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-base font-medium text-stone-900">
-                        {formatPrice(service.price)} {t.sum}
-                      </span>
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Plus size={16} className="text-primary" />
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

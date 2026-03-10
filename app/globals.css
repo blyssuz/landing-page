@@ -22,6 +22,11 @@
 }
 
 /* Skeleton shimmer -- CSS-only infinite loop */
+@keyframes bounceRight {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

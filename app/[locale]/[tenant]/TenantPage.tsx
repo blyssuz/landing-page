@@ -131,6 +131,12 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
             />
           </div>
         )}
+
+        {/* Powered by BLYSS */}
+        <a href="https://blyss.uz" target="_blank" rel="noopener noreferrer" className="mt-12 pb-2 flex items-center justify-center gap-2 text-stone-300 hover:text-stone-400 transition-colors">
+          <span className="text-sm">powered by</span>
+          <span className="text-xl font-bold tracking-wider">BLYSS</span>
+        </a>
       </div>
 
       {/* Working Hours modal */}

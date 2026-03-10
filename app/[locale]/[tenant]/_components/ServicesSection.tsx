@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Clock } from 'lucide-react';
+import { Clock, ChevronRight } from 'lucide-react';
 import type { Service, Locale } from '../_lib/types';
 import { getText, formatPrice, formatDuration } from '../_lib/utils';
 
@@ -87,8 +87,8 @@ export function ServicesSection({ services, locale, onBook, bookingServiceId, tr
                 return (
                   <div
                     key={service.id}
-                    onClick={hasDescription ? () => setDetailService(service) : undefined}
-                    className={`flex items-center justify-between py-4 ${idx > 0 ? 'border-t border-stone-100' : ''} ${hasDescription ? 'cursor-pointer' : ''}`}
+                    onClick={() => setDetailService(service)}
+                    className={`flex items-center justify-between py-4 ${idx > 0 ? 'border-t border-stone-100' : ''} cursor-pointer`}
                   >
                     <div className="flex-1 min-w-0 pr-4">
                       <h4 className="text-lg font-semibold text-stone-900 line-clamp-1">
@@ -156,23 +156,18 @@ function ServiceDetailModal({
   const description = getText(service.description, locale).trim();
 
   return (
-    <>
-      {/* Backdrop */}
+    <motion.div
+      className="fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
       <motion.div
-        className="fixed inset-0 bg-black/50 z-50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
-
-      {/* Bottom sheet */}
-      <motion.div
-        className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[28px] max-h-[80vh] overflow-y-auto lg:inset-auto lg:top-1/2 lg:left-1/2 lg:max-w-md lg:w-[calc(100%-2rem)] lg:rounded-2xl lg:max-h-[90vh]"
-        style={{ transform: 'none' }}
-        initial={{ y: '100%', opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: '100%', opacity: 0 }}
+        className="bg-white w-full lg:w-2xl rounded-t-[28px] lg:rounded-2xl overflow-hidden lg:min-h-[50vh] max-h-[80vh] overflow-y-auto flex flex-col"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -181,27 +176,19 @@ function ServiceDetailModal({
           <div className="w-10 h-1 bg-stone-300 rounded-full" />
         </div>
 
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 transition-colors"
-        >
-          <X size={16} className="text-stone-600" />
-        </button>
-
-        <div className="px-6 pt-5 pb-6">
+        <div className="p-4 md:p-10 flex flex-col flex-1">
           {/* Service name */}
-          <h3 className="text-xl font-semibold text-stone-900 pr-8">
+          <h3 className="text-2xl lg:text-3xl font-semibold text-stone-900">
             {getText(service.name, locale)}
           </h3>
 
           {/* Duration & price */}
           <div className="flex items-center gap-3 mt-2">
-            <span className="flex items-center gap-1 text-base text-stone-500">
+            <span className="flex items-center gap-1 text-lg text-stone-500">
               <Clock size={16} />
               {formatDuration(service.duration_minutes, t.minute, t.hour)}
             </span>
-            <span className="text-base font-medium text-stone-900">
+            <span className="text-lg font-medium text-stone-900">
               {formatPrice(service.price)} {t.sum}
             </span>
           </div>
@@ -217,7 +204,7 @@ function ServiceDetailModal({
           <button
             onClick={onBook}
             disabled={bookingLoading}
-            className="w-full mt-6 py-3.5 bg-stone-900 text-white rounded-2xl font-semibold text-base active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+            className="w-full mt-auto py-3.5 bg-[var(--primary)] text-white rounded-full font-semibold text-base active:scale-[0.98] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
           >
             {bookingLoading && (
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -226,10 +213,11 @@ function ServiceDetailModal({
               </svg>
             )}
             {t.book}
+            <ChevronRight size={18} className="animate-[bounceRight_1s_ease-in-out_infinite]" />
           </button>
         </div>
       </motion.div>
-    </>
+    </motion.div>
   );
 }
 
