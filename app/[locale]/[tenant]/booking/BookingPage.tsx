@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/i18n';
 import {
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Check,
   User,
@@ -324,6 +326,7 @@ export function BookingPage({
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEmployeeSheet, setShowEmployeeSheet] = useState(false);
   const [showAddServiceSheet, setShowAddServiceSheet] = useState(false);
+  const [scrolledDown, setScrolledDown] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [bookingResult, setBookingResult] = useState<Record<string, unknown> | null>(null);
 
@@ -857,27 +860,51 @@ export function BookingPage({
                   <p className="text-stone-500 text-base">{t.noSlots}</p>
                 </div>
               ) : (
-                <motion.div
-                  className="flex flex-col gap-2"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {availableSlots.map(time => {
-                    const hasDiscount = discountSlots.has(time);
-                    return (
-                      <motion.button
-                        key={time}
-                        onClick={() => handleTimeSelect(time)}
-                        className="flex items-center justify-between py-4 px-5 rounded-xl text-base font-bold hover:border-primary text-stone-900 border border-stone-200 transition-colors"
-                        layout
-                      >
-                        <span>{secondsToTime(time)}</span>
-                        {hasDiscount && <div className="bg-primary h-1.5 w-1.5 rounded-full" />}
-                      </motion.button>
-                    );
-                  })}
-                </motion.div>
+                <>
+                  <motion.div
+                    className="flex flex-col gap-2"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {availableSlots.map(time => {
+                      const hasDiscount = discountSlots.has(time);
+                      return (
+                        <motion.button
+                          key={time}
+                          onClick={() => handleTimeSelect(time)}
+                          className="flex items-center justify-between py-4 px-5 rounded-xl text-base font-bold hover:border-primary text-stone-900 border border-stone-200 transition-colors"
+                          layout
+                        >
+                          <span>{secondsToTime(time)}</span>
+                          {hasDiscount && <div className="bg-primary h-1.5 w-1.5 rounded-full" />}
+                        </motion.button>
+                      );
+                    })}
+                  </motion.div>
+
+                  {/* Floating scroll button */}
+                  {availableSlots.length > 4 && (
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="fixed bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center z-30"
+                      onClick={() => {
+                        if (scrolledDown) {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                        }
+                        setScrolledDown(!scrolledDown);
+                      }}
+                    >
+                      {scrolledDown
+                        ? <ChevronUp size={24} className="animate-bounce" />
+                        : <ChevronDown size={24} className="animate-bounce" />
+                      }
+                    </motion.button>
+                  )}
+                </>
               )}
             </section>
           )}
