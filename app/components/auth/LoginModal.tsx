@@ -87,7 +87,6 @@ function getAuthErrorMessage(locale: 'uz' | 'ru', errorCode?: string, fallback?:
 // ─── Helpers ───
 
 function formatPhoneDisplay(digits: string): string {
-  // Format: XX XXX XX XX
   const d = digits.replace(/\D/g, '')
   let result = ''
   if (d.length > 0) result += d.slice(0, 2)
@@ -132,7 +131,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      // Trigger enter animation
       requestAnimationFrame(() => setVisible(true))
     } else {
       document.body.style.overflow = ''
@@ -209,7 +207,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         setDeliveryMethod(result.delivery_method)
         setStep('otp')
         setTimer(60)
-        // Focus first OTP input after step change
         setTimeout(() => otpRefs.current[0]?.focus(), 100)
       } else {
         if (result.wait_seconds && result.wait_seconds > 0) {
@@ -248,7 +245,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
           }
         } else {
           setError(getAuthErrorMessage(locale, result.error_code, result.error))
-          // Clear OTP fields on error
           setOtpValues(['', '', '', '', ''])
           setTimeout(() => otpRefs.current[0]?.focus(), 100)
         }
@@ -262,7 +258,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
   )
 
   const handleOtpChange = (index: number, value: string) => {
-    // Only allow single digit
     const digit = value.replace(/\D/g, '').slice(-1)
     const newValues = [...otpValues]
     newValues[index] = digit
@@ -270,18 +265,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
     setError('')
 
     if (digit && index < 4) {
-      // Move to next input
       otpRefs.current[index + 1]?.focus()
     }
 
-    // Auto-submit when all 5 digits are filled
     if (digit && index === 4) {
       const code = newValues.join('')
       if (code.length === 5) {
         doVerify(code)
       }
     } else if (digit) {
-      // Check if all are now filled (e.g., user pasted or filled middle)
       const allNewValues = [...newValues]
       if (allNewValues.every((v) => v !== '')) {
         doVerify(allNewValues.join(''))
@@ -291,7 +283,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
-      // Move to previous input on backspace when current is empty
       otpRefs.current[index - 1]?.focus()
     }
     if (e.key === 'Enter') {
@@ -311,13 +302,11 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
     }
     setOtpValues(newValues)
 
-    // Focus the next empty input or the last one
     const nextEmpty = newValues.findIndex((v) => !v)
     if (nextEmpty >= 0) {
       otpRefs.current[nextEmpty]?.focus()
     } else {
       otpRefs.current[4]?.focus()
-      // All filled, auto-verify
       doVerify(newValues.join(''))
     }
   }
@@ -353,7 +342,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
   const validateFirstName = (name: string): boolean => {
     const trimmed = name.trim()
     if (trimmed.length < 2) return false
-    // Only allow letters, spaces, hyphens, apostrophes
     if (!/^[\p{L}\s\-']+$/u.test(trimmed)) return false
     return true
   }
@@ -392,7 +380,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[100] flex items-end lg:items-center justify-center bg-black/50 transition-opacity duration-200 ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={(e) => {
@@ -400,32 +388,37 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
       }}
     >
       <div
-        className={`bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-8 w-full max-w-md mx-4 shadow-2xl relative transition-all duration-200 ${
-          visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        className={`bg-white rounded-t-[28px] lg:rounded-2xl p-6 sm:p-8 w-full lg:w-2xl shadow-2xl relative transition-all duration-200 ${
+          visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
+        {/* Drag handle (mobile) */}
+        <div className="flex justify-center pb-4 lg:hidden">
+          <div className="w-10 h-1 bg-stone-300 rounded-full" />
+        </div>
+
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-1 rounded-full text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+          className="absolute top-6 right-6 w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-100 transition-colors"
           aria-label="Close"
         >
-          <X size={20} />
+          <X size={20} className="text-stone-500" />
         </button>
 
         {/* ─── Phone Step ─── */}
         {step === 'phone' && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Phone size={20} className="text-primary" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Phone size={22} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.loginTitle}</h2>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-stone-900">{t.loginTitle}</h2>
             </div>
 
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">{t.phone}</label>
-            <div className="flex items-center border border-gray-300 dark:border-zinc-700 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <span className="px-3 py-3 bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 font-medium text-sm border-r border-gray-300 dark:border-zinc-700 select-none">
+            <label className="block text-base font-medium text-stone-700 mb-2">{t.phone}</label>
+            <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <span className="px-4 py-3.5 bg-stone-50 text-stone-500 font-medium text-base border-r border-stone-200 select-none">
                 +998
               </span>
               <input
@@ -436,7 +429,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 onChange={handlePhoneChange}
                 onKeyDown={handlePhoneKeyDown}
                 placeholder="XX XXX XX XX"
-                className="flex-1 px-3 py-3 text-sm outline-none bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500"
+                className="flex-1 px-4 py-3.5 text-base outline-none bg-white text-stone-900 placeholder-stone-400"
                 autoFocus
               />
             </div>
@@ -444,7 +437,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
             <button
               onClick={handleSendCode}
               disabled={phoneDigits.length !== 9 || loading}
-              className="w-full mt-5 py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-5 py-3.5 rounded-xl text-white font-semibold text-base bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.sendCode}
@@ -456,13 +449,13 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         {step === 'otp' && (
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Phone size={20} className="text-primary" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Phone size={22} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.enterCode}</h2>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-stone-900">{t.enterCode}</h2>
             </div>
 
-            <p className="text-sm lg:text-base text-gray-500 dark:text-zinc-400 mb-6 ml-[52px]">
+            <p className="text-base text-stone-500 mb-6 ml-[60px]">
               {deliveryMethod === 'telegram' ? t.codeSentTelegram : t.codeSentSms}
             </p>
 
@@ -480,7 +473,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                   value={val}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="w-12 h-12 text-center text-xl font-semibold border border-gray-300 dark:border-zinc-700 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
+                  className="w-14 h-14 text-center text-2xl font-semibold border border-stone-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-stone-900 bg-white"
                   disabled={loading}
                 />
               ))}
@@ -489,7 +482,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
             {/* Timer / resend */}
             <div className="text-center mb-4">
               {timer > 0 ? (
-                <span className="text-sm text-gray-400 dark:text-zinc-500">
+                <span className="text-base text-stone-400">
                   {t.resendIn}
                   {timer} {t.sec}
                 </span>
@@ -497,21 +490,21 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
                 <button
                   onClick={handleResend}
                   disabled={loading}
-                  className="text-sm text-primary hover:text-primary/90 font-medium transition-colors disabled:opacity-50"
+                  className="text-base text-primary hover:text-primary/90 font-medium transition-colors disabled:opacity-50"
                 >
                   {t.resend}
                 </button>
               )}
             </div>
 
-            {/* Verify button (manual fallback) */}
+            {/* Verify button */}
             <button
               onClick={() => {
                 const code = otpValues.join('')
                 if (code.length === 5) doVerify(code)
               }}
               disabled={otpValues.some((v) => !v) || loading}
-              className="w-full py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl text-white font-semibold text-base bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.verify}
@@ -523,14 +516,14 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
         {step === 'register' && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <User size={20} className="text-primary" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <User size={22} className="text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">{t.registerTitle}</h2>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-stone-900">{t.registerTitle}</h2>
             </div>
 
             {/* First name */}
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">{t.firstName}</label>
+            <label className="block text-base font-medium text-stone-700 mb-1.5">{t.firstName}</label>
             <input
               type="text"
               value={firstName}
@@ -540,25 +533,25 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
               }}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.firstName}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-zinc-700 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 placeholder-gray-400 dark:placeholder-zinc-500 mb-4"
+              className="w-full px-4 py-3.5 border border-stone-200 rounded-xl text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-stone-900 bg-white placeholder-stone-400 mb-4"
               autoFocus
             />
 
             {/* Last name */}
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">{t.lastName}</label>
+            <label className="block text-base font-medium text-stone-700 mb-1.5">{t.lastName}</label>
             <input
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               onKeyDown={handleRegisterKeyDown}
               placeholder={t.lastName}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-zinc-700 rounded-xl text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-gray-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 placeholder-gray-400 dark:placeholder-zinc-500 mb-1"
+              className="w-full px-4 py-3.5 border border-stone-200 rounded-xl text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-stone-900 bg-white placeholder-stone-400 mb-1"
             />
 
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full mt-4 py-3 rounded-xl text-white font-medium text-sm bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-4 py-3.5 rounded-xl text-white font-semibold text-base bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
               {t.register}
@@ -570,20 +563,20 @@ export function LoginModal({ isOpen, onClose, onSuccess, locale }: LoginModalPro
       {/* ─── Error Popup ─── */}
       {error && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40"
           onClick={() => setError('')}
         >
           <div
-            className="bg-white dark:bg-zinc-900 rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
+            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <AlertCircle size={24} className="text-red-500 dark:text-red-400" />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertCircle size={24} className="text-red-500" />
             </div>
-            <p className="text-gray-900 dark:text-zinc-100 font-medium text-sm mb-4">{error}</p>
+            <p className="text-stone-900 font-medium text-base mb-4">{error}</p>
             <button
               onClick={() => setError('')}
-              className="px-8 py-2.5 rounded-xl bg-gray-900 dark:bg-zinc-700 text-white text-sm font-medium hover:bg-gray-800 dark:hover:bg-zinc-600 transition-colors"
+              className="px-8 py-2.5 rounded-xl bg-stone-900 text-white text-base font-medium hover:bg-stone-800 transition-colors"
             >
               OK
             </button>
