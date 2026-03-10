@@ -713,24 +713,44 @@ export function BookingPage({
   };
 
   const goBack = () => {
-    router.push(basePath);
+    if (selectedTime !== null) {
+      setSelectedTime(null);
+      setServiceEmployees([]);
+      setSelectedEmployees({});
+    } else {
+      router.push(basePath);
+    }
   };
 
   // ─── Render ───
 
   return (
     <div className="min-h-screen bg-white max-w-3xl mx-auto shadow-lg pb-4 px-4 lg:px-8" style={{ '--primary': primaryColor } as React.CSSProperties}>
+     
       {/* ===== HEADER (sticky) ===== */}
-      <div className="sticky top-0 bg-white/80 backdrop-blur-lg z-30 border-b border-stone-100">
-        <div className="py-3 flex items-center gap-3">
+      <div className="sticky top-0 bg-white/80 backdrop-blur-lg z-30">
+        <div className="pt-3 flex items-center gap-3">
           <button
             onClick={goBack}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-100 transition-colors"
+            className="w-10 h-10 flex items-center justify-center shadow-xs rounded-full border border-stone-200 transition-colors"
           >
             <ChevronLeft size={24} className="text-stone-900" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-stone-900">{t.bookAppointment}</h1>
+            {selectedTime && (
+              <h1 onClick={goBack} className="text-xl font-bold text-stone-900 cursor-pointer">
+   <span>
+              {(() => {
+                const d = new Date(selectedDate + 'T00:00:00');
+                const idx = dates.findIndex(dt => formatDateYMD(dt) === selectedDate);
+                if (idx === 0) return `${t.today} · ${secondsToTime(selectedTime)}`;
+                if (idx === 1) return `${t.tomorrow} · ${secondsToTime(selectedTime)}`;
+                return `${DAY_NAMES_SHORT[locale][d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[locale][d.getMonth()]} · ${secondsToTime(selectedTime)}`;
+              })()}
+            </span>
+              </h1> 
+            )}
+            {/* <h1 className="text-xl font-bold text-stone-900">{businessName}</h1> */}
             {/* <p className="text-base text-stone-500">{businessName}</p> */}
           </div>
         </div>
@@ -772,23 +792,7 @@ export function BookingPage({
 
       {/* ===== DATE & TIME SECTION ===== */}
       {selectedTime !== null ? (
-        <section className="pt-6">
-          <button
-            onClick={() => { setSelectedTime(null); setServiceEmployees([]); setSelectedEmployees({}); }}
-            className="w-full flex items-center justify-between py-4 px-5 rounded-xl text-base font-bold border-2 border-primary"
-          >
-            <span>
-              {(() => {
-                const d = new Date(selectedDate + 'T00:00:00');
-                const idx = dates.findIndex(dt => formatDateYMD(dt) === selectedDate);
-                if (idx === 0) return `${t.today} · ${secondsToTime(selectedTime)}`;
-                if (idx === 1) return `${t.tomorrow} · ${secondsToTime(selectedTime)}`;
-                return `${DAY_NAMES_SHORT[locale][d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[locale][d.getMonth()]} · ${secondsToTime(selectedTime)}`;
-              })()}
-            </span>
-            <span className="text-sm font-medium bg-stone-100 border border-stone-200 py-2 px-3 rounded-lg text-stone-600">{t.change}</span>
-          </button>
-        </section>
+        <div></div>
       ) : (
         <>
           <section className="pt-6">
@@ -913,9 +917,9 @@ export function BookingPage({
 
       {/* ===== SELECTED SERVICES SECTION ===== */}
       {selectedTime !== null && (
-        <section ref={servicesSectionRef} className="pt-8 scroll-mt-20">
+        <section ref={servicesSectionRef} className="pt-4 scroll-mt-20">
 
-          <h2 className="text-2xl font-bold text-stone-900 mb-3">{t.yourServices}</h2>
+          {/* <h2 className="text-2xl font-bold text-stone-900 mb-3">{t.yourServices}</h2> */}
 
           {loading && serviceEmployees.length === 0 ? (
             <div className="flex items-center justify-center py-16">
