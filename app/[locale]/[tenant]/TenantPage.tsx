@@ -134,6 +134,14 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
           </div>
         )}
 
+        {/* Working hours (inline for Instagram in-app browser) */}
+        {isFromInstagram && business.working_hours && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold text-stone-900 mb-4">{t.workingHours}</h2>
+            <DaySchedule workingHours={business.working_hours} dayNames={dayNames} closedLabel={t.closed} />
+          </div>
+        )}
+
         {/* Powered by BLYSS */}
         <a href="https://blyss.uz" target="_blank" rel="noopener noreferrer" className="mt-12 pb-2 flex items-center justify-center gap-2 text-stone-300 hover:text-stone-400 transition-colors">
           <span className="text-sm">powered by</span>
