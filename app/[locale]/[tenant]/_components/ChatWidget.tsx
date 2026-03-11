@@ -104,7 +104,7 @@ export function ChatWidget({
   const [unread, setUnread] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const t = CHAT_TEXT[locale];
+  const t = CHAT_TEXT[locale as keyof typeof CHAT_TEXT];
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -135,10 +135,7 @@ export function ChatWidget({
     if (open) scrollToBottom();
   }, [messages, open, aiTyping, scrollToBottom]);
 
-  // Focus input when opening
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 300);
-  }, [open]);
+
 
   // Poll for new messages (for staff replies)
   useEffect(() => {
@@ -230,10 +227,10 @@ export function ChatWidget({
   };
 
   const handleButtonClick = (btn: ChatButton) => {
-    sendMessage(btn.value);
+    sendMessage(btn.label);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (inputType === 'phone') {
       setInput(formatPhoneInput(e.target.value));
     } else if (inputType === 'otp') {
@@ -267,6 +264,24 @@ export function ChatWidget({
     return input.trim().length > 0;
   };
 
+  // Auto-resize textarea
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const adjustTextareaHeight = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }, []);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
+
+  // Focus textarea when opening
+  useEffect(() => {
+    if (open) setTimeout(() => textareaRef.current?.focus(), 300);
+  }, [open]);
+
   return (
     <>
       {/* Floating button */}
@@ -278,7 +293,7 @@ export function ChatWidget({
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             onClick={() => { setOpen(true); setUnread(0); }}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform"
             style={{ backgroundColor: primaryColor }}
             aria-label="Open chat"
           >
@@ -300,25 +315,25 @@ export function ChatWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] bg-white sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-stone-200"
+            className="fixed bottom-0 right-0 sm:bottom-0 sm:right-8 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] bg-white sm:rounded-t-2xl flex flex-col overflow-hidden border border-neutral-200"
           >
             {/* Header */}
             <div
-              className="flex items-center justify-between px-4 py-3.5 text-white flex-shrink-0"
+              className="flex items-center justify-between px-5 py-3.5 text-white flex-shrink-0"
               style={{ backgroundColor: primaryColor }}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
                   <MessageCircle size={18} />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-[15px] font-semibold truncate">{businessName}</h3>
-                  <p className="text-[12px] opacity-75">{t.title}</p>
+                  <p className="text-[12px] opacity-70">{t.title}</p>
                 </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
+                className="p-1.5 rounded-full hover:bg-white/15 transition-colors"
                 aria-label="Close chat"
               >
                 <X size={20} />
@@ -326,10 +341,10 @@ export function ChatWidget({
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-stone-50">
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-white">
               {/* Greeting */}
               <div className="flex justify-start">
-                <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-stone-800 text-[15px] shadow-sm border border-stone-100">
+                <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-neutral-800 text-[15px] border border-neutral-100">
                   {t.greeting}
                 </div>
               </div>
@@ -337,13 +352,13 @@ export function ChatWidget({
               {/* Name input — shown before first message */}
               {!getVisitorName() && messages.length === 0 && (
                 <div className="flex justify-end">
-                  <div className="max-w-[85%]">
+                  <div className="max-w-[80%]">
                     <input
                       type="text"
                       value={visitorName}
                       onChange={(e) => setVisitorName(e.target.value)}
                       placeholder={t.yourNamePlaceholder}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-2xl bg-white border border-stone-200 focus:border-stone-300 focus:outline-none transition-colors text-stone-700 placeholder:text-stone-400"
+                      className="w-full text-sm px-3.5 py-2.5 rounded-2xl bg-white border border-neutral-200 focus:border-neutral-300 focus:outline-none transition-colors text-neutral-700 placeholder:text-neutral-400"
                     />
                   </div>
                 </div>
@@ -356,10 +371,10 @@ export function ChatWidget({
                   <div key={msg.id}>
                     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                       <div
-                        className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[15px] ${
+                        className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-[15px] ${
                           isUser
                             ? 'rounded-br-sm text-white'
-                            : 'rounded-bl-sm bg-white text-stone-800 shadow-sm border border-stone-100'
+                            : 'rounded-bl-sm bg-white text-neutral-800 border border-neutral-100'
                         }`}
                         style={isUser ? { backgroundColor: primaryColor } : undefined}
                       >
@@ -375,7 +390,7 @@ export function ChatWidget({
                             key={i}
                             onClick={() => handleButtonClick(btn)}
                             disabled={sending || aiTyping}
-                            className="px-3.5 py-2 text-[13px] font-medium rounded-full border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 active:scale-[0.97] transition-all disabled:opacity-50 shadow-sm"
+                            className="px-3.5 py-2 text-[13px] font-medium rounded-full border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all disabled:opacity-50"
                           >
                             {btn.label}
                           </button>
@@ -395,10 +410,10 @@ export function ChatWidget({
                     exit={{ opacity: 0, y: 4 }}
                     className="flex justify-start"
                   >
-                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-white shadow-sm border border-stone-100 flex items-center gap-1.5">
-                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-white border border-neutral-100 flex items-center gap-1.5">
+                      <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                      <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                      <span className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce [animation-delay:300ms]" />
                     </div>
                   </motion.div>
                 )}
@@ -407,32 +422,47 @@ export function ChatWidget({
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <div className="flex items-center gap-2 px-3 py-3 border-t border-stone-100 bg-white flex-shrink-0">
-              <input
-                ref={inputRef}
-                type="text"
-                inputMode={getInputMode()}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder={getPlaceholder()}
-                maxLength={inputType === 'otp' ? 5 : inputType === 'phone' ? 17 : 2000}
-                className="flex-1 text-[15px] px-4 py-3 rounded-full bg-stone-100 border-0 focus:bg-stone-50 focus:ring-1 focus:ring-stone-200 focus:outline-none transition-colors"
-              />
-              <button
-                onClick={handleSend}
-                disabled={!canSend()}
-                className="w-11 h-11 rounded-full flex items-center justify-center text-white disabled:opacity-30 active:scale-95 transition-all flex-shrink-0"
-                style={{ backgroundColor: primaryColor }}
-                aria-label="Send"
-              >
-                {sending ? (
-                  <Loader2 size={18} className="animate-spin" />
+            {/* Input area */}
+            <div className=" bg-white flex-shrink-0 p-3">
+              <div className="flex items-end gap-2 rounded-3xl border border-neutral-200 px-3 py-2 focus-within:border-neutral-300 transition-colors">
+                {inputType === 'phone' || inputType === 'otp' ? (
+                  <input
+                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                    type="text"
+                    inputMode={getInputMode()}
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder={getPlaceholder()}
+                    maxLength={inputType === 'otp' ? 5 : 17}
+                    className="flex-1 text-[15px] py-1.5 bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none resize-none text-neutral-800 placeholder:text-neutral-400"
+                  />
                 ) : (
-                  <Send size={18} />
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={getPlaceholder()}
+                    maxLength={2000}
+                    rows={1}
+                    className="flex-1 text-[15px] px-2 py-3.5 bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none resize-none text-neutral-800 placeholder:text-neutral-400 leading-relaxed max-h-[120px] [&:focus]:outline-none"
+                  />
                 )}
-              </button>
+                <button
+                  onClick={handleSend}
+                  disabled={!canSend()}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center text-white disabled:opacity-30 active:scale-95 transition-all flex-shrink-0 mb-0.5"
+                  style={{ backgroundColor: primaryColor }}
+                  aria-label="Send"
+                >
+                  {sending ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Send size={16} />
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

@@ -72,7 +72,9 @@ html {
 }
 
 input:focus-visible,
-input:focus {
+input:focus,
+textarea:focus-visible,
+textarea:focus {
   outline: none !important;
   box-shadow: none !important;
 }
