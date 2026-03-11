@@ -177,5 +177,5 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel.
 | 5. Profile Header & Photo Strip | v2.0 | 2/2 | Complete | 2026-03-09 |
 | 6. Services & Team | v2.0 | 1/2 | In Progress | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
-| 8. System Prompt Overhaul | v3.0 | 0/2 | Planned | - |
+| 8. System Prompt Overhaul | 1/2 | In Progress|  | - |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Not started | - |

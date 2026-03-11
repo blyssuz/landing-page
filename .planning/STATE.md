@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Tenant Page Redesign
 status: planning
-stopped_at: Phase 8 context gathered
-last_updated: "2026-03-11T19:43:23.187Z"
+stopped_at: Completed 08-system-prompt-overhaul/08-01-PLAN.md
+last_updated: "2026-03-11T20:15:02.669Z"
 last_activity: 2026-03-12 — v3.0 roadmap created (Phases 8-9)
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
   percent: 0
 ---
 
@@ -47,6 +47,10 @@ Progress: [░░░░░░░░░░] 0% (v3.0 phases 8-9 not started)
 - [v3.0]: System prompt must stay under 800 tokens; critical OTP/phone ordering rules appear first
 - [v3.0]: Buttons permitted only in 3 cases: quick-start greeting, structured choice (service/date/time), pre-booking confirmation
 - [v3.0]: button.value must equal button.label for correct handleButtonClick behavior
+- [Phase 08-system-prompt-overhaul]: buildWorkingHoursLine() formats hours as 'Dushanba: 09:00-19:00' comma-separated string injected into prompt identity block
+- [Phase 08-system-prompt-overhaul]: payment_methods field does not exist on business Firestore document — use 'naqd pul yoki karta' as hardcoded fallback
+- [Phase 08-system-prompt-overhaul]: Buttons restricted to 3 exact cases: quick-start greeting, structured choice, pre-booking confirmation — all others get empty array
+- [Phase 08-system-prompt-overhaul]: History limit reduced from 30 to 20 messages for token budget compliance; prompt stays under ~3200 chars / 800 tokens
 
 ### Pending Todos
 
@@ -60,6 +64,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T19:43:23.185Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-system-prompt-overhaul/08-CONTEXT.md
+Last session: 2026-03-11T20:15:02.667Z
+Stopped at: Completed 08-system-prompt-overhaul/08-01-PLAN.md
+Resume file: None

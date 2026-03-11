@@ -68,29 +68,29 @@ Requirements for AI chat experience overhaul. Each maps to roadmap phases.
 
 ### System Prompt Q&A
 
-- [ ] **PROMPT-01**: AI answers working hours questions using actual business `working_hours` data
-- [ ] **PROMPT-02**: AI answers services and pricing questions by calling `get_services` and formatting results naturally
-- [ ] **PROMPT-03**: AI answers location/address questions using business address data injected into prompt
-- [ ] **PROMPT-04**: AI answers payment method questions (from business data or sensible default)
-- [ ] **PROMPT-05**: AI answers walk-in policy questions naturally
-- [ ] **PROMPT-06**: AI answers cancellation/rebooking questions with actionable guidance
-- [ ] **PROMPT-07**: AI handles greetings and small talk naturally (salom, rahmat, xayr) without triggering booking flow
-- [ ] **PROMPT-08**: AI gracefully handles unknown questions by redirecting to phone/contact
-- [ ] **PROMPT-09**: AI appends a booking nudge after every non-booking Q&A answer
+- [x] **PROMPT-01**: AI answers working hours questions using actual business `working_hours` data
+- [x] **PROMPT-02**: AI answers services and pricing questions by calling `get_services` and formatting results naturally
+- [x] **PROMPT-03**: AI answers location/address questions using business address data injected into prompt
+- [x] **PROMPT-04**: AI answers payment method questions (from business data or sensible default)
+- [x] **PROMPT-05**: AI answers walk-in policy questions naturally
+- [x] **PROMPT-06**: AI answers cancellation/rebooking questions with actionable guidance
+- [x] **PROMPT-07**: AI handles greetings and small talk naturally (salom, rahmat, xayr) without triggering booking flow
+- [x] **PROMPT-08**: AI gracefully handles unknown questions by redirecting to phone/contact
+- [x] **PROMPT-09**: AI appends a booking nudge after every non-booking Q&A answer
 
 ### Button Patterns
 
-- [ ] **BTN-01**: AI shows action-labeled confirmation buttons before creating a booking (summary + "Ha, yozib qo'ying" / "Vaqtni o'zgartiraman")
-- [ ] **BTN-02**: All confirmation buttons use action-specific labels, never abstract Yes/No
-- [ ] **BTN-03**: Buttons only appear in 3 scenarios: quick-start greeting, structured choice (service/date/time), and pre-booking confirmation
-- [ ] **BTN-04**: AI never shows buttons when asking for phone, OTP, or name input
+- [x] **BTN-01**: AI shows action-labeled confirmation buttons before creating a booking (summary + "Ha, yozib qo'ying" / "Vaqtni o'zgartiraman")
+- [x] **BTN-02**: All confirmation buttons use action-specific labels, never abstract Yes/No
+- [x] **BTN-03**: Buttons only appear in 3 scenarios: quick-start greeting, structured choice (service/date/time), and pre-booking confirmation
+- [x] **BTN-04**: AI never shows buttons when asking for phone, OTP, or name input
 
 ### Conversational Quality
 
-- [ ] **CONV-01**: AI enforces one-question-per-turn — each message asks at most one question
-- [ ] **CONV-02**: AI responds in the user's language (Uzbek Lotin, Uzbek Kirill, or Russian) automatically
-- [ ] **CONV-03**: AI tone is natural and informal — like texting a real receptionist, not filling out a form
-- [ ] **CONV-04**: Business context block includes address, working hours, and payment info from Firestore data
+- [x] **CONV-01**: AI enforces one-question-per-turn — each message asks at most one question
+- [x] **CONV-02**: AI responds in the user's language (Uzbek Lotin, Uzbek Kirill, or Russian) automatically
+- [x] **CONV-03**: AI tone is natural and informal — like texting a real receptionist, not filling out a form
+- [x] **CONV-04**: Business context block includes address, working hours, and payment info from Firestore data
 
 ### Frontend Greeting
 
@@ -182,23 +182,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROMPT-01 | Phase 8 | Pending |
-| PROMPT-02 | Phase 8 | Pending |
-| PROMPT-03 | Phase 8 | Pending |
-| PROMPT-04 | Phase 8 | Pending |
-| PROMPT-05 | Phase 8 | Pending |
-| PROMPT-06 | Phase 8 | Pending |
-| PROMPT-07 | Phase 8 | Pending |
-| PROMPT-08 | Phase 8 | Pending |
-| PROMPT-09 | Phase 8 | Pending |
-| BTN-01 | Phase 8 | Pending |
-| BTN-02 | Phase 8 | Pending |
-| BTN-03 | Phase 8 | Pending |
-| BTN-04 | Phase 8 | Pending |
-| CONV-01 | Phase 8 | Pending |
-| CONV-02 | Phase 8 | Pending |
-| CONV-03 | Phase 8 | Pending |
-| CONV-04 | Phase 8 | Pending |
+| PROMPT-01 | Phase 8 | Complete |
+| PROMPT-02 | Phase 8 | Complete |
+| PROMPT-03 | Phase 8 | Complete |
+| PROMPT-04 | Phase 8 | Complete |
+| PROMPT-05 | Phase 8 | Complete |
+| PROMPT-06 | Phase 8 | Complete |
+| PROMPT-07 | Phase 8 | Complete |
+| PROMPT-08 | Phase 8 | Complete |
+| PROMPT-09 | Phase 8 | Complete |
+| BTN-01 | Phase 8 | Complete |
+| BTN-02 | Phase 8 | Complete |
+| BTN-03 | Phase 8 | Complete |
+| BTN-04 | Phase 8 | Complete |
+| CONV-01 | Phase 8 | Complete |
+| CONV-02 | Phase 8 | Complete |
+| CONV-03 | Phase 8 | Complete |
+| CONV-04 | Phase 8 | Complete |
 | FE-01 | Phase 9 | Pending |
 | FE-02 | Phase 9 | Pending |
 | FE-03 | Phase 9 | Pending |
