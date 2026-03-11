@@ -182,32 +182,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROMPT-01 | TBD | Pending |
-| PROMPT-02 | TBD | Pending |
-| PROMPT-03 | TBD | Pending |
-| PROMPT-04 | TBD | Pending |
-| PROMPT-05 | TBD | Pending |
-| PROMPT-06 | TBD | Pending |
-| PROMPT-07 | TBD | Pending |
-| PROMPT-08 | TBD | Pending |
-| PROMPT-09 | TBD | Pending |
-| BTN-01 | TBD | Pending |
-| BTN-02 | TBD | Pending |
-| BTN-03 | TBD | Pending |
-| BTN-04 | TBD | Pending |
-| CONV-01 | TBD | Pending |
-| CONV-02 | TBD | Pending |
-| CONV-03 | TBD | Pending |
-| CONV-04 | TBD | Pending |
-| FE-01 | TBD | Pending |
-| FE-02 | TBD | Pending |
-| FE-03 | TBD | Pending |
+| PROMPT-01 | Phase 8 | Pending |
+| PROMPT-02 | Phase 8 | Pending |
+| PROMPT-03 | Phase 8 | Pending |
+| PROMPT-04 | Phase 8 | Pending |
+| PROMPT-05 | Phase 8 | Pending |
+| PROMPT-06 | Phase 8 | Pending |
+| PROMPT-07 | Phase 8 | Pending |
+| PROMPT-08 | Phase 8 | Pending |
+| PROMPT-09 | Phase 8 | Pending |
+| BTN-01 | Phase 8 | Pending |
+| BTN-02 | Phase 8 | Pending |
+| BTN-03 | Phase 8 | Pending |
+| BTN-04 | Phase 8 | Pending |
+| CONV-01 | Phase 8 | Pending |
+| CONV-02 | Phase 8 | Pending |
+| CONV-03 | Phase 8 | Pending |
+| CONV-04 | Phase 8 | Pending |
+| FE-01 | Phase 9 | Pending |
+| FE-02 | Phase 9 | Pending |
+| FE-03 | Phase 9 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-12 after v3.0 requirements added*
+*Last updated: 2026-03-12 after v3.0 roadmap created (Phases 8-9)*

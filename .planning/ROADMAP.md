@@ -4,6 +4,7 @@
 
 - [x] **v1.0 Professional UI Rebuild** - Phases 1-4 (Phase 1-2 shipped 2026-03-09, Phases 3-4 deferred)
 - [ ] **v2.0 Tenant Page Redesign** - Phases 5-7 (in progress)
+- [ ] **v3.0 AI Chat Experience Overhaul** - Phases 8-9 (planned)
 
 ## Phases
 
@@ -28,6 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Profile Header & Photo Strip** - Above-fold identity: avatar, status, Book button, quick actions, and photo thumbnails (completed 2026-03-09)
 - [ ] **Phase 6: Services & Team** - Decision content: expandable service rows with category filter, tap-to-book, and team avatar strip
 - [ ] **Phase 7: Reviews, About & Interactions** - Trust layer and polish: review cards, collapsible info rows, floating Book pill, scroll animations, desktop layout
+
+### v3.0 AI Chat Experience Overhaul
+
+- [ ] **Phase 8: System Prompt Overhaul** - Rewrite chatAi.js with comprehensive Q&A coverage, business context injection, confirmation step, action-labeled buttons, and conversation quality rules
+- [ ] **Phase 9: Frontend Greeting & Quick-Start Buttons** - Replace hardcoded greeting with AI-generated personalized message and server-side computed quick-start buttons in ChatWidget.tsx
 
 ## Phase Details
 
@@ -125,10 +131,41 @@ Plans:
 - [ ] 07-01: TBD
 - [ ] 07-02: TBD
 
+### Phase 8: System Prompt Overhaul
+**Goal**: The AI answers all common customer questions naturally, pauses for explicit confirmation before booking, and enforces disciplined button and conversation rules — all via changes to chatAi.js only
+**Depends on**: Nothing (independent of Phase 9, backward compatible with current frontend)
+**Repo**: blyss-gcloud-api
+**Requirements**: PROMPT-01, PROMPT-02, PROMPT-03, PROMPT-04, PROMPT-05, PROMPT-06, PROMPT-07, PROMPT-08, PROMPT-09, BTN-01, BTN-02, BTN-03, BTN-04, CONV-01, CONV-02, CONV-03, CONV-04
+**Success Criteria** (what must be TRUE):
+  1. User can ask "Qachon ishlaysizlar?" and receive a correctly formatted answer from actual `working_hours` data with a booking nudge appended — no "I don't know" or hallucinated hours
+  2. User can ask about prices, location, payment, walk-in policy, or cancellation and receive a direct natural answer followed by a booking nudge; unknown questions redirect to the business phone number
+  3. Before the AI calls `create_booking`, it shows a booking summary with action-labeled confirmation buttons ("Ha, yozib qo'ying" / "Vaqtni o'zgartiraman") — the booking is never created without this step
+  4. Running 15 representative user messages through the chat produces buttons on no more than 5 responses — buttons appear only for quick-start, structured choice (service/date/time), and pre-booking confirmation
+  5. Each AI response contains at most one question; greetings and small talk ("salom", "rahmat", "xayr") are handled naturally without triggering the booking flow
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD
+
+### Phase 9: Frontend Greeting & Quick-Start Buttons
+**Goal**: The chat opens with an AI-generated personalized greeting using the business name and context-aware quick-start buttons computed server-side from actual business data — no hardcoded text
+**Depends on**: Nothing (independent of Phase 8, additive prop changes only)
+**Repo**: landing-page
+**Requirements**: FE-01, FE-02, FE-03
+**Success Criteria** (what must be TRUE):
+  1. When a visitor opens the chat widget, the greeting message includes the actual business name (e.g., "Salom! Men Barber House yordamchisiman") rather than generic placeholder text
+  2. Quick-start buttons ("Yozilish", "Narxlar", "Manzil va ish vaqti") are visible immediately when the chat opens before any user message — they disappear after the first message is sent
+  3. The quick-start buttons are derived from the business's actual service categories and data at server render time (zero extra API calls, instantly visible, no buttons for services the business does not offer)
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 -> 6 -> 7
+Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
+Note: Phase 8 and Phase 9 are independent and can be executed in parallel.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -136,6 +173,8 @@ Phases execute in numeric order: 5 -> 6 -> 7
 | 2. Tenant Page -- Presentation & Layout | v1.0 | 4/4 | Complete | 2026-03-09 |
 | 3. Services, Booking & Interactions | v1.0 | - | Deferred | - |
 | 4. Landing Page & Auxiliary Pages | v1.0 | - | Deferred | - |
-| 5. Profile Header & Photo Strip | 2/2 | Complete   | 2026-03-09 | - |
-| 6. Services & Team | 1/2 | In Progress|  | - |
+| 5. Profile Header & Photo Strip | v2.0 | 2/2 | Complete | 2026-03-09 |
+| 6. Services & Team | v2.0 | 1/2 | In Progress | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
+| 8. System Prompt Overhaul | v3.0 | 0/0 | Not started | - |
+| 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Not started | - |
