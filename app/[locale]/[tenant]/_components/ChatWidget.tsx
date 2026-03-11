@@ -155,6 +155,18 @@ export function ChatWidget({
       if (!res.ok) {
         // Remove optimistic message on failure
         setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
+      } else {
+        const data = await res.json();
+        // Replace temp message with real one
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === tempMsg.id ? { ...m, id: data.message_id } : m
+          )
+        );
+        // Append AI reply if present
+        if (data.ai_reply) {
+          setMessages((prev) => [...prev, data.ai_reply]);
+        }
       }
     } catch {
       setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
