@@ -1,4 +1,4 @@
-# Requirements: BLYSS Tenant Page Redesign
+# Requirements: BLYSS Tenant Page & AI Chat
 
 **Defined:** 2026-03-09
 **Core Value:** Every page a customer sees should feel trustworthy and polished enough that they'd book without hesitation
@@ -19,11 +19,9 @@ Shipped in v1.0 milestone. Design system foundation and old tenant page presenta
 - [x] **AR-01** through **AR-04**: Architecture (decomposition, co-location, single responsive markup, translations)
 - [x] **IX-04**: Mobile-first responsive design
 
-## v2.0 Requirements
+## v2.0 Requirements (Phases 5-7)
 
-Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap phases.
-
-### Profile Header
+### Profile Header (Complete)
 
 - [x] **PH-01**: Visitor sees centered business avatar, name, and tagline above the fold
 - [x] **PH-02**: Visitor sees open/closed status, star rating, and distance in a single inline status row
@@ -31,42 +29,92 @@ Requirements for the "Clean Profile" tenant page redesign. Each maps to roadmap 
 - [x] **PH-04**: Visitor can tap Call, Map, or Share quick-action buttons below the Book button
 - [x] **PH-05**: Language toggle (UZ/RU) is accessible at the top of the page
 
-### Photo Gallery
+### Photo Gallery (Complete)
 
 - [x] **PG-01**: Visitor sees a horizontal strip of photo thumbnails below the profile header
 - [x] **PG-02**: Visitor can tap any thumbnail to open a fullscreen lightbox gallery
 
-### Services
+### Services (Complete)
 
 - [x] **SV-01**: Visitor sees a flat list of services with name, duration, and price per row
 - [x] **SV-02**: Visitor can filter services by category pills when multiple categories exist
 - [x] **SV-03**: Visitor can tap a service row to expand it and reveal description + Book button
 - [x] **SV-04**: Tapping Book sets booking intent cookie and navigates to booking flow
 
-### Team
+### Team (Complete)
 
 - [x] **TM-01**: Visitor sees team members as a compact horizontal avatar strip (when >1 employee)
 
-### Reviews
+### Reviews (Phase 7 — Pending)
 
 - [ ] **RV-01**: Visitor sees 2-3 review cards with masked name, date, rating, and comment
 - [ ] **RV-02**: Visitor can expand to see all reviews
 
-### About
+### About (Phase 7 — Pending)
 
 - [ ] **AB-01**: Visitor sees today's working hours, expandable to full week schedule
 - [ ] **AB-02**: Visitor can tap address to open Google Maps
 - [ ] **AB-03**: Visitor can tap to call or view Instagram
 
-### Interaction
+### Interaction (Phase 7 — Pending)
 
 - [ ] **IX-01**: A floating Book pill appears when the main Book button scrolls out of view
 - [ ] **IX-02**: Sections animate in on scroll with subtle fade-in
 - [ ] **IX-03**: Desktop renders the mobile layout centered in a max-w-480px container
 
+## v3.0 Requirements
+
+Requirements for AI chat experience overhaul. Each maps to roadmap phases.
+
+### System Prompt Q&A
+
+- [ ] **PROMPT-01**: AI answers working hours questions using actual business `working_hours` data
+- [ ] **PROMPT-02**: AI answers services and pricing questions by calling `get_services` and formatting results naturally
+- [ ] **PROMPT-03**: AI answers location/address questions using business address data injected into prompt
+- [ ] **PROMPT-04**: AI answers payment method questions (from business data or sensible default)
+- [ ] **PROMPT-05**: AI answers walk-in policy questions naturally
+- [ ] **PROMPT-06**: AI answers cancellation/rebooking questions with actionable guidance
+- [ ] **PROMPT-07**: AI handles greetings and small talk naturally (salom, rahmat, xayr) without triggering booking flow
+- [ ] **PROMPT-08**: AI gracefully handles unknown questions by redirecting to phone/contact
+- [ ] **PROMPT-09**: AI appends a booking nudge after every non-booking Q&A answer
+
+### Button Patterns
+
+- [ ] **BTN-01**: AI shows action-labeled confirmation buttons before creating a booking (summary + "Ha, yozib qo'ying" / "Vaqtni o'zgartiraman")
+- [ ] **BTN-02**: All confirmation buttons use action-specific labels, never abstract Yes/No
+- [ ] **BTN-03**: Buttons only appear in 3 scenarios: quick-start greeting, structured choice (service/date/time), and pre-booking confirmation
+- [ ] **BTN-04**: AI never shows buttons when asking for phone, OTP, or name input
+
+### Conversational Quality
+
+- [ ] **CONV-01**: AI enforces one-question-per-turn — each message asks at most one question
+- [ ] **CONV-02**: AI responds in the user's language (Uzbek Lotin, Uzbek Kirill, or Russian) automatically
+- [ ] **CONV-03**: AI tone is natural and informal — like texting a real receptionist, not filling out a form
+- [ ] **CONV-04**: Business context block includes address, working hours, and payment info from Firestore data
+
+### Frontend Greeting
+
+- [ ] **FE-01**: ChatWidget shows AI-generated greeting with business name instead of hardcoded text
+- [ ] **FE-02**: Quick-start buttons appear on first chat open (e.g., "Yozilish", "Narxlar", "Manzil va ish vaqti")
+- [ ] **FE-03**: Quick-start buttons are computed server-side from actual business data
+
+## v3.x Requirements
+
+Deferred to after v3.0 validation. Tracked but not in current roadmap.
+
+### Custom Knowledge Base
+
+- **FAQ-01**: Business owners can add custom Q&A pairs via `chat_faq` Firestore field
+- **FAQ-02**: Custom FAQ entries are injected into the system prompt at runtime
+
+### Chat Actions
+
+- **ACT-01**: User can cancel an existing booking through the chat
+- **ACT-02**: User can reschedule a booking through the chat
+
 ## Future Requirements
 
-Deferred to separate milestones. Tracked but not in current roadmap.
+Deferred to separate milestones.
 
 ### Booking Flow Redesign
 
@@ -91,20 +139,21 @@ Deferred to separate milestones. Tracked but not in current roadmap.
 
 | Feature | Reason |
 |---------|--------|
-| Hero carousel/mosaic | Replaced by photo strip in new design |
-| Tab navigation | Replaced by vertical scroll with section headers |
-| Desktop sidebar layout | Replaced by centered single-column |
-| Map embed | Replaced by tap-to-open address row |
-| Rating distribution bars | Inline rating replaces heavy breakdown |
-| Bottom nav with business name | Replaced by floating Book pill |
+| New API endpoints or database schema changes | Prompt/logic changes only for v3.0 |
+| Chat widget layout/design changes | Already redesigned in v2.0 |
+| New tool functions | Existing 7 tools stay the same |
+| Multi-service booking | Requires `create_booking` tool rewrite — v4.0 |
+| Voice messages or file uploads | Different feature category entirely |
+| Multi-language system prompt | Uzbek-primary with auto-detect is correct approach |
+| Proactive upsell nudge | Depends on multi-service booking — v4.0 |
+| Style consultation | Requires per-business staff expertise data — v4.0 |
 | Dark mode | Light mode only |
-| Backend API changes | UI rebuild only |
-| Booking flow redesign | Separate milestone |
-| Landing page | Separate milestone |
 
 ## Traceability
 
 Which phases cover which requirements. Updated during roadmap creation.
+
+### v2.0 Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -129,11 +178,36 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IX-02 | Phase 7 | Pending |
 | IX-03 | Phase 7 | Pending |
 
+### v3.0 Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| PROMPT-01 | TBD | Pending |
+| PROMPT-02 | TBD | Pending |
+| PROMPT-03 | TBD | Pending |
+| PROMPT-04 | TBD | Pending |
+| PROMPT-05 | TBD | Pending |
+| PROMPT-06 | TBD | Pending |
+| PROMPT-07 | TBD | Pending |
+| PROMPT-08 | TBD | Pending |
+| PROMPT-09 | TBD | Pending |
+| BTN-01 | TBD | Pending |
+| BTN-02 | TBD | Pending |
+| BTN-03 | TBD | Pending |
+| BTN-04 | TBD | Pending |
+| CONV-01 | TBD | Pending |
+| CONV-02 | TBD | Pending |
+| CONV-03 | TBD | Pending |
+| CONV-04 | TBD | Pending |
+| FE-01 | TBD | Pending |
+| FE-02 | TBD | Pending |
+| FE-03 | TBD | Pending |
+
 **Coverage:**
-- v2.0 requirements: 20 total
-- Mapped to phases: 20
-- Unmapped: 0
+- v3.0 requirements: 20 total
+- Mapped to phases: 0
+- Unmapped: 20
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after v2.0 roadmap creation*
+*Last updated: 2026-03-12 after v3.0 requirements added*
