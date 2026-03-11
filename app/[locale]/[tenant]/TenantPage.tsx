@@ -19,6 +19,7 @@ import { ReviewsSection } from './_components/ReviewsSection';
 import { AboutSection } from './_components/AboutSection';
 import { DaySchedule } from './_components/WorkingHours';
 import { LocationMap } from './_components/LocationMap';
+import { ChatWidget } from './_components/ChatWidget';
 
 export function TenantPage({ business, services, employees, photos, reviews, tenantSlug, businessId, locale, savedUser, isFromInstagram }: TenantPageProps) {
   const router = useRouter();
@@ -188,6 +189,14 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
       {/* Gallery Lightbox */}
       <GalleryLightbox photos={allPhotos} initialIndex={currentImageIndex} open={showGallery} onClose={() => setShowGallery(false)} translations={{ allPhotos: t.allPhotos, interior: t.interior, exterior: t.exterior }} />
     </div>
+
+    {/* Chat Widget */}
+    <ChatWidget
+      businessId={businessId}
+      businessName={typeof business.name === 'object' ? (business.name as any)[locale] || (business.name as any).ru || '' : business.name}
+      locale={locale}
+      primaryColor={primaryColor}
+    />
  </div>
   );
 }
