@@ -8,19 +8,17 @@ A complete redesign of the BLYSS tenant page — the public-facing booking page 
 
 Every page a customer sees should feel trustworthy and polished enough that they'd book without hesitation — the UI should never be the reason someone leaves.
 
-## Current Milestone: v2.0 Tenant Page Redesign
+## Current Milestone: v3.0 AI Chat Experience Overhaul
 
-**Goal:** Total redesign of the tenant page with "The Clean Profile" design — mobile-native, avatar-centered, above-fold booking.
+**Goal:** Transform the AI chat from a booking-only form into a natural, real-life conversational experience that handles all customer questions.
 
 **Target features:**
-- Profile header with centered avatar, name, status, and above-fold Book button
-- Photo strip (horizontal thumbnails) replacing hero carousel
-- Expandable service rows with tap-to-book
-- Compact team avatar strip
-- Minimal review cards
-- Collapsible about/hours/contact rows
-- Floating Book pill on scroll
-- Desktop: centered single-column layout
+- Comprehensive system prompt rewrite covering all real-life customer questions
+- Smart button patterns: yes/no, quick-start, confirmation, context-aware choices
+- Natural conversational tone — like texting the salon receptionist on WhatsApp
+- AI-generated greeting with quick-start buttons instead of hardcoded text
+- Response templates for every common scenario (hours, prices, location, payment, cancellation, etc.)
+- Booking confirmation flow with button-based confirmations before finalizing
 
 ## Requirements
 
@@ -52,51 +50,44 @@ Every page a customer sees should feel trustworthy and polished enough that they
 
 ### Active
 
-<!-- v2.0 requirements — see REQUIREMENTS.md for full list with REQ-IDs -->
+<!-- v3.0 requirements — see REQUIREMENTS.md for full list with REQ-IDs -->
 
-- [ ] Profile header: avatar, name, tagline, status, above-fold Book button, quick actions
-- [ ] Photo strip: horizontal thumbnails with lightbox
-- [ ] Services: expandable rows with category filter and tap-to-book
-- [ ] Team: compact horizontal avatar strip
-- [ ] Reviews: minimal cards with expand-all
-- [ ] About: collapsible hours, address, contact rows
-- [ ] Floating Book pill on scroll
-- [ ] Desktop: centered mobile layout in max-w-480px
-- [ ] Subtle scroll animations
+- [ ] Comprehensive AI system prompt covering all customer question types
+- [ ] Smart button patterns (yes/no, quick-start, confirmations)
+- [ ] Natural conversational tone across all scenarios
+- [ ] AI-generated greeting with quick-start buttons
+- [ ] Response templates for common questions (hours, prices, location, payment, etc.)
+- [ ] Booking confirmation buttons before finalizing
 
 ### Out of Scope
 
-- Backend API changes — UI rebuild only, all endpoints stay the same
-- New features or business logic — this is a visual/UX overhaul
-- Dark mode — light mode only for now
-- Third-party component libraries (shadcn, antd, etc.) — Tailwind only
-- Landing page, bookings list, rating page, location page (separate milestone)
-- Booking flow redesign (separate milestone — existing flow preserved)
-- Hero carousel/mosaic — replaced by photo strip
-- Tab navigation — replaced by vertical scroll
-- Desktop sidebar layout — replaced by centered single column
-- Map embed — replaced by tap-to-open address
+- New API endpoints or database schema changes — prompt/logic changes only
+- Chat widget layout/design changes — already redesigned in v2.0
+- New tool functions (get_services, etc.) — existing tools stay the same
+- Authentication flow changes — OTP + JWT stays
+- Dark mode
+- Voice messages or file uploads in chat
+- Multi-language system prompt (stays Uzbek-primary with auto-detect)
 
 ## Context
 
-- v1.0 shipped Phase 1 (design system) and Phase 2 (old tenant page presentation)
-- v2.0 replaces all Phase 2 components with the new "Clean Profile" design
-- Phase 1 design system primitives (Button, Card, Modal, Badge, Avatar, Skeleton, StarRating) are reused
-- The `_lib/` utilities (types, translations, utils, hooks) stay unchanged
-- Design doc: `docs/plans/2026-03-09-tenant-page-redesign-design.md`
-- Current stack: Next.js 16, React 19, TailwindCSS 4, Motion, lucide-react
-- Per-tenant primary color theming via CSS custom properties
+- v1.0 shipped design system + old tenant page
+- v2.0 shipped "The Clean Profile" redesign (Phases 5-6 complete)
+- Chat widget added outside roadmap: ChatWidget.tsx on landing-page, chatAi.js on API
+- AI uses OpenAI gpt-4.1-mini with function calling (7 tools) and structured output (Zod schema)
+- System prompt is in Uzbek, auto-detects user language (Uzbek Lotin/Kirill, Russian)
+- Current prompt only covers booking flow — missing general Q&A
+- Frontend: hardcoded greeting, no quick-start buttons
+- Cross-repo: API changes in `blyss-gcloud-api/src/utils/chatAi.js`, frontend in `landing-page/ChatWidget.tsx`
 
 ## Constraints
 
-- **Tech stack**: Next.js 16 App Router, React 19, TailwindCSS 4, Motion, lucide-react — no new frameworks
-- **Components**: Custom Tailwind only — no external component libraries
-- **Backend**: All API endpoints, server actions, and data flow unchanged
-- **Routing**: Middleware, subdomain routing, locale routing — unchanged
-- **Auth**: OTP + JWT cookie flow — unchanged
-- **i18n**: All existing translations must work, new UI strings added to `_lib/translations.ts`
-- **Deployment**: Standalone Docker output mode — must continue working
-- **Design**: White background, mobile-first, centered layout, no hero images
+- **AI Model**: OpenAI gpt-4.1-mini — no model changes
+- **Tools**: Existing 7 tool functions unchanged — only prompt/logic around them
+- **Schema**: ChatResponseSchema (message, buttons, input_type) unchanged
+- **Backend**: Express.js API endpoints unchanged — only chatAi.js modifications
+- **Frontend**: ChatWidget.tsx — minimal changes (greeting, button handling)
+- **Language**: System prompt stays Uzbek-primary with auto-detection
 
 ## Key Decisions
 
@@ -113,4 +104,4 @@ Every page a customer sees should feel trustworthy and polished enough that they
 | Expandable service rows | Tap-to-expand instead of always-visible Book buttons — cleaner list | — Pending |
 
 ---
-*Last updated: 2026-03-09 after v2.0 milestone start*
+*Last updated: 2026-03-12 after v3.0 milestone start*
