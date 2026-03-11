@@ -423,8 +423,8 @@ export function ChatWidget({
             </div>
 
             {/* Input area */}
-            <div className=" bg-white flex-shrink-0 p-3">
-              <div className="flex items-end gap-2 rounded-3xl border border-neutral-200 px-3 py-2 focus-within:border-neutral-300 transition-colors">
+            <div className=" bg-white flex-shrink-0 pb-3 lg:pb-6">
+              <div className="flex items-end gap-2 border-t border-neutral-200 px-3 py-2 focus-within:border-neutral-300 transition-colors">
                 {inputType === 'phone' || inputType === 'otp' ? (
                   <input
                     ref={inputRef as React.RefObject<HTMLInputElement>}
