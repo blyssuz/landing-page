@@ -65,6 +65,7 @@ export function ChatWidget({
   const [input, setInput] = useState('');
   const [name, setName] = useState('');
   const [sending, setSending] = useState(false);
+  const [aiTyping, setAiTyping] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [unread, setUnread] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -139,6 +140,7 @@ export function ChatWidget({
     setMessages((prev) => [...prev, tempMsg]);
     setInput('');
     setSending(true);
+    setAiTyping(true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -153,17 +155,14 @@ export function ChatWidget({
       });
 
       if (!res.ok) {
-        // Remove optimistic message on failure
         setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
       } else {
         const data = await res.json();
-        // Replace temp message with real one
         setMessages((prev) =>
           prev.map((m) =>
             m.id === tempMsg.id ? { ...m, id: data.message_id } : m
           )
         );
-        // Append AI reply if present
         if (data.ai_reply) {
           setMessages((prev) => [...prev, data.ai_reply]);
         }
@@ -172,6 +171,7 @@ export function ChatWidget({
       setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
     } finally {
       setSending(false);
+      setAiTyping(false);
     }
   };
 
@@ -289,6 +289,23 @@ export function ChatWidget({
                   </div>
                 );
               })}
+              {/* Typing indicator */}
+              <AnimatePresence>
+                {aiTyping && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="flex justify-start"
+                  >
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-white shadow-sm border border-stone-100 flex items-center gap-1">
+                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                      <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <div ref={messagesEndRef} />
             </div>
 
