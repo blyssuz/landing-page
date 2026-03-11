@@ -142,10 +142,11 @@ Plans:
   3. Before the AI calls `create_booking`, it shows a booking summary with action-labeled confirmation buttons ("Ha, yozib qo'ying" / "Vaqtni o'zgartiraman") — the booking is never created without this step
   4. Running 15 representative user messages through the chat produces buttons on no more than 5 responses — buttons appear only for quick-start, structured choice (service/date/time), and pre-booking confirmation
   5. Each AI response contains at most one question; greetings and small talk ("salom", "rahmat", "xayr") are handled naturally without triggering the booking flow
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md — TDD: Unit tests + system prompt rewrite with Q&A, confirmation gate, button rules, business context injection
+- [ ] 08-02-PLAN.md — E2E verification checkpoint: 15-message live chat test of all 17 requirements
 
 ### Phase 9: Frontend Greeting & Quick-Start Buttons
 **Goal**: The chat opens with an AI-generated personalized greeting using the business name and context-aware quick-start buttons computed server-side from actual business data — no hardcoded text
@@ -176,5 +177,5 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel.
 | 5. Profile Header & Photo Strip | v2.0 | 2/2 | Complete | 2026-03-09 |
 | 6. Services & Team | v2.0 | 1/2 | In Progress | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
-| 8. System Prompt Overhaul | v3.0 | 0/0 | Not started | - |
+| 8. System Prompt Overhaul | v3.0 | 0/2 | Planned | - |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Not started | - |
