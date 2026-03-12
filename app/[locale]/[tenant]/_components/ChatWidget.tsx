@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import type { Locale } from '@/lib/i18n';
+import { chatAutoLogin } from '../actions';
 
 interface ChatButton {
   label: string;
@@ -200,6 +201,14 @@ export function ChatWidget({
           if (data.ai_reply.input_type) {
             setInputType(data.ai_reply.input_type);
           }
+          // Auto-login if auth tokens received from chat OTP verification
+          if (data.ai_reply.auth_tokens && data.ai_reply.auth_user) {
+            chatAutoLogin(
+              data.ai_reply.auth_tokens.accessToken,
+              data.ai_reply.auth_tokens.refreshToken,
+              data.ai_reply.auth_user,
+            ).catch(() => {});
+          }
         }
       }
     } catch {
@@ -315,7 +324,7 @@ export function ChatWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed bottom-0 right-0 sm:bottom-0 sm:right-8 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] bg-white sm:rounded-t-2xl flex flex-col overflow-hidden border border-neutral-200"
+            className="fixed bottom-0 right-0 sm:bottom-0 sm:right-8 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] bg-white sm:rounded-t-2xl flex flex-col overflow-hidden shadow-2xl"
           >
             {/* Header */}
             <div

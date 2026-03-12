@@ -42,6 +42,16 @@ async function setAuthCookies(
   cookieStore.set('blyss_user', JSON.stringify(user), getCookieOptions(365 * 24 * 60 * 60, false))
 }
 
+// ─── Chat auto-login ───
+
+export async function chatAutoLogin(
+  accessToken: string,
+  refreshToken: string,
+  user: { phone: string; first_name: string; last_name: string }
+) {
+  await setAuthCookies(accessToken, refreshToken, user)
+}
+
 // ─── Existing actions ───
 
 export async function reverseGeocode(lat: number, lng: number, locale: string) {
