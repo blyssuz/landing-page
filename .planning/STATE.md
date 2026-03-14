@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Tenant Page Redesign
-status: completed
-stopped_at: Completed 10-02-PLAN.md (all plans complete)
-last_updated: "2026-03-14T19:59:58.577Z"
-last_activity: 2026-03-15 — Completed 10-02 API cleanup and E2E verification
+status: executing
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-14T22:55:58.186Z"
+last_activity: 2026-03-15 — Completed 11-01 booking selection flow in ChatWidget
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 6
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_plans: 17
+  completed_plans: 16
+  percent: 94
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Every page a customer sees should feel trustworthy and polished enough that they'd book without hesitation
-**Current focus:** v4.0 Predefined Chat Flow — Phase 10
+**Current focus:** v5.0 Predefined Booking & Auth Flow in Chat — Phase 11
 
 ## Current Position
 
-Phase: 10 — Predefined Chat Flow
-Plan: 02 complete (all plans complete)
-Status: Complete
-Last activity: 2026-03-15 — Completed 10-02 API cleanup and E2E verification
+Phase: 11 — Predefined Booking & Auth Flow in Chat
+Plan: 01 complete, 02 remaining
+Status: In Progress
+Last activity: 2026-03-15 — Completed 11-01 booking selection flow in ChatWidget
 
-Progress: [██████████] 100% (15/15 plans complete)
+Progress: [█████████░] 94% (16/17 plans complete)
 
 ## Accumulated Context
 
@@ -45,6 +45,7 @@ Progress: [██████████] 100% (15/15 plans complete)
 - [v4.0]: All 9 requirements (FLOW-01 through FLOW-06, CLN-01 through CLN-03) placed in single Phase 10 — all changes are isolated to ChatWidget.tsx, no API changes required
 - [Phase 10]: Complete ChatWidget rewrite: AI chat replaced with local menu-driven predefined flow using business data props
 - [Phase 10]: Deleted /api/chat proxy route; user confirmed E2E flow works but noted booking/login processes are future work
+- [Phase 11]: Booking selection flow added to ChatWidget with service/date/time/employee/summary states and API integration
 
 ### Pending Todos
 
@@ -60,6 +61,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T19:56:33.161Z
-Stopped at: Completed 10-02-PLAN.md (all plans complete)
+Last session: 2026-03-14T22:55:58.184Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None

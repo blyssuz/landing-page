@@ -119,12 +119,12 @@ Requirements for predefined chat flow. Replaces AI chat with menu-driven interac
 
 ### Booking Flow (Phase 11)
 
-- [ ] **BOOK-01**: User can tap "Book" from main menu to start the booking flow
-- [ ] **BOOK-02**: User selects a service from button list showing name, price, and duration
-- [ ] **BOOK-03**: User selects a date from next 7 available days shown as buttons
-- [ ] **BOOK-04**: User selects a time slot from available slots fetched from API
-- [ ] **BOOK-05**: User selects an employee or "Any specialist" from available staff for that slot
-- [ ] **BOOK-06**: Booking summary shown with confirmation button before creating
+- [x] **BOOK-01**: User can tap "Book" from main menu to start the booking flow
+- [x] **BOOK-02**: User selects a service from button list showing name, price, and duration
+- [x] **BOOK-03**: User selects a date from next 7 available days shown as buttons
+- [x] **BOOK-04**: User selects a time slot from available slots fetched from API
+- [x] **BOOK-05**: User selects an employee or "Any specialist" from available staff for that slot
+- [x] **BOOK-06**: Booking summary shown with confirmation button before creating
 - [ ] **BOOK-07**: Booking is created via API after auth and confirmation
 - [ ] **BOOK-08**: Success message shown with booking details after creation
 
@@ -242,12 +242,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLN-02 | Phase 10 | Complete |
 | CLN-03 | Phase 10 | Complete |
 
-| BOOK-01 | Phase 11 | Pending |
-| BOOK-02 | Phase 11 | Pending |
-| BOOK-03 | Phase 11 | Pending |
-| BOOK-04 | Phase 11 | Pending |
-| BOOK-05 | Phase 11 | Pending |
-| BOOK-06 | Phase 11 | Pending |
+| BOOK-01 | Phase 11 | Complete |
+| BOOK-02 | Phase 11 | Complete |
+| BOOK-03 | Phase 11 | Complete |
+| BOOK-04 | Phase 11 | Complete |
+| BOOK-05 | Phase 11 | Complete |
+| BOOK-06 | Phase 11 | Complete |
 | BOOK-07 | Phase 11 | Pending |
 | BOOK-08 | Phase 11 | Pending |
 | AUTH-01 | Phase 11 | Pending |
