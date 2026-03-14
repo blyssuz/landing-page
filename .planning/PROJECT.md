@@ -8,17 +8,17 @@ A complete redesign of the BLYSS tenant page — the public-facing booking page 
 
 Every page a customer sees should feel trustworthy and polished enough that they'd book without hesitation — the UI should never be the reason someone leaves.
 
-## Current Milestone: v3.0 AI Chat Experience Overhaul
+## Current Milestone: v4.0 Predefined Chat Flow
 
-**Goal:** Transform the AI chat from a booking-only form into a natural, real-life conversational experience that handles all customer questions.
+**Goal:** Replace AI-powered chat with a predefined, menu-driven chat flow — no OpenAI API calls, instant responses with simulated typing delay.
 
 **Target features:**
-- Comprehensive system prompt rewrite covering all real-life customer questions
-- Smart button patterns: yes/no, quick-start, confirmation, context-aware choices
-- Natural conversational tone — like texting the salon receptionist on WhatsApp
-- AI-generated greeting with quick-start buttons instead of hardcoded text
-- Response templates for every common scenario (hours, prices, location, payment, cancellation, etc.)
-- Booking confirmation flow with button-based confirmations before finalizing
+- Language selection (UZ/RU) when chat opens
+- Menu buttons for common queries: prices, services, location, working hours, etc.
+- Predefined responses using actual business data (services, prices, hours, address)
+- Simulated AI typing with 500ms-1s delay before showing response
+- Remove OpenAI dependency from chat entirely
+- Nested menu navigation (e.g., Prices → service list → individual service details)
 
 ## Requirements
 
@@ -50,24 +50,23 @@ Every page a customer sees should feel trustworthy and polished enough that they
 
 ### Active
 
-<!-- v3.0 requirements — see REQUIREMENTS.md for full list with REQ-IDs -->
+<!-- v4.0 requirements — see REQUIREMENTS.md for full list with REQ-IDs -->
 
-- [ ] Comprehensive AI system prompt covering all customer question types
-- [ ] Smart button patterns (yes/no, quick-start, confirmations)
-- [ ] Natural conversational tone across all scenarios
-- [ ] AI-generated greeting with quick-start buttons
-- [ ] Response templates for common questions (hours, prices, location, payment, etc.)
-- [ ] Booking confirmation buttons before finalizing
+- [ ] Language selection (UZ/RU) on chat open
+- [ ] Menu buttons for prices, services, location, hours, etc.
+- [ ] Predefined responses with actual business data
+- [ ] Simulated typing delay (500ms-1s)
+- [ ] Remove OpenAI/AI dependency from chat
+- [ ] Nested menu navigation for drill-down
 
 ### Out of Scope
 
-- New API endpoints or database schema changes — prompt/logic changes only
-- Chat widget layout/design changes — already redesigned in v2.0
-- New tool functions (get_services, etc.) — existing tools stay the same
+- AI/OpenAI-powered chat responses — replaced by predefined flow
+- New API endpoints or database schema changes — frontend-only changes
 - Authentication flow changes — OTP + JWT stays
 - Dark mode
 - Voice messages or file uploads in chat
-- Multi-language system prompt (stays Uzbek-primary with auto-detect)
+- Free-text chat input — menu-driven only
 
 ## Context
 
@@ -104,4 +103,4 @@ Every page a customer sees should feel trustworthy and polished enough that they
 | Expandable service rows | Tap-to-expand instead of always-visible Book buttons — cleaner list | — Pending |
 
 ---
-*Last updated: 2026-03-12 after v3.0 milestone start*
+*Last updated: 2026-03-15 after v4.0 milestone start*
