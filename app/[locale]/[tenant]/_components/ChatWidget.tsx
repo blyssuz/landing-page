@@ -2,294 +2,296 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
-import type { Locale } from '@/lib/i18n';
-import { chatAutoLogin } from '../actions';
+import { MessageCircle, X } from 'lucide-react';
+import type { Business, Service, Locale } from '../_lib/types';
+import { formatPrice, formatDuration, secondsToTime, getText } from '../_lib/utils';
+import { DAY_NAMES, DAY_ORDER } from '../_lib/translations';
 
-interface ChatButton {
-  label: string;
-  value: string;
+type ChatLocale = 'uz' | 'ru';
+type FlowState = 'language_select' | 'main_menu' | 'showing_response';
+
+interface ChatMessage {
+  id: string;
+  type: 'bot' | 'user';
+  text: string;
+  buttons?: { label: string; action: string }[];
 }
 
-interface Message {
-  id: string;
-  sender_type: 'user' | 'ai' | 'business_owner' | 'staff';
-  sender_name: string;
-  text: string;
-  created_at: string;
-  buttons?: ChatButton[];
-  input_type?: 'phone' | 'otp' | 'name' | null;
+interface ChatWidgetProps {
+  business: Business;
+  services: Service[];
+  locale: Locale;
+  primaryColor: string;
 }
 
 const CHAT_TEXT = {
   uz: {
     title: 'Chat',
-    placeholder: 'Xabar yozing...',
-    greeting: 'Salom! Qanday yordam bera olamiz? 😊',
-    phonePlaceholder: '+998 90 123 45 67',
-    otpPlaceholder: 'Tasdiqlash kodi',
-    namePlaceholder: 'Ismingiz',
-    yourNamePlaceholder: 'Ismingiz (ixtiyoriy)',
+    greeting: "Assalomu alaykum! Qanday yordam bera olaman?",
+    prices: 'Narxlar',
+    services: 'Xizmatlar',
+    location: 'Manzil',
+    workingHours: 'Ish vaqti',
+    contact: "Bog'lanish",
+    backToMenu: 'Bosh menyu',
+    bookNow: 'Band qilish',
+    closed: 'Yopiq',
+    phone: 'Telefon',
+    instagram: 'Instagram',
+    minute: 'daq',
+    hour: 'soat',
+    sum: "so'm",
+    noServices: 'Xizmatlar haqida ma\'lumot mavjud emas',
+    noAddress: 'Manzil ko\'rsatilmagan',
+    noWorkingHours: 'Ish vaqti ko\'rsatilmagan',
+    noContact: 'Bog\'lanish ma\'lumotlari mavjud emas',
   },
   ru: {
     title: 'Чат',
-    placeholder: 'Напишите сообщение...',
-    greeting: 'Здравствуйте! Чем можем помочь? 😊',
-    phonePlaceholder: '+998 90 123 45 67',
-    otpPlaceholder: 'Код подтверждения',
-    namePlaceholder: 'Ваше имя',
-    yourNamePlaceholder: 'Ваше имя (необязательно)',
+    greeting: 'Здравствуйте! Чем могу помочь?',
+    prices: 'Цены',
+    services: 'Услуги',
+    location: 'Адрес',
+    workingHours: 'Время работы',
+    contact: 'Контакты',
+    backToMenu: 'Главное меню',
+    bookNow: 'Забронировать',
+    closed: 'Закрыто',
+    phone: 'Телефон',
+    instagram: 'Instagram',
+    minute: 'мин',
+    hour: 'ч',
+    sum: 'сум',
+    noServices: 'Информация об услугах отсутствует',
+    noAddress: 'Адрес не указан',
+    noWorkingHours: 'Время работы не указано',
+    noContact: 'Контактная информация отсутствует',
   },
 } as const;
 
-function getVisitorId(): string {
-  if (typeof window === 'undefined') return '';
-  let id = localStorage.getItem('blyss_visitor_id');
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem('blyss_visitor_id', id);
+type ChatTextKey = typeof CHAT_TEXT[ChatLocale];
+
+function generatePricesResponse(services: Service[], locale: ChatLocale, t: ChatTextKey): string {
+  if (!services.length) return t.noServices;
+
+  // Group by category if categories exist
+  const categorized = new Map<string, Service[]>();
+  for (const service of services) {
+    const cat = service.category || '';
+    if (!categorized.has(cat)) categorized.set(cat, []);
+    categorized.get(cat)!.push(service);
   }
-  return id;
-}
 
-function getVisitorName(): string {
-  if (typeof window === 'undefined') return '';
-  return localStorage.getItem('blyss_visitor_name') || '';
-}
-
-function setVisitorNameLS(name: string) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('blyss_visitor_name', name);
+  const lines: string[] = [];
+  for (const [category, categoryServices] of categorized) {
+    if (category && categorized.size > 1) {
+      lines.push(`\n${category}`);
+    }
+    for (const s of categoryServices) {
+      const name = getText(s.name, locale);
+      const duration = formatDuration(s.duration_minutes, t.minute, t.hour);
+      const price = formatPrice(s.price);
+      lines.push(`${name} — ${duration} — ${price} ${t.sum}`);
+    }
   }
+
+  return lines.join('\n').trim();
 }
 
-function formatPhoneInput(value: string): string {
-  const digits = value.replace(/\D/g, '');
-  // Ensure it starts with 998
-  let d = digits;
-  if (d.startsWith('998')) d = d.slice(3);
-  else if (d.startsWith('8')) d = d.slice(1);
+function generateServicesResponse(services: Service[], locale: ChatLocale, t: ChatTextKey): string {
+  if (!services.length) return t.noServices;
 
-  let formatted = '+998';
-  if (d.length > 0) formatted += ' ' + d.slice(0, 2);
-  if (d.length > 2) formatted += ' ' + d.slice(2, 5);
-  if (d.length > 5) formatted += ' ' + d.slice(5, 7);
-  if (d.length > 7) formatted += ' ' + d.slice(7, 9);
-  return formatted;
+  const lines: string[] = [];
+  for (const s of services) {
+    const name = getText(s.name, locale);
+    const desc = s.description ? getText(s.description, locale) : '';
+    if (desc) {
+      lines.push(`${name} — ${desc}`);
+    } else {
+      lines.push(name);
+    }
+  }
+
+  return lines.join('\n');
 }
 
-function extractPhone(formatted: string): string {
-  const digits = formatted.replace(/\D/g, '');
-  return '+' + digits;
+function generateLocationResponse(business: Business, t: ChatTextKey): string {
+  if (business.location?.address) {
+    return business.location.address;
+  }
+  return t.noAddress;
 }
 
-export function ChatWidget({
-  businessId,
-  businessName,
-  locale,
-  primaryColor,
-}: {
-  businessId: string;
-  businessName: string;
-  locale: Locale;
-  primaryColor: string;
-}) {
+function generateWorkingHoursResponse(business: Business, locale: ChatLocale, t: ChatTextKey): string {
+  if (!business.working_hours) return t.noWorkingHours;
+
+  const dayNames = DAY_NAMES[locale];
+  const lines: string[] = [];
+
+  for (const dayKey of DAY_ORDER) {
+    const dayName = dayNames[dayKey];
+    const hours = business.working_hours[dayKey];
+    if (!hours || !hours.is_open) {
+      lines.push(`${dayName}: ${t.closed}`);
+    } else {
+      const start = secondsToTime(hours.start);
+      const end = secondsToTime(hours.end);
+      lines.push(`${dayName}: ${start} - ${end}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function generateContactResponse(business: Business, t: ChatTextKey): string {
+  const parts: string[] = [];
+
+  if (business.business_phone_number) {
+    parts.push(`${t.phone}: ${business.business_phone_number}`);
+  }
+
+  if (business.social_media?.instagram) {
+    const handle = business.social_media.instagram.startsWith('@')
+      ? business.social_media.instagram
+      : `@${business.social_media.instagram}`;
+    parts.push(`${t.instagram}: ${handle}`);
+  }
+
+  if (parts.length === 0) return t.noContact;
+  return parts.join('\n');
+}
+
+let msgIdCounter = 0;
+function nextMsgId(): string {
+  return `msg_${Date.now()}_${++msgIdCounter}`;
+}
+
+export function ChatWidget({ business, services, locale, primaryColor }: ChatWidgetProps) {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [visitorName, setVisitorName] = useState('');
-  const [sending, setSending] = useState(false);
-  const [aiTyping, setAiTyping] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [inputType, setInputType] = useState<'phone' | 'otp' | 'name' | null>(null);
-  const [unread, setUnread] = useState(0);
+  const [chatLocale, setChatLocale] = useState<ChatLocale | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [typing, setTyping] = useState(false);
+  const [flowState, setFlowState] = useState<FlowState>('language_select');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const t = CHAT_TEXT[locale as keyof typeof CHAT_TEXT];
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }, []);
 
-  // Load messages when opening
-  useEffect(() => {
-    if (!open || loaded) return;
-    const visitorId = getVisitorId();
-    setVisitorName(getVisitorName());
-
-    fetch(`/api/chat?business_id=${businessId}&visitor_id=${visitorId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.messages?.length) {
-          setMessages(data.messages);
-          // Restore input_type from last AI message
-          const lastAi = [...data.messages].reverse().find((m: Message) => m.sender_type !== 'user');
-          if (lastAi?.input_type) setInputType(lastAi.input_type);
-        }
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
-  }, [open, loaded, businessId]);
-
-  // Scroll on new messages or when typing indicator changes
+  // Scroll on new messages or typing indicator change
   useEffect(() => {
     if (open) scrollToBottom();
-  }, [messages, open, aiTyping, scrollToBottom]);
+  }, [messages, open, typing, scrollToBottom]);
 
+  const businessName = typeof business.name === 'object'
+    ? getText(business.name as any, locale)
+    : business.name;
 
-
-  // Poll for new messages (for staff replies)
-  useEffect(() => {
-    if (!open || !loaded) return;
-    const interval = setInterval(() => {
-      const visitorId = getVisitorId();
-      fetch(`/api/chat?business_id=${businessId}&visitor_id=${visitorId}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.messages?.length && data.messages.length > messages.length) {
-            setMessages(data.messages);
-          }
-        })
-        .catch(() => {});
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [open, loaded, businessId, messages.length]);
-
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || sending) return;
-
-    const visitorId = getVisitorId();
-    const name = visitorName.trim();
-    if (name) setVisitorNameLS(name);
-
-    // Optimistic user message
-    const tempMsg: Message = {
-      id: `temp_${Date.now()}`,
-      sender_type: 'user',
-      sender_name: name || 'Visitor',
-      text: text.trim(),
-      created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, tempMsg]);
-    setInput('');
-    setInputType(null); // Reset input type after sending
-    setSending(true);
-    setAiTyping(true);
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          business_id: businessId,
-          visitor_id: visitorId,
-          visitor_name: name || undefined,
-          message_text: text.trim(),
-        }),
-      });
-
-      if (!res.ok) {
-        setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
-      } else {
-        const data = await res.json();
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempMsg.id ? { ...m, id: data.message_id } : m))
-        );
-        if (data.ai_reply) {
-          setMessages((prev) => [...prev, data.ai_reply]);
-          // Update input type from AI response
-          if (data.ai_reply.input_type) {
-            setInputType(data.ai_reply.input_type);
-          }
-          // Auto-login if auth tokens received from chat OTP verification
-          if (data.ai_reply.auth_tokens && data.ai_reply.auth_user) {
-            chatAutoLogin(
-              data.ai_reply.auth_tokens.accessToken,
-              data.ai_reply.auth_tokens.refreshToken,
-              data.ai_reply.auth_user,
-            ).catch(() => {});
-          }
-        }
-      }
-    } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
-    } finally {
-      setSending(false);
-      setAiTyping(false);
-    }
-  };
-
-  const handleSend = () => {
-    if (inputType === 'phone') {
-      const phone = extractPhone(input);
-      if (phone.length === 13) sendMessage(phone);
-    } else {
-      sendMessage(input);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleButtonClick = (btn: ChatButton) => {
-    sendMessage(btn.label);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (inputType === 'phone') {
-      setInput(formatPhoneInput(e.target.value));
-    } else if (inputType === 'otp') {
-      setInput(e.target.value.replace(/\D/g, '').slice(0, 5));
-    } else {
-      setInput(e.target.value);
-    }
-  };
-
-  const getPlaceholder = () => {
-    switch (inputType) {
-      case 'phone': return t.phonePlaceholder;
-      case 'otp': return t.otpPlaceholder;
-      case 'name': return t.namePlaceholder;
-      default: return t.placeholder;
-    }
-  };
-
-  const getInputMode = (): 'text' | 'tel' | 'numeric' => {
-    switch (inputType) {
-      case 'phone': return 'tel';
-      case 'otp': return 'numeric';
-      default: return 'text';
-    }
-  };
-
-  const canSend = () => {
-    if (sending) return false;
-    if (inputType === 'phone') return extractPhone(input).length === 13;
-    if (inputType === 'otp') return input.length === 5;
-    return input.trim().length > 0;
-  };
-
-  // Auto-resize textarea
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const adjustTextareaHeight = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  const getMainMenuButtons = useCallback((lang: ChatLocale) => {
+    const t = CHAT_TEXT[lang];
+    return [
+      { label: t.prices, action: 'prices' },
+      { label: t.services, action: 'services' },
+      { label: t.location, action: 'location' },
+      { label: t.workingHours, action: 'working_hours' },
+      { label: t.contact, action: 'contact' },
+    ];
   }, []);
 
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [input, adjustTextareaHeight]);
+  const addBotMessage = useCallback((text: string, buttons?: { label: string; action: string }[]) => {
+    const msg: ChatMessage = {
+      id: nextMsgId(),
+      type: 'bot',
+      text,
+      buttons,
+    };
+    setMessages(prev => [...prev, msg]);
+  }, []);
 
-  // Focus textarea when opening
-  useEffect(() => {
-    if (open) setTimeout(() => textareaRef.current?.focus(), 300);
-  }, [open]);
+  const addUserMessage = useCallback((text: string) => {
+    const msg: ChatMessage = {
+      id: nextMsgId(),
+      type: 'user',
+      text,
+    };
+    setMessages(prev => [...prev, msg]);
+  }, []);
+
+  const showTypingThenRespond = useCallback((delayMs: number, text: string, buttons?: { label: string; action: string }[]) => {
+    setTyping(true);
+    setTimeout(() => {
+      setTyping(false);
+      addBotMessage(text, buttons);
+    }, delayMs);
+  }, [addBotMessage]);
+
+  const handleLanguageSelect = useCallback((lang: ChatLocale) => {
+    setChatLocale(lang);
+    const langLabel = lang === 'uz' ? "O'zbekcha" : 'Русский';
+    addUserMessage(langLabel);
+    const t = CHAT_TEXT[lang];
+    setFlowState('main_menu');
+    showTypingThenRespond(600, t.greeting, getMainMenuButtons(lang));
+  }, [addUserMessage, showTypingThenRespond, getMainMenuButtons]);
+
+  const handleMenuAction = useCallback((action: string, label: string) => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    addUserMessage(label);
+    setFlowState('showing_response');
+
+    const delay = 500 + Math.floor(Math.random() * 500); // 500-1000ms
+
+    let responseText: string;
+    switch (action) {
+      case 'prices':
+        responseText = generatePricesResponse(services, chatLocale, t);
+        break;
+      case 'services':
+        responseText = generateServicesResponse(services, chatLocale, t);
+        break;
+      case 'location':
+        responseText = generateLocationResponse(business, t);
+        break;
+      case 'working_hours':
+        responseText = generateWorkingHoursResponse(business, chatLocale, t);
+        break;
+      case 'contact':
+        responseText = generateContactResponse(business, t);
+        break;
+      default:
+        responseText = t.greeting;
+    }
+
+    showTypingThenRespond(delay, responseText, [
+      { label: t.backToMenu, action: 'back_to_menu' },
+    ]);
+  }, [chatLocale, services, business, addUserMessage, showTypingThenRespond]);
+
+  const handleBackToMenu = useCallback(() => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+    addUserMessage(t.backToMenu);
+    setFlowState('main_menu');
+    showTypingThenRespond(400, t.greeting, getMainMenuButtons(chatLocale));
+  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons]);
+
+  const handleButtonClick = useCallback((btn: { label: string; action: string }) => {
+    if (typing) return; // Prevent clicks while typing indicator is active
+
+    if (btn.action === 'lang_uz') {
+      handleLanguageSelect('uz');
+    } else if (btn.action === 'lang_ru') {
+      handleLanguageSelect('ru');
+    } else if (btn.action === 'back_to_menu') {
+      handleBackToMenu();
+    } else {
+      handleMenuAction(btn.action, btn.label);
+    }
+  }, [typing, handleLanguageSelect, handleBackToMenu, handleMenuAction]);
+
+  const chatTitle = chatLocale ? CHAT_TEXT[chatLocale].title : 'Chat';
 
   return (
     <>
@@ -301,17 +303,12 @@ export function ChatWidget({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            onClick={() => { setOpen(true); setUnread(0); }}
+            onClick={() => setOpen(true)}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform"
             style={{ backgroundColor: primaryColor }}
             aria-label="Open chat"
           >
             <MessageCircle size={24} />
-            {unread > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[11px] font-bold flex items-center justify-center">
-                {unread}
-              </span>
-            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -337,7 +334,7 @@ export function ChatWidget({
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-[15px] font-semibold truncate">{businessName}</h3>
-                  <p className="text-[12px] opacity-70">{t.title}</p>
+                  <p className="text-[12px] opacity-70">{chatTitle}</p>
                 </div>
               </div>
               <button
@@ -351,30 +348,34 @@ export function ChatWidget({
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-white">
-              {/* Greeting */}
-              <div className="flex justify-start">
-                <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-neutral-800 text-[15px] border border-neutral-100">
-                  {t.greeting}
-                </div>
-              </div>
-
-              {/* Name input — shown before first message */}
-              {!getVisitorName() && messages.length === 0 && (
-                <div className="flex justify-end">
+              {/* Language selection — shown only when no language is selected and no messages */}
+              {!chatLocale && messages.length === 0 && (
+                <div className="flex justify-start">
                   <div className="max-w-[80%]">
-                    <input
-                      type="text"
-                      value={visitorName}
-                      onChange={(e) => setVisitorName(e.target.value)}
-                      placeholder={t.yourNamePlaceholder}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-2xl bg-white border border-neutral-200 focus:border-neutral-300 focus:outline-none transition-colors text-neutral-700 placeholder:text-neutral-400"
-                    />
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-neutral-800 text-[15px] border border-neutral-100 mb-3">
+                      Tilni tanlang / Выберите язык
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleButtonClick({ label: "O'zbekcha", action: 'lang_uz' })}
+                        className="px-6 py-3 text-[15px] font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
+                      >
+                        O&apos;zbekcha
+                      </button>
+                      <button
+                        onClick={() => handleButtonClick({ label: 'Русский', action: 'lang_ru' })}
+                        className="px-6 py-3 text-[15px] font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
+                      >
+                        Русский
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* Chat messages */}
               {messages.map((msg, idx) => {
-                const isUser = msg.sender_type === 'user';
+                const isUser = msg.type === 'user';
                 const isLast = idx === messages.length - 1;
                 return (
                   <div key={msg.id}>
@@ -391,15 +392,14 @@ export function ChatWidget({
                       </div>
                     </div>
 
-                    {/* Buttons — only for last AI message */}
-                    {!isUser && isLast && msg.buttons && msg.buttons.length > 0 && (
+                    {/* Buttons — only on last bot message */}
+                    {!isUser && isLast && msg.buttons && msg.buttons.length > 0 && !typing && (
                       <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
                         {msg.buttons.map((btn, i) => (
                           <button
                             key={i}
                             onClick={() => handleButtonClick(btn)}
-                            disabled={sending || aiTyping}
-                            className="px-3.5 py-2 text-[13px] font-medium rounded-full border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all disabled:opacity-50"
+                            className="px-3.5 py-2 text-[13px] font-medium rounded-full border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
                           >
                             {btn.label}
                           </button>
@@ -412,7 +412,7 @@ export function ChatWidget({
 
               {/* Typing indicator */}
               <AnimatePresence>
-                {aiTyping && (
+                {typing && (
                   <motion.div
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -429,49 +429,6 @@ export function ChatWidget({
               </AnimatePresence>
 
               <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input area */}
-            <div className=" bg-white flex-shrink-0 pb-3 lg:pb-6">
-              <div className="flex items-end gap-2 border-t border-neutral-200 px-3 py-2 focus-within:border-neutral-300 transition-colors">
-                {inputType === 'phone' || inputType === 'otp' ? (
-                  <input
-                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                    type="text"
-                    inputMode={getInputMode()}
-                    value={input}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder={getPlaceholder()}
-                    maxLength={inputType === 'otp' ? 5 : 17}
-                    className="flex-1 text-[15px] py-1.5 bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none resize-none text-neutral-800 placeholder:text-neutral-400"
-                  />
-                ) : (
-                  <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={getPlaceholder()}
-                    maxLength={2000}
-                    rows={1}
-                    className="flex-1 text-[15px] px-2 py-3.5 bg-transparent border-none outline-none ring-0 focus:outline-none focus:ring-0 focus:border-none resize-none text-neutral-800 placeholder:text-neutral-400 leading-relaxed max-h-[120px] [&:focus]:outline-none"
-                  />
-                )}
-                <button
-                  onClick={handleSend}
-                  disabled={!canSend()}
-                  className="w-9 h-9 rounded-lg flex items-center justify-center text-white disabled:opacity-30 active:scale-95 transition-all flex-shrink-0 mb-0.5"
-                  style={{ backgroundColor: primaryColor }}
-                  aria-label="Send"
-                >
-                  {sending ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Send size={16} />
-                  )}
-                </button>
-              </div>
             </div>
           </motion.div>
         )}
