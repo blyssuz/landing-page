@@ -5,7 +5,7 @@
 - [x] **v1.0 Professional UI Rebuild** - Phases 1-4 (Phase 1-2 shipped 2026-03-09, Phases 3-4 deferred)
 - [ ] **v2.0 Tenant Page Redesign** - Phases 5-7 (in progress)
 - [ ] **v3.0 AI Chat Experience Overhaul** - Phases 8-9 (planned)
-- [ ] **v4.0 Predefined Chat Flow** - Phase 10 (planned)
+- [x] **v4.0 Predefined Chat Flow** - Phase 10 (completed 2026-03-15)
 
 ## Phases
 
@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### v4.0 Predefined Chat Flow
 
-- [ ] **Phase 10: Predefined Chat Flow** - Replace AI chat with menu-driven predefined flow in ChatWidget.tsx: language selection, main menu buttons, nested navigation, simulated typing delay, and removal of all OpenAI dependencies
+- [x] **Phase 10: Predefined Chat Flow** - Replace AI chat with menu-driven predefined flow in ChatWidget.tsx: language selection, main menu buttons, nested navigation, simulated typing delay, and removal of all OpenAI dependencies (completed 2026-03-15)
 
 ## Phase Details
 
@@ -181,8 +181,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Rewrite ChatWidget.tsx as predefined menu-driven flow + update TenantPage props
-- [ ] 10-02-PLAN.md — Delete /api/chat route + end-to-end visual verification
+- [x] 10-01-PLAN.md — Rewrite ChatWidget.tsx as predefined menu-driven flow + update TenantPage props
+- [x] 10-02-PLAN.md — Delete /api/chat route + end-to-end visual verification
 
 ## Progress
 
@@ -201,4 +201,4 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
 | 8. System Prompt Overhaul | v3.0 | 2/2 | Complete | 2026-03-11 |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Superseded by v4.0 | - |
-| 10. Predefined Chat Flow | 1/2 | In Progress|  | - |
+| 10. Predefined Chat Flow | v4.0 | 2/2 | Complete | 2026-03-15 |
