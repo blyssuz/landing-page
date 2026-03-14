@@ -92,25 +92,30 @@ Requirements for AI chat experience overhaul. Each maps to roadmap phases.
 - [x] **CONV-03**: AI tone is natural and informal — like texting a real receptionist, not filling out a form
 - [x] **CONV-04**: Business context block includes address, working hours, and payment info from Firestore data
 
-### Frontend Greeting
+### Frontend Greeting (Replaced by v4.0)
 
-- [ ] **FE-01**: ChatWidget shows AI-generated greeting with business name instead of hardcoded text
-- [ ] **FE-02**: Quick-start buttons appear on first chat open (e.g., "Yozilish", "Narxlar", "Manzil va ish vaqti")
-- [ ] **FE-03**: Quick-start buttons are computed server-side from actual business data
+- [ ] ~~**FE-01**: ChatWidget shows AI-generated greeting with business name instead of hardcoded text~~ — replaced by FLOW-01/FLOW-02
+- [ ] ~~**FE-02**: Quick-start buttons appear on first chat open~~ — replaced by FLOW-02
+- [ ] ~~**FE-03**: Quick-start buttons are computed server-side from actual business data~~ — replaced by FLOW-06
 
-## v3.x Requirements
+## v4.0 Requirements
 
-Deferred to after v3.0 validation. Tracked but not in current roadmap.
+Requirements for predefined chat flow. Replaces AI chat with menu-driven interaction.
 
-### Custom Knowledge Base
+### Chat Flow
 
-- **FAQ-01**: Business owners can add custom Q&A pairs via `chat_faq` Firestore field
-- **FAQ-02**: Custom FAQ entries are injected into the system prompt at runtime
+- [ ] **FLOW-01**: User sees language selection buttons (UZ/RU) when opening chat
+- [ ] **FLOW-02**: After language selection, user sees main menu buttons (Prices, Services, Location, Working Hours, Contact)
+- [ ] **FLOW-03**: Clicking a menu button sends it as a user message in the chat
+- [ ] **FLOW-04**: Predefined response appears with 500ms-1s typing delay animation
+- [ ] **FLOW-05**: User can navigate back to main menu from any sub-menu
+- [ ] **FLOW-06**: Predefined responses use actual business data (services, prices, hours, address)
 
-### Chat Actions
+### Cleanup
 
-- **ACT-01**: User can cancel an existing booking through the chat
-- **ACT-02**: User can reschedule a booking through the chat
+- [ ] **CLN-01**: Remove OpenAI API calls from chat flow (no `/api/chat` POST)
+- [ ] **CLN-02**: Remove AI typing indicator logic, replace with simulated delay
+- [ ] **CLN-03**: Remove `input_type` (phone/otp/name) handling from ChatWidget
 
 ## Future Requirements
 
@@ -139,14 +144,11 @@ Deferred to separate milestones.
 
 | Feature | Reason |
 |---------|--------|
-| New API endpoints or database schema changes | Prompt/logic changes only for v3.0 |
-| Chat widget layout/design changes | Already redesigned in v2.0 |
-| New tool functions | Existing 7 tools stay the same |
-| Multi-service booking | Requires `create_booking` tool rewrite — v4.0 |
+| AI/OpenAI-powered chat responses | Replaced by predefined flow in v4.0 |
+| New API endpoints or database schema changes | Frontend-only changes for v4.0 |
+| Free-text chat input | Menu-driven only |
+| Multi-service booking | Requires booking flow rewrite — future |
 | Voice messages or file uploads | Different feature category entirely |
-| Multi-language system prompt | Uzbek-primary with auto-detect is correct approach |
-| Proactive upsell nudge | Depends on multi-service booking — v4.0 |
-| Style consultation | Requires per-business staff expertise data — v4.0 |
 | Dark mode | Light mode only |
 
 ## Traceability
@@ -208,6 +210,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Mapped to phases: 20
 - Unmapped: 0
 
+### v4.0 Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FLOW-01 | Phase 10 | Pending |
+| FLOW-02 | Phase 10 | Pending |
+| FLOW-03 | Phase 10 | Pending |
+| FLOW-04 | Phase 10 | Pending |
+| FLOW-05 | Phase 10 | Pending |
+| FLOW-06 | Phase 10 | Pending |
+| CLN-01 | Phase 10 | Pending |
+| CLN-02 | Phase 10 | Pending |
+| CLN-03 | Phase 10 | Pending |
+
+**Coverage:**
+- v4.0 requirements: 9 total
+- Mapped to phases: 9
+- Unmapped: 0
+
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-12 after v3.0 roadmap created (Phases 8-9)*
+*Last updated: 2026-03-15 after v4.0 requirements defined*
