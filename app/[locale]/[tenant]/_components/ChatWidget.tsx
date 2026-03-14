@@ -6,7 +6,7 @@ import { MessageCircle, X } from 'lucide-react';
 import type { Business, Service, Employee, SavedUser, Locale } from '../_lib/types';
 import { formatPrice, formatDuration, secondsToTime, getText } from '../_lib/utils';
 import { DAY_NAMES, DAY_ORDER } from '../_lib/translations';
-import { getAvailableSlots, getSlotEmployees } from '../actions';
+import { getAvailableSlots, getSlotEmployees, getAuthStatus, sendOtp, verifyOtp, registerUser, createBooking } from '../actions';
 
 type ChatLocale = 'uz' | 'ru';
 type FlowState =
@@ -98,9 +98,25 @@ const CHAT_TEXT = {
     today: 'Bugun',
     tomorrow: 'Ertaga',
     comingSoon: 'Tez kunda...',
+    // Auth flow
+    enterPhone: 'Telefon raqamingizni kiriting',
+    phonePlaceholder: '90 123 45 67',
+    sendCode: 'Kod yuborish',
+    enterOtp: 'SMS orqali yuborilgan 5 xonali kodni kiriting',
+    enterOtpTelegram: 'Telegram orqali yuborilgan 5 xonali kodni kiriting',
+    verifyCode: 'Tasdiqlash',
+    enterName: 'Ismingizni kiriting',
+    namePlaceholder: 'Ism',
+    registerBtn: 'Davom etish',
+    bookingSuccess: 'Buyurtmangiz tasdiqlandi!',
+    bookingDetails: 'Buyurtma tafsilotlari',
+    errorOccurred: 'Xatolik yuz berdi. Qaytadan urinib ko\'ring',
+    invalidPhone: 'Telefon raqam noto\'g\'ri',
+    invalidOtp: 'Noto\'g\'ri kod kiritildi',
+    invalidName: 'Ism kamida 2 ta harfdan iborat bo\'lishi kerak',
   },
   ru: {
-    title: 'Чат',
+    title: 'Chat',
     greeting: 'Здравствуйте! Чем могу помочь?',
     prices: 'Цены',
     services: 'Услуги',
@@ -137,10 +153,51 @@ const CHAT_TEXT = {
     today: 'Сегодня',
     tomorrow: 'Завтра',
     comingSoon: 'Скоро...',
+    // Auth flow
+    enterPhone: 'Введите номер телефона',
+    phonePlaceholder: '90 123 45 67',
+    sendCode: 'Отправить код',
+    enterOtp: 'Введите 5-значный код из SMS',
+    enterOtpTelegram: 'Введите 5-значный код из Telegram',
+    verifyCode: 'Подтвердить',
+    enterName: 'Введите ваше имя',
+    namePlaceholder: 'Имя',
+    registerBtn: 'Продолжить',
+    bookingSuccess: 'Запись подтверждена!',
+    bookingDetails: 'Детали записи',
+    errorOccurred: 'Произошла ошибка. Попробуйте ещё раз',
+    invalidPhone: 'Неверный номер телефона',
+    invalidOtp: 'Неверный код',
+    invalidName: 'Имя должно содержать минимум 2 буквы',
   },
 } as const;
 
 type ChatTextKey = typeof CHAT_TEXT[ChatLocale];
+
+const OTP_ERROR_CODES: Record<ChatLocale, Record<string, string>> = {
+  uz: {
+    INVALID_OTP: "Noto'g'ri kod kiritildi",
+    OTP_EXPIRED: "Kod muddati tugagan, qaytadan yuboring",
+    RATE_LIMITED: "Ko'p urinishlar, keyinroq qaytadan urinib ko'ring",
+    OTP_MAX_ATTEMPTS: "Kod urinishlari tugadi. Yangi kod so'rang",
+  },
+  ru: {
+    INVALID_OTP: 'Неверный код',
+    OTP_EXPIRED: 'Код истёк, запросите новый',
+    RATE_LIMITED: 'Слишком много попыток, попробуйте позже',
+    OTP_MAX_ATTEMPTS: 'Исчерпаны попытки ввода кода. Запросите новый',
+  },
+};
+
+function formatPhoneDisplay(digits: string): string {
+  const d = digits.replace(/\D/g, '');
+  let result = '';
+  if (d.length > 0) result += d.slice(0, 2);
+  if (d.length > 2) result += ' ' + d.slice(2, 5);
+  if (d.length > 5) result += ' ' + d.slice(5, 7);
+  if (d.length > 7) result += ' ' + d.slice(7, 9);
+  return result;
+}
 
 function generatePricesResponse(services: Service[], locale: ChatLocale, t: ChatTextKey): string {
   if (!services.length) return t.noServices;
@@ -291,6 +348,18 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
   const [loadingSlots, setLoadingSlots] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Auth-related state
+  const [phoneInput, setPhoneInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [otpId, setOtpId] = useState<string | null>(null);
+  const [authPhone, setAuthPhone] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const scrollToBottom = useCallback(() => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }, []);
@@ -298,7 +367,18 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
   // Scroll on new messages or typing indicator change
   useEffect(() => {
     if (open) scrollToBottom();
-  }, [messages, open, typing, scrollToBottom]);
+  }, [messages, open, typing, flowState, scrollToBottom]);
+
+  // Auto-focus inputs when transitioning to input states
+  useEffect(() => {
+    if (flowState === 'phone_input') {
+      setTimeout(() => phoneInputRef.current?.focus(), 100);
+    } else if (flowState === 'otp_input') {
+      setTimeout(() => otpInputRef.current?.focus(), 100);
+    } else if (flowState === 'name_input') {
+      setTimeout(() => nameInputRef.current?.focus(), 100);
+    }
+  }, [flowState]);
 
   const businessName = typeof business.name === 'object'
     ? getText(business.name as any, locale)
@@ -352,14 +432,187 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     showTypingThenRespond(600, t.greeting, getMainMenuButtons(lang));
   }, [addUserMessage, showTypingThenRespond, getMainMenuButtons]);
 
+  const resetAuthState = useCallback(() => {
+    setPhoneInput('');
+    setOtpInput('');
+    setNameInput('');
+    setOtpId(null);
+    setAuthPhone('');
+    setIsAuthenticated(false);
+    setAuthLoading(false);
+  }, []);
+
   const handleBackToMenu = useCallback(() => {
     if (!chatLocale) return;
     const t = CHAT_TEXT[chatLocale];
     addUserMessage(t.backToMenu);
     setFlowState('main_menu');
     setBooking({ ...DEFAULT_BOOKING });
+    resetAuthState();
     showTypingThenRespond(400, t.greeting, getMainMenuButtons(chatLocale));
-  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons]);
+  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons, resetAuthState]);
+
+  // ─── Booking creation flow ───
+
+  const createBookingFlow = useCallback(async () => {
+    if (!chatLocale || !booking.serviceId || !booking.date || booking.time === null) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    setTyping(true);
+
+    try {
+      const result = await createBooking(
+        businessId,
+        booking.date,
+        booking.time,
+        [{ service_id: booking.serviceId, employee_id: booking.employeeId }]
+      );
+
+      setTyping(false);
+
+      if (result.success) {
+        setFlowState('booking_success');
+        const successText = `${t.bookingSuccess}\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${booking.timeLabel}\n${t.specialist}: ${booking.employeeName}`;
+        addBotMessage(successText, [
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+      } else {
+        addBotMessage(t.errorOccurred, [
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+      }
+    } catch {
+      setTyping(false);
+      addBotMessage(CHAT_TEXT[chatLocale].errorOccurred, [
+        { label: CHAT_TEXT[chatLocale].backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, booking, businessId, addBotMessage]);
+
+  // ─── Auth flow handlers ───
+
+  const handlePhoneSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    const digits = phoneInput.replace(/\D/g, '');
+    if (digits.length !== 9) {
+      addBotMessage(t.invalidPhone);
+      return;
+    }
+
+    const fullPhone = '+998' + digits;
+    setAuthPhone(fullPhone);
+    setAuthLoading(true);
+
+    addUserMessage(`+998 ${formatPhoneDisplay(digits)}`);
+    setTyping(true);
+
+    try {
+      const result = await sendOtp(fullPhone);
+      setTyping(false);
+      setAuthLoading(false);
+
+      if (result.success) {
+        setFlowState('otp_input');
+        const otpMessage = result.delivery_method === 'telegram' ? t.enterOtpTelegram : t.enterOtp;
+        addBotMessage(otpMessage);
+      } else {
+        const errorMsg = (result.error_code && OTP_ERROR_CODES[chatLocale][result.error_code]) || t.errorOccurred;
+        addBotMessage(errorMsg, [
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+      }
+    } catch {
+      setTyping(false);
+      setAuthLoading(false);
+      addBotMessage(t.errorOccurred, [
+        { label: t.backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, phoneInput, addUserMessage, addBotMessage]);
+
+  const handleOtpSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    const code = otpInput.replace(/\D/g, '');
+    if (code.length !== 5) {
+      addBotMessage(t.invalidOtp);
+      return;
+    }
+
+    setAuthLoading(true);
+    addUserMessage('*****');
+    setTyping(true);
+
+    try {
+      const result = await verifyOtp(authPhone, parseInt(code, 10));
+      setTyping(false);
+      setAuthLoading(false);
+
+      if (result.success) {
+        if (result.needs_registration) {
+          setOtpId(result.otp_id);
+          setFlowState('name_input');
+          addBotMessage(t.enterName);
+        } else {
+          setIsAuthenticated(true);
+          // Cookies already set by server action, proceed to booking
+          createBookingFlow();
+        }
+      } else {
+        const errorMsg = (result.error_code && OTP_ERROR_CODES[chatLocale][result.error_code]) || t.invalidOtp;
+        addBotMessage(errorMsg);
+        setOtpInput('');
+      }
+    } catch {
+      setTyping(false);
+      setAuthLoading(false);
+      addBotMessage(t.errorOccurred, [
+        { label: t.backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, otpInput, authPhone, addUserMessage, addBotMessage, createBookingFlow]);
+
+  const handleNameSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatLocale || !otpId) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    const name = nameInput.trim();
+    if (name.length < 2) {
+      addBotMessage(t.invalidName);
+      return;
+    }
+
+    setAuthLoading(true);
+    addUserMessage(name);
+    setTyping(true);
+
+    try {
+      const result = await registerUser(otpId, authPhone, name, '');
+      setTyping(false);
+      setAuthLoading(false);
+
+      if (result.success) {
+        setIsAuthenticated(true);
+        createBookingFlow();
+      } else {
+        addBotMessage(t.errorOccurred, [
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+      }
+    } catch {
+      setTyping(false);
+      setAuthLoading(false);
+      addBotMessage(t.errorOccurred, [
+        { label: t.backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, otpId, nameInput, authPhone, addUserMessage, addBotMessage, createBookingFlow]);
 
   // ─── Booking flow handlers ───
 
@@ -543,15 +796,32 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     ]);
   }, [chatLocale, booking.serviceName, booking.dateLabel, booking.timeLabel, slotEmployees, addUserMessage, showTypingThenRespond]);
 
-  const handleConfirmBooking = useCallback(() => {
+  const handleConfirmBooking = useCallback(async () => {
     if (!chatLocale) return;
     const t = CHAT_TEXT[chatLocale];
     addUserMessage(t.confirm);
-    // Placeholder for Plan 02 (auth + creation)
-    showTypingThenRespond(500, t.comingSoon, [
-      { label: t.backToMenu, action: 'back_to_menu' },
-    ]);
-  }, [chatLocale, addUserMessage, showTypingThenRespond]);
+    setTyping(true);
+
+    try {
+      const authResult = await getAuthStatus();
+      setTyping(false);
+
+      if (authResult.authenticated) {
+        setIsAuthenticated(true);
+        createBookingFlow();
+      } else {
+        // Need authentication - transition to phone input
+        setFlowState('phone_input');
+        resetAuthState();
+        addBotMessage(t.enterPhone);
+      }
+    } catch {
+      setTyping(false);
+      setFlowState('phone_input');
+      resetAuthState();
+      addBotMessage(CHAT_TEXT[chatLocale].enterPhone);
+    }
+  }, [chatLocale, addUserMessage, addBotMessage, createBookingFlow, resetAuthState]);
 
   // ─── Menu action handler (existing info queries) ───
 
@@ -593,7 +863,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
   // ─── Main button click dispatcher ───
 
   const handleButtonClick = useCallback((btn: { label: string; action: string }) => {
-    if (typing) return;
+    if (typing || authLoading) return;
 
     if (btn.action === 'lang_uz') {
       handleLanguageSelect('uz');
@@ -622,9 +892,11 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     } else {
       handleMenuAction(btn.action, btn.label);
     }
-  }, [typing, handleLanguageSelect, handleBackToMenu, handleBookAction, handleServiceSelect, handleDateSelect, handleTimeSelect, handleEmployeeSelect, handleConfirmBooking, handleMenuAction]);
+  }, [typing, authLoading, handleLanguageSelect, handleBackToMenu, handleBookAction, handleServiceSelect, handleDateSelect, handleTimeSelect, handleEmployeeSelect, handleConfirmBooking, handleMenuAction]);
 
   const chatTitle = chatLocale ? CHAT_TEXT[chatLocale].title : 'Chat';
+  const t = chatLocale ? CHAT_TEXT[chatLocale] : null;
+  const isInputState = flowState === 'phone_input' || flowState === 'otp_input' || flowState === 'name_input';
 
   return (
     <>
@@ -681,7 +953,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-white">
-              {/* Language selection — shown only when no language is selected and no messages */}
+              {/* Language selection -- shown only when no language is selected and no messages */}
               {!chatLocale && messages.length === 0 && (
                 <div className="flex justify-start">
                   <div className="max-w-[80%]">
@@ -710,6 +982,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
               {messages.map((msg, idx) => {
                 const isUser = msg.type === 'user';
                 const isLast = idx === messages.length - 1;
+                const showButtons = !isUser && isLast && msg.buttons && msg.buttons.length > 0 && !typing && !isInputState;
                 return (
                   <div key={msg.id}>
                     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -725,10 +998,10 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                       </div>
                     </div>
 
-                    {/* Buttons — only on last bot message */}
-                    {!isUser && isLast && msg.buttons && msg.buttons.length > 0 && !typing && (
+                    {/* Buttons -- only on last bot message, not during input states */}
+                    {showButtons && (
                       <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
-                        {msg.buttons.map((btn, i) => (
+                        {msg.buttons!.map((btn, i) => (
                           <button
                             key={i}
                             onClick={() => handleButtonClick(btn)}
@@ -763,6 +1036,82 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
 
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Input area for auth steps */}
+            {isInputState && t && (
+              <div className="px-4 py-3 border-t border-neutral-100 bg-white flex-shrink-0">
+                {flowState === 'phone_input' && (
+                  <form onSubmit={handlePhoneSubmit} className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-neutral-500 flex-shrink-0">+998</span>
+                    <input
+                      ref={phoneInputRef}
+                      type="tel"
+                      inputMode="numeric"
+                      value={formatPhoneDisplay(phoneInput)}
+                      onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                      placeholder={t.phonePlaceholder}
+                      className="flex-1 px-3 py-2.5 text-[15px] border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      autoFocus
+                      disabled={authLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={phoneInput.replace(/\D/g, '').length !== 9 || authLoading}
+                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      {authLoading ? '...' : t.sendCode}
+                    </button>
+                  </form>
+                )}
+                {flowState === 'otp_input' && (
+                  <form onSubmit={handleOtpSubmit} className="flex items-center gap-2">
+                    <input
+                      ref={otpInputRef}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={5}
+                      value={otpInput}
+                      onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                      placeholder="12345"
+                      className="flex-1 px-3 py-2.5 text-[15px] text-center tracking-[0.3em] font-mono border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      autoFocus
+                      disabled={authLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={otpInput.replace(/\D/g, '').length !== 5 || authLoading}
+                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      {authLoading ? '...' : t.verifyCode}
+                    </button>
+                  </form>
+                )}
+                {flowState === 'name_input' && (
+                  <form onSubmit={handleNameSubmit} className="flex items-center gap-2">
+                    <input
+                      ref={nameInputRef}
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder={t.namePlaceholder}
+                      className="flex-1 px-3 py-2.5 text-[15px] border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      autoFocus
+                      disabled={authLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={nameInput.trim().length < 2 || authLoading}
+                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      {authLoading ? '...' : t.registerBtn}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
