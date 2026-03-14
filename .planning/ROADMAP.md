@@ -5,6 +5,7 @@
 - [x] **v1.0 Professional UI Rebuild** - Phases 1-4 (Phase 1-2 shipped 2026-03-09, Phases 3-4 deferred)
 - [ ] **v2.0 Tenant Page Redesign** - Phases 5-7 (in progress)
 - [ ] **v3.0 AI Chat Experience Overhaul** - Phases 8-9 (planned)
+- [ ] **v4.0 Predefined Chat Flow** - Phase 10 (planned)
 
 ## Phases
 
@@ -34,6 +35,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 8: System Prompt Overhaul** - Rewrite chatAi.js with comprehensive Q&A coverage, business context injection, confirmation step, action-labeled buttons, and conversation quality rules (completed 2026-03-11)
 - [ ] **Phase 9: Frontend Greeting & Quick-Start Buttons** - Replace hardcoded greeting with AI-generated personalized message and server-side computed quick-start buttons in ChatWidget.tsx
+
+### v4.0 Predefined Chat Flow
+
+- [ ] **Phase 10: Predefined Chat Flow** - Replace AI chat with menu-driven predefined flow in ChatWidget.tsx: language selection, main menu buttons, nested navigation, simulated typing delay, and removal of all OpenAI dependencies
 
 ## Phase Details
 
@@ -162,11 +167,27 @@ Plans:
 Plans:
 - [ ] 09-01: TBD
 
+### Phase 10: Predefined Chat Flow
+**Goal**: ChatWidget.tsx is rewritten as a fully self-contained, menu-driven chat experience — no OpenAI API calls, instant responses from business data, with language selection and nested menu navigation
+**Depends on**: Nothing (self-contained rewrite of ChatWidget.tsx, no API changes required)
+**Repo**: landing-page
+**Requirements**: FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05, FLOW-06, CLN-01, CLN-02, CLN-03
+**Success Criteria** (what must be TRUE):
+  1. When a visitor opens the chat, they see two language buttons (UZ / RU) before any other content — no greeting message appears until a language is selected
+  2. After selecting a language, the user sees a main menu with labeled buttons (Prices, Services, Location, Working Hours, Contact) and all subsequent text renders in the chosen language
+  3. Tapping any menu button sends it as a visible user message in the chat thread, then a typing indicator appears for 500ms-1s before the predefined response renders
+  4. Predefined responses show actual business data — real service names and prices, correct address, actual working hours from the business object — not placeholder text
+  5. From any sub-menu or response, the user can tap a "Back to menu" button to return to the main menu; no dead ends exist in the flow
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
-Note: Phase 8 and Phase 9 are independent and can be executed in parallel.
+Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
+Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase 10 supersedes Phase 9 (v3.0 FE requirements replaced by v4.0).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -177,5 +198,6 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel.
 | 5. Profile Header & Photo Strip | v2.0 | 2/2 | Complete | 2026-03-09 |
 | 6. Services & Team | v2.0 | 1/2 | In Progress | - |
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
-| 8. System Prompt Overhaul | 2/2 | Complete   | 2026-03-11 | - |
-| 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Not started | - |
+| 8. System Prompt Overhaul | v3.0 | 2/2 | Complete | 2026-03-11 |
+| 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Superseded by v4.0 | - |
+| 10. Predefined Chat Flow | v4.0 | 0/1 | Not started | - |
