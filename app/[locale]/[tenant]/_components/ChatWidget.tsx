@@ -3,12 +3,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X } from 'lucide-react';
-import type { Business, Service, Locale } from '../_lib/types';
+import type { Business, Service, Employee, SavedUser, Locale } from '../_lib/types';
 import { formatPrice, formatDuration, secondsToTime, getText } from '../_lib/utils';
 import { DAY_NAMES, DAY_ORDER } from '../_lib/translations';
+import { getAvailableSlots, getSlotEmployees } from '../actions';
 
 type ChatLocale = 'uz' | 'ru';
-type FlowState = 'language_select' | 'main_menu' | 'showing_response';
+type FlowState =
+  | 'language_select' | 'main_menu' | 'showing_response'
+  | 'service_select' | 'date_select' | 'time_select'
+  | 'employee_select' | 'booking_summary'
+  | 'phone_input' | 'otp_input' | 'name_input' | 'booking_success';
 
 interface ChatMessage {
   id: string;
@@ -20,9 +25,39 @@ interface ChatMessage {
 interface ChatWidgetProps {
   business: Business;
   services: Service[];
+  employees: Employee[];
+  businessId: string;
+  tenantSlug: string;
+  savedUser: SavedUser | null;
   locale: Locale;
   primaryColor: string;
 }
+
+interface BookingState {
+  serviceId: string | null;
+  serviceName: string;
+  servicePrice: number;
+  serviceDuration: number;
+  date: string | null;
+  dateLabel: string;
+  time: number | null;
+  timeLabel: string;
+  employeeId: string | null;
+  employeeName: string;
+}
+
+const DEFAULT_BOOKING: BookingState = {
+  serviceId: null,
+  serviceName: '',
+  servicePrice: 0,
+  serviceDuration: 0,
+  date: null,
+  dateLabel: '',
+  time: null,
+  timeLabel: '',
+  employeeId: null,
+  employeeName: '',
+};
 
 const CHAT_TEXT = {
   uz: {
@@ -45,6 +80,24 @@ const CHAT_TEXT = {
     noAddress: 'Manzil ko\'rsatilmagan',
     noWorkingHours: 'Ish vaqti ko\'rsatilmagan',
     noContact: 'Bog\'lanish ma\'lumotlari mavjud emas',
+    // Booking flow
+    book: 'Band qilish',
+    selectService: 'Xizmatni tanlang',
+    selectDate: 'Kunni tanlang',
+    selectTime: 'Vaqtni tanlang',
+    selectEmployee: 'Mutaxassisni tanlang',
+    anySpecialist: 'Har qanday mutaxassis',
+    bookingSummary: 'Buyurtma ma\'lumotlari',
+    confirm: 'Tasdiqlash',
+    service: 'Xizmat',
+    date: 'Sana',
+    time: 'Vaqt',
+    specialist: 'Mutaxassis',
+    noSlotsAvailable: "Bu kunga bo'sh vaqt yo'q",
+    loadingSlots: 'Yuklanmoqda...',
+    today: 'Bugun',
+    tomorrow: 'Ertaga',
+    comingSoon: 'Tez kunda...',
   },
   ru: {
     title: 'Чат',
@@ -66,6 +119,24 @@ const CHAT_TEXT = {
     noAddress: 'Адрес не указан',
     noWorkingHours: 'Время работы не указано',
     noContact: 'Контактная информация отсутствует',
+    // Booking flow
+    book: 'Записаться',
+    selectService: 'Выберите услугу',
+    selectDate: 'Выберите дату',
+    selectTime: 'Выберите время',
+    selectEmployee: 'Выберите специалиста',
+    anySpecialist: 'Любой специалист',
+    bookingSummary: 'Детали записи',
+    confirm: 'Подтвердить',
+    service: 'Услуга',
+    date: 'Дата',
+    time: 'Время',
+    specialist: 'Специалист',
+    noSlotsAvailable: 'Нет свободного времени на этот день',
+    loadingSlots: 'Загрузка...',
+    today: 'Сегодня',
+    tomorrow: 'Завтра',
+    comingSoon: 'Скоро...',
   },
 } as const;
 
@@ -74,7 +145,6 @@ type ChatTextKey = typeof CHAT_TEXT[ChatLocale];
 function generatePricesResponse(services: Service[], locale: ChatLocale, t: ChatTextKey): string {
   if (!services.length) return t.noServices;
 
-  // Group by category if categories exist
   const categorized = new Map<string, Service[]>();
   for (const service of services) {
     const cat = service.category || '';
@@ -161,17 +231,64 @@ function generateContactResponse(business: Business, t: ChatTextKey): string {
   return parts.join('\n');
 }
 
+/**
+ * Generate next 7 days as date buttons, filtering by business working hours.
+ */
+function generateDateButtons(
+  business: Business,
+  locale: ChatLocale,
+  t: ChatTextKey
+): { label: string; action: string }[] {
+  const buttons: { label: string; action: string }[] = [];
+  const now = new Date();
+  const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+  for (let offset = 0; offset < 7; offset++) {
+    const date = new Date(now);
+    date.setDate(now.getDate() + offset);
+
+    const dayKey = dayKeys[date.getDay()];
+    const hours = business.working_hours?.[dayKey];
+
+    // Skip days the business is closed
+    if (!hours || !hours.is_open) continue;
+
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    let label: string;
+    if (offset === 0) {
+      label = t.today;
+    } else if (offset === 1) {
+      label = t.tomorrow;
+    } else {
+      const dayName = DAY_NAMES[locale][dayKey];
+      label = `${dayName}, ${dd}.${mm}`;
+    }
+
+    buttons.push({ label, action: `select_date_${dateStr}` });
+  }
+
+  return buttons;
+}
+
 let msgIdCounter = 0;
 function nextMsgId(): string {
   return `msg_${Date.now()}_${++msgIdCounter}`;
 }
 
-export function ChatWidget({ business, services, locale, primaryColor }: ChatWidgetProps) {
+export function ChatWidget({ business, services, employees, businessId, tenantSlug, savedUser, locale, primaryColor }: ChatWidgetProps) {
   const [open, setOpen] = useState(false);
   const [chatLocale, setChatLocale] = useState<ChatLocale | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
   const [flowState, setFlowState] = useState<FlowState>('language_select');
+  const [booking, setBooking] = useState<BookingState>({ ...DEFAULT_BOOKING });
+  const [availableSlots, setAvailableSlots] = useState<{ start_time: number; end_time: number }[]>([]);
+  const [slotEmployees, setSlotEmployees] = useState<{ id: string; first_name: string; last_name: string; price: number; duration_minutes: number }[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -190,6 +307,7 @@ export function ChatWidget({ business, services, locale, primaryColor }: ChatWid
   const getMainMenuButtons = useCallback((lang: ChatLocale) => {
     const t = CHAT_TEXT[lang];
     return [
+      { label: t.book, action: 'book' },
       { label: t.prices, action: 'prices' },
       { label: t.services, action: 'services' },
       { label: t.location, action: 'location' },
@@ -234,6 +352,209 @@ export function ChatWidget({ business, services, locale, primaryColor }: ChatWid
     showTypingThenRespond(600, t.greeting, getMainMenuButtons(lang));
   }, [addUserMessage, showTypingThenRespond, getMainMenuButtons]);
 
+  const handleBackToMenu = useCallback(() => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+    addUserMessage(t.backToMenu);
+    setFlowState('main_menu');
+    setBooking({ ...DEFAULT_BOOKING });
+    showTypingThenRespond(400, t.greeting, getMainMenuButtons(chatLocale));
+  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons]);
+
+  // ─── Booking flow handlers ───
+
+  const handleBookAction = useCallback(() => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    addUserMessage(t.book);
+    setFlowState('service_select');
+    setBooking({ ...DEFAULT_BOOKING });
+
+    const serviceButtons = services.map(s => {
+      const name = getText(s.name, chatLocale);
+      const price = formatPrice(s.price);
+      const duration = formatDuration(s.duration_minutes, t.minute, t.hour);
+      return {
+        label: `${name} — ${price} ${t.sum} — ${duration}`,
+        action: `select_service_${s.id}`,
+      };
+    });
+
+    serviceButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+    showTypingThenRespond(500, t.selectService, serviceButtons);
+  }, [chatLocale, services, addUserMessage, showTypingThenRespond]);
+
+  const handleServiceSelect = useCallback((serviceId: string, label: string) => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    const service = services.find(s => s.id === serviceId);
+    if (!service) return;
+
+    const serviceName = getText(service.name, chatLocale);
+    addUserMessage(label);
+
+    setBooking(prev => ({
+      ...prev,
+      serviceId: service.id,
+      serviceName,
+      servicePrice: service.price,
+      serviceDuration: service.duration_minutes,
+    }));
+
+    setFlowState('date_select');
+
+    const dateButtons = generateDateButtons(business, chatLocale, t);
+    dateButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+
+    showTypingThenRespond(500, t.selectDate, dateButtons);
+  }, [chatLocale, services, business, addUserMessage, showTypingThenRespond]);
+
+  const handleDateSelect = useCallback(async (dateStr: string, label: string) => {
+    if (!chatLocale || !booking.serviceId) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    addUserMessage(label);
+    setBooking(prev => ({ ...prev, date: dateStr, dateLabel: label }));
+    setFlowState('time_select');
+    setLoadingSlots(true);
+    setTyping(true);
+
+    try {
+      const result = await getAvailableSlots(businessId, dateStr, [booking.serviceId]);
+      setTyping(false);
+      setLoadingSlots(false);
+
+      if (!result || !result.slots || result.slots.length === 0) {
+        addBotMessage(t.noSlotsAvailable, [
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+        return;
+      }
+
+      setAvailableSlots(result.slots);
+
+      const timeButtons = result.slots.map((slot: { start_time: number; end_time: number }) => ({
+        label: secondsToTime(slot.start_time),
+        action: `select_time_${slot.start_time}`,
+      }));
+
+      timeButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+      addBotMessage(t.selectTime, timeButtons);
+    } catch {
+      setTyping(false);
+      setLoadingSlots(false);
+      addBotMessage(t.noSlotsAvailable, [
+        { label: t.backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, booking.serviceId, businessId, addUserMessage, addBotMessage]);
+
+  const handleTimeSelect = useCallback(async (startTime: number, label: string) => {
+    if (!chatLocale || !booking.serviceId || !booking.date) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    addUserMessage(label);
+    setBooking(prev => ({ ...prev, time: startTime, timeLabel: label }));
+    setFlowState('employee_select');
+    setTyping(true);
+
+    try {
+      const result = await getSlotEmployees(businessId, booking.date, [booking.serviceId], startTime);
+      setTyping(false);
+
+      if (!result || !result.employees || result.employees.length === 0) {
+        // No employees available - skip to summary with "any"
+        setBooking(prev => ({ ...prev, time: startTime, timeLabel: label, employeeId: null, employeeName: t.anySpecialist }));
+        setFlowState('booking_summary');
+
+        const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${label}\n${t.specialist}: ${t.anySpecialist}`;
+        addBotMessage(summaryText, [
+          { label: t.confirm, action: 'confirm_booking' },
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+        return;
+      }
+
+      setSlotEmployees(result.employees);
+
+      // If only one employee, auto-select them
+      if (result.employees.length === 1) {
+        const emp = result.employees[0];
+        const empName = `${emp.first_name || ''} ${emp.last_name || ''}`.trim();
+        setBooking(prev => ({ ...prev, time: startTime, timeLabel: label, employeeId: emp.id, employeeName: empName }));
+        setFlowState('booking_summary');
+
+        const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${label}\n${t.specialist}: ${empName}`;
+        addBotMessage(summaryText, [
+          { label: t.confirm, action: 'confirm_booking' },
+          { label: t.backToMenu, action: 'back_to_menu' },
+        ]);
+        return;
+      }
+
+      // Multiple employees — show selection
+      const employeeButtons: { label: string; action: string }[] = [
+        { label: t.anySpecialist, action: 'select_employee_any' },
+      ];
+
+      for (const emp of result.employees) {
+        const empName = `${emp.first_name || ''} ${emp.last_name || ''}`.trim();
+        const price = formatPrice(emp.price);
+        employeeButtons.push({
+          label: `${empName} — ${price} ${t.sum}`,
+          action: `select_employee_${emp.id}`,
+        });
+      }
+
+      employeeButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+      addBotMessage(t.selectEmployee, employeeButtons);
+    } catch {
+      setTyping(false);
+      addBotMessage(t.noSlotsAvailable, [
+        { label: t.backToMenu, action: 'back_to_menu' },
+      ]);
+    }
+  }, [chatLocale, booking.serviceId, booking.date, booking.serviceName, booking.dateLabel, businessId, addUserMessage, addBotMessage]);
+
+  const handleEmployeeSelect = useCallback((employeeId: string | null, label: string) => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+
+    addUserMessage(label);
+
+    let empName: string;
+    if (employeeId === null) {
+      empName = t.anySpecialist;
+    } else {
+      const emp = slotEmployees.find(e => e.id === employeeId);
+      empName = emp ? `${emp.first_name || ''} ${emp.last_name || ''}`.trim() : label;
+    }
+
+    setBooking(prev => ({ ...prev, employeeId, employeeName: empName }));
+    setFlowState('booking_summary');
+
+    const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${booking.timeLabel}\n${t.specialist}: ${empName}`;
+
+    showTypingThenRespond(400, summaryText, [
+      { label: t.confirm, action: 'confirm_booking' },
+      { label: t.backToMenu, action: 'back_to_menu' },
+    ]);
+  }, [chatLocale, booking.serviceName, booking.dateLabel, booking.timeLabel, slotEmployees, addUserMessage, showTypingThenRespond]);
+
+  const handleConfirmBooking = useCallback(() => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+    addUserMessage(t.confirm);
+    // Placeholder for Plan 02 (auth + creation)
+    showTypingThenRespond(500, t.comingSoon, [
+      { label: t.backToMenu, action: 'back_to_menu' },
+    ]);
+  }, [chatLocale, addUserMessage, showTypingThenRespond]);
+
+  // ─── Menu action handler (existing info queries) ───
+
   const handleMenuAction = useCallback((action: string, label: string) => {
     if (!chatLocale) return;
     const t = CHAT_TEXT[chatLocale];
@@ -241,7 +562,7 @@ export function ChatWidget({ business, services, locale, primaryColor }: ChatWid
     addUserMessage(label);
     setFlowState('showing_response');
 
-    const delay = 500 + Math.floor(Math.random() * 500); // 500-1000ms
+    const delay = 500 + Math.floor(Math.random() * 500);
 
     let responseText: string;
     switch (action) {
@@ -269,16 +590,10 @@ export function ChatWidget({ business, services, locale, primaryColor }: ChatWid
     ]);
   }, [chatLocale, services, business, addUserMessage, showTypingThenRespond]);
 
-  const handleBackToMenu = useCallback(() => {
-    if (!chatLocale) return;
-    const t = CHAT_TEXT[chatLocale];
-    addUserMessage(t.backToMenu);
-    setFlowState('main_menu');
-    showTypingThenRespond(400, t.greeting, getMainMenuButtons(chatLocale));
-  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons]);
+  // ─── Main button click dispatcher ───
 
   const handleButtonClick = useCallback((btn: { label: string; action: string }) => {
-    if (typing) return; // Prevent clicks while typing indicator is active
+    if (typing) return;
 
     if (btn.action === 'lang_uz') {
       handleLanguageSelect('uz');
@@ -286,10 +601,28 @@ export function ChatWidget({ business, services, locale, primaryColor }: ChatWid
       handleLanguageSelect('ru');
     } else if (btn.action === 'back_to_menu') {
       handleBackToMenu();
+    } else if (btn.action === 'book') {
+      handleBookAction();
+    } else if (btn.action.startsWith('select_service_')) {
+      const serviceId = btn.action.replace('select_service_', '');
+      handleServiceSelect(serviceId, btn.label);
+    } else if (btn.action.startsWith('select_date_')) {
+      const dateStr = btn.action.replace('select_date_', '');
+      handleDateSelect(dateStr, btn.label);
+    } else if (btn.action.startsWith('select_time_')) {
+      const startTime = parseInt(btn.action.replace('select_time_', ''), 10);
+      handleTimeSelect(startTime, btn.label);
+    } else if (btn.action === 'select_employee_any') {
+      handleEmployeeSelect(null, btn.label);
+    } else if (btn.action.startsWith('select_employee_')) {
+      const employeeId = btn.action.replace('select_employee_', '');
+      handleEmployeeSelect(employeeId, btn.label);
+    } else if (btn.action === 'confirm_booking') {
+      handleConfirmBooking();
     } else {
       handleMenuAction(btn.action, btn.label);
     }
-  }, [typing, handleLanguageSelect, handleBackToMenu, handleMenuAction]);
+  }, [typing, handleLanguageSelect, handleBackToMenu, handleBookAction, handleServiceSelect, handleDateSelect, handleTimeSelect, handleEmployeeSelect, handleConfirmBooking, handleMenuAction]);
 
   const chatTitle = chatLocale ? CHAT_TEXT[chatLocale].title : 'Chat';
 

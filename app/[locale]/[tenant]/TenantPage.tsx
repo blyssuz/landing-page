@@ -194,6 +194,10 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
     <ChatWidget
       business={business}
       services={services}
+      employees={employees}
+      businessId={businessId}
+      tenantSlug={tenantSlug}
+      savedUser={savedUser}
       locale={locale}
       primaryColor={primaryColor}
     />
