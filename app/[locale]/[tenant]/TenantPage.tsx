@@ -192,8 +192,8 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
 
     {/* Chat Widget */}
     <ChatWidget
-      businessId={businessId}
-      businessName={typeof business.name === 'object' ? (business.name as any)[locale] || (business.name as any).ru || '' : business.name}
+      business={business}
+      services={services}
       locale={locale}
       primaryColor={primaryColor}
     />
