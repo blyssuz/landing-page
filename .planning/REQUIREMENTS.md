@@ -104,18 +104,18 @@ Requirements for predefined chat flow. Replaces AI chat with menu-driven interac
 
 ### Chat Flow
 
-- [ ] **FLOW-01**: User sees language selection buttons (UZ/RU) when opening chat
-- [ ] **FLOW-02**: After language selection, user sees main menu buttons (Prices, Services, Location, Working Hours, Contact)
-- [ ] **FLOW-03**: Clicking a menu button sends it as a user message in the chat
-- [ ] **FLOW-04**: Predefined response appears with 500ms-1s typing delay animation
-- [ ] **FLOW-05**: User can navigate back to main menu from any sub-menu
-- [ ] **FLOW-06**: Predefined responses use actual business data (services, prices, hours, address)
+- [x] **FLOW-01**: User sees language selection buttons (UZ/RU) when opening chat
+- [x] **FLOW-02**: After language selection, user sees main menu buttons (Prices, Services, Location, Working Hours, Contact)
+- [x] **FLOW-03**: Clicking a menu button sends it as a user message in the chat
+- [x] **FLOW-04**: Predefined response appears with 500ms-1s typing delay animation
+- [x] **FLOW-05**: User can navigate back to main menu from any sub-menu
+- [x] **FLOW-06**: Predefined responses use actual business data (services, prices, hours, address)
 
 ### Cleanup
 
-- [ ] **CLN-01**: Remove OpenAI API calls from chat flow (no `/api/chat` POST)
-- [ ] **CLN-02**: Remove AI typing indicator logic, replace with simulated delay
-- [ ] **CLN-03**: Remove `input_type` (phone/otp/name) handling from ChatWidget
+- [x] **CLN-01**: Remove OpenAI API calls from chat flow (no `/api/chat` POST)
+- [x] **CLN-02**: Remove AI typing indicator logic, replace with simulated delay
+- [x] **CLN-03**: Remove `input_type` (phone/otp/name) handling from ChatWidget
 
 ## Future Requirements
 
@@ -214,15 +214,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FLOW-01 | Phase 10 | Pending |
-| FLOW-02 | Phase 10 | Pending |
-| FLOW-03 | Phase 10 | Pending |
-| FLOW-04 | Phase 10 | Pending |
-| FLOW-05 | Phase 10 | Pending |
-| FLOW-06 | Phase 10 | Pending |
-| CLN-01 | Phase 10 | Pending |
-| CLN-02 | Phase 10 | Pending |
-| CLN-03 | Phase 10 | Pending |
+| FLOW-01 | Phase 10 | Complete |
+| FLOW-02 | Phase 10 | Complete |
+| FLOW-03 | Phase 10 | Complete |
+| FLOW-04 | Phase 10 | Complete |
+| FLOW-05 | Phase 10 | Complete |
+| FLOW-06 | Phase 10 | Complete |
+| CLN-01 | Phase 10 | Complete |
+| CLN-02 | Phase 10 | Complete |
+| CLN-03 | Phase 10 | Complete |
 
 **Coverage:**
 - v4.0 requirements: 9 total
