@@ -50,6 +50,10 @@ Progress: [██████████] 100% (15/15 plans complete)
 
 None.
 
+### Roadmap Evolution
+
+- Phase 11 added: Predefined Booking & Auth Flow in Chat
+
 ### Blockers/Concerns
 
 None.
