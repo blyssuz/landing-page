@@ -187,7 +187,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
+Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
 Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase 10 supersedes Phase 9 (v3.0 FE requirements replaced by v4.0).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -202,7 +202,7 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase
 | 8. System Prompt Overhaul | v3.0 | 2/2 | Complete | 2026-03-11 |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Superseded by v4.0 | - |
 | 10. Predefined Chat Flow | v4.0 | 2/2 | Complete | 2026-03-15 |
-| 11. Predefined Booking & Auth Flow in Chat | v4.0 | 0/0 | Not started | - |
+| 11. Predefined Booking & Auth Flow in Chat | v4.0 | 0/2 | Not started | - |
 
 ### Phase 11: Predefined Booking & Auth Flow in Chat
 
@@ -218,7 +218,8 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase
   5. If user is not logged in, the chat prompts for phone number, sends OTP, and collects the 5-digit code — all inline via input fields (not buttons)
   6. After successful OTP verification, auth cookies are set via chatAutoLogin and the booking is created via the existing bookings-v2 API
   7. A success message with booking details is shown after creation; user can return to main menu
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD
+- [ ] 11-01-PLAN.md — Booking selection flow: service, date, time slot (API), employee (API), summary with TenantPage props update
+- [ ] 11-02-PLAN.md — Inline auth flow (phone/OTP/registration) + booking creation + success + E2E verification
