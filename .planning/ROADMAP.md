@@ -201,14 +201,24 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
 | 8. System Prompt Overhaul | v3.0 | 2/2 | Complete | 2026-03-11 |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Superseded by v4.0 | - |
-| 10. Predefined Chat Flow | v4.0 | Complete    | 2026-03-14 | 2026-03-15 |
+| 10. Predefined Chat Flow | v4.0 | 2/2 | Complete | 2026-03-15 |
+| 11. Predefined Booking & Auth Flow in Chat | v4.0 | 0/0 | Not started | - |
 
 ### Phase 11: Predefined Booking & Auth Flow in Chat
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 10
-**Plans:** 0 plans
+**Goal**: Add a "Book" option to the predefined chat menu that guides users through service → date → time → employee selection, handles OTP phone auth inline, and creates the booking via API — all within the button-driven chat UI
+**Depends on**: Phase 10 (predefined chat flow foundation)
+**Repo**: landing-page
+**Requirements**: BOOK-01, BOOK-02, BOOK-03, BOOK-04, BOOK-05, BOOK-06, BOOK-07, BOOK-08, AUTH-01, AUTH-02, AUTH-03, AUTH-04
+**Success Criteria** (what must be TRUE):
+  1. User can tap "Book" from main menu and sees a list of services as buttons with name, price, and duration
+  2. After selecting a service, user sees next 7 available days as buttons; after selecting a day, available time slots (fetched from API) appear as buttons
+  3. After selecting a time, user sees available employees for that slot (fetched from API) as buttons including an "Any specialist" option
+  4. Before creating the booking, a summary (service, date, time, employee) is shown with a "Confirm" button
+  5. If user is not logged in, the chat prompts for phone number, sends OTP, and collects the 5-digit code — all inline via input fields (not buttons)
+  6. After successful OTP verification, auth cookies are set via chatAutoLogin and the booking is created via the existing bookings-v2 API
+  7. A success message with booking details is shown after creation; user can return to main menu
+**Plans**: TBD
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 11 to break down)
+- [ ] TBD

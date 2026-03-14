@@ -117,6 +117,24 @@ Requirements for predefined chat flow. Replaces AI chat with menu-driven interac
 - [x] **CLN-02**: Remove AI typing indicator logic, replace with simulated delay
 - [x] **CLN-03**: Remove `input_type` (phone/otp/name) handling from ChatWidget
 
+### Booking Flow (Phase 11)
+
+- [ ] **BOOK-01**: User can tap "Book" from main menu to start the booking flow
+- [ ] **BOOK-02**: User selects a service from button list showing name, price, and duration
+- [ ] **BOOK-03**: User selects a date from next 7 available days shown as buttons
+- [ ] **BOOK-04**: User selects a time slot from available slots fetched from API
+- [ ] **BOOK-05**: User selects an employee or "Any specialist" from available staff for that slot
+- [ ] **BOOK-06**: Booking summary shown with confirmation button before creating
+- [ ] **BOOK-07**: Booking is created via API after auth and confirmation
+- [ ] **BOOK-08**: Success message shown with booking details after creation
+
+### Auth in Chat (Phase 11)
+
+- [ ] **AUTH-01**: If user is not logged in, chat prompts for phone number input before booking confirmation
+- [ ] **AUTH-02**: Chat sends OTP and shows code input step with 5-digit entry
+- [ ] **AUTH-03**: After OTP verification, user is auto-logged in via chatAutoLogin cookies
+- [ ] **AUTH-04**: If new user, chat collects first name before completing registration
+
 ## Future Requirements
 
 Deferred to separate milestones.
@@ -224,11 +242,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLN-02 | Phase 10 | Complete |
 | CLN-03 | Phase 10 | Complete |
 
+| BOOK-01 | Phase 11 | Pending |
+| BOOK-02 | Phase 11 | Pending |
+| BOOK-03 | Phase 11 | Pending |
+| BOOK-04 | Phase 11 | Pending |
+| BOOK-05 | Phase 11 | Pending |
+| BOOK-06 | Phase 11 | Pending |
+| BOOK-07 | Phase 11 | Pending |
+| BOOK-08 | Phase 11 | Pending |
+| AUTH-01 | Phase 11 | Pending |
+| AUTH-02 | Phase 11 | Pending |
+| AUTH-03 | Phase 11 | Pending |
+| AUTH-04 | Phase 11 | Pending |
+
 **Coverage:**
-- v4.0 requirements: 9 total
-- Mapped to phases: 9
+- v4.0 requirements: 21 total
+- Mapped to phases: 21
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-15 after v4.0 requirements defined*
+*Last updated: 2026-03-15 after Phase 11 requirements added*
