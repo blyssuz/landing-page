@@ -178,10 +178,11 @@ Plans:
   3. Tapping any menu button sends it as a visible user message in the chat thread, then a typing indicator appears for 500ms-1s before the predefined response renders
   4. Predefined responses show actual business data — real service names and prices, correct address, actual working hours from the business object — not placeholder text
   5. From any sub-menu or response, the user can tap a "Back to menu" button to return to the main menu; no dead ends exist in the flow
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md — Rewrite ChatWidget.tsx as predefined menu-driven flow + update TenantPage props
+- [ ] 10-02-PLAN.md — Delete /api/chat route + end-to-end visual verification
 
 ## Progress
 
@@ -200,4 +201,4 @@ Note: Phase 8 and Phase 9 are independent and can be executed in parallel. Phase
 | 7. Reviews, About & Interactions | v2.0 | 0/0 | Not started | - |
 | 8. System Prompt Overhaul | v3.0 | 2/2 | Complete | 2026-03-11 |
 | 9. Frontend Greeting & Quick-Start Buttons | v3.0 | 0/0 | Superseded by v4.0 | - |
-| 10. Predefined Chat Flow | v4.0 | 0/1 | Not started | - |
+| 10. Predefined Chat Flow | v4.0 | 0/2 | Not started | - |
