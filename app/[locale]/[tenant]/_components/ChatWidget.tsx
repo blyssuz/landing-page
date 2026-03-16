@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X } from 'lucide-react';
 import type { Business, Service, Employee, SavedUser, Locale } from '../_lib/types';
-import { formatPrice, formatDuration, secondsToTime, getText } from '../_lib/utils';
+import { formatPrice, secondsToTime, getText } from '../_lib/utils';
 import { DAY_NAMES, DAY_ORDER } from '../_lib/translations';
 import { getAvailableSlots, getSlotEmployees, getAuthStatus, sendOtp, verifyOtp, registerUser, createBooking } from '../actions';
 
@@ -31,6 +31,8 @@ interface ChatWidgetProps {
   savedUser: SavedUser | null;
   locale: Locale;
   primaryColor: string;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface BookingState {
@@ -63,12 +65,14 @@ const CHAT_TEXT = {
   uz: {
     title: 'Chat',
     greeting: "Assalomu alaykum! Qanday yordam bera olaman?",
+    menuPrompt: "Yana nima yordam bera olaman?",
     prices: 'Narxlar',
     services: 'Xizmatlar',
     location: 'Manzil',
     workingHours: 'Ish vaqti',
     contact: "Bog'lanish",
     backToMenu: 'Bosh menyu',
+    back: 'Orqaga',
     bookNow: 'Band qilish',
     closed: 'Yopiq',
     phone: 'Telefon',
@@ -118,12 +122,14 @@ const CHAT_TEXT = {
   ru: {
     title: 'Chat',
     greeting: 'Здравствуйте! Чем могу помочь?',
+    menuPrompt: 'Чем ещё могу помочь?',
     prices: 'Цены',
     services: 'Услуги',
     location: 'Адрес',
     workingHours: 'Время работы',
     contact: 'Контакты',
     backToMenu: 'Главное меню',
+    back: 'Назад',
     bookNow: 'Забронировать',
     closed: 'Закрыто',
     phone: 'Телефон',
@@ -216,9 +222,8 @@ function generatePricesResponse(services: Service[], locale: ChatLocale, t: Chat
     }
     for (const s of categoryServices) {
       const name = getText(s.name, locale);
-      const duration = formatDuration(s.duration_minutes, t.minute, t.hour);
       const price = formatPrice(s.price);
-      lines.push(`${name} — ${duration} — ${price} ${t.sum}`);
+      lines.push(`${name} — ${price} ${t.sum}`);
     }
   }
 
@@ -336,14 +341,19 @@ function nextMsgId(): string {
   return `msg_${Date.now()}_${++msgIdCounter}`;
 }
 
-export function ChatWidget({ business, services, employees, businessId, tenantSlug, savedUser, locale, primaryColor }: ChatWidgetProps) {
-  const [open, setOpen] = useState(false);
+export function ChatWidget({ business, services, employees, businessId, tenantSlug, savedUser, locale, primaryColor, isOpen, onOpenChange }: ChatWidgetProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isOpen !== undefined ? isOpen : internalOpen;
+  const setOpen = useCallback((v: boolean) => {
+    if (onOpenChange) onOpenChange(v);
+    else setInternalOpen(v);
+  }, [onOpenChange]);
   const [chatLocale, setChatLocale] = useState<ChatLocale | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
   const [flowState, setFlowState] = useState<FlowState>('language_select');
   const [booking, setBooking] = useState<BookingState>({ ...DEFAULT_BOOKING });
-  const [availableSlots, setAvailableSlots] = useState<{ start_time: number; end_time: number }[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const [slotEmployees, setSlotEmployees] = useState<{ id: string; first_name: string; last_name: string; price: number; duration_minutes: number }[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -361,7 +371,14 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = useCallback(() => {
-    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    setTimeout(() => {
+      const el = messagesEndRef.current;
+      if (!el) return;
+      const container = el.parentElement;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }, 30);
   }, []);
 
   // Scroll on new messages or typing indicator change
@@ -442,15 +459,124 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     setAuthLoading(false);
   }, []);
 
-  const handleBackToMenu = useCallback(() => {
+  const goToMainMenu = useCallback(() => {
     if (!chatLocale) return;
     const t = CHAT_TEXT[chatLocale];
-    addUserMessage(t.backToMenu);
     setFlowState('main_menu');
     setBooking({ ...DEFAULT_BOOKING });
     resetAuthState();
-    showTypingThenRespond(400, t.greeting, getMainMenuButtons(chatLocale));
-  }, [chatLocale, addUserMessage, showTypingThenRespond, getMainMenuButtons, resetAuthState]);
+    addBotMessage(t.menuPrompt, getMainMenuButtons(chatLocale));
+  }, [chatLocale, addBotMessage, getMainMenuButtons, resetAuthState]);
+
+  const handleBack = useCallback(() => {
+    if (!chatLocale) return;
+    const t = CHAT_TEXT[chatLocale];
+    addUserMessage(t.back);
+
+    switch (flowState) {
+      // Info responses and terminal states → main menu
+      case 'showing_response':
+      case 'booking_success':
+        goToMainMenu();
+        break;
+
+      // service_select → main menu
+      case 'service_select':
+        goToMainMenu();
+        break;
+
+      // date_select → service_select
+      case 'date_select': {
+        setBooking(prev => ({ ...prev, date: null, dateLabel: '', time: null, timeLabel: '', employeeId: null, employeeName: '' }));
+        setFlowState('service_select');
+        const serviceButtons = services.map(s => {
+          const name = getText(s.name, chatLocale);
+          const price = formatPrice(s.price);
+          return { label: `${name} (${price} ${t.sum})`, action: `select_service_${s.id}` };
+        });
+        serviceButtons.push({ label: t.back, action: 'back' });
+        addBotMessage(t.selectService, serviceButtons);
+        break;
+      }
+
+      // time_select → date_select
+      case 'time_select': {
+        setBooking(prev => ({ ...prev, time: null, timeLabel: '', employeeId: null, employeeName: '' }));
+        setFlowState('date_select');
+        const dateButtons = generateDateButtons(business, chatLocale, t);
+        dateButtons.push({ label: t.back, action: 'back' });
+        addBotMessage(t.selectDate, dateButtons);
+        break;
+      }
+
+      // employee_select → time_select (we have availableSlots in state)
+      case 'employee_select': {
+        setBooking(prev => ({ ...prev, employeeId: null, employeeName: '' }));
+        setFlowState('time_select');
+        const timeButtons = availableSlots.map(startTime => ({
+          label: secondsToTime(startTime),
+          action: `select_time_${startTime}`,
+        }));
+        timeButtons.push({ label: t.back, action: 'back' });
+        addBotMessage(t.selectTime, timeButtons);
+        break;
+      }
+
+      // booking_summary → employee_select (if multiple) or time_select
+      case 'booking_summary': {
+        if (slotEmployees.length > 1) {
+          setBooking(prev => ({ ...prev, employeeId: null, employeeName: '' }));
+          setFlowState('employee_select');
+          const empButtons: { label: string; action: string }[] = [
+            { label: t.anySpecialist, action: 'select_employee_any' },
+          ];
+          for (const emp of slotEmployees) {
+            const empName = `${emp.first_name || ''} ${emp.last_name || ''}`.trim();
+            const price = formatPrice(emp.price);
+            empButtons.push({ label: `${empName} — ${price} ${t.sum}`, action: `select_employee_${emp.id}` });
+          }
+          empButtons.push({ label: t.back, action: 'back' });
+          addBotMessage(t.selectEmployee, empButtons);
+        } else {
+          // Employee was auto-selected or skipped, go back to time_select
+          setBooking(prev => ({ ...prev, time: null, timeLabel: '', employeeId: null, employeeName: '' }));
+          setFlowState('time_select');
+          const timeButtons = availableSlots.map(startTime => ({
+            label: secondsToTime(startTime),
+            action: `select_time_${startTime}`,
+          }));
+          timeButtons.push({ label: t.back, action: 'back' });
+          addBotMessage(t.selectTime, timeButtons);
+        }
+        break;
+      }
+
+      // phone_input → booking_summary
+      case 'phone_input': {
+        resetAuthState();
+        setFlowState('booking_summary');
+        const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${booking.timeLabel}\n${t.specialist}: ${booking.employeeName}`;
+        addBotMessage(summaryText, [
+          { label: t.confirm, action: 'confirm_booking' },
+          { label: t.back, action: 'back' },
+        ]);
+        break;
+      }
+
+      // otp_input / name_input → phone_input
+      case 'otp_input':
+      case 'name_input':
+        setOtpInput('');
+        setNameInput('');
+        setOtpId(null);
+        setFlowState('phone_input');
+        addBotMessage(t.enterPhone);
+        break;
+
+      default:
+        goToMainMenu();
+    }
+  }, [chatLocale, flowState, addUserMessage, addBotMessage, goToMainMenu, resetAuthState, services, business, availableSlots, slotEmployees, booking]);
 
   // ─── Booking creation flow ───
 
@@ -474,17 +600,17 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         setFlowState('booking_success');
         const successText = `${t.bookingSuccess}\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${booking.timeLabel}\n${t.specialist}: ${booking.employeeName}`;
         addBotMessage(successText, [
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
       } else {
         addBotMessage(t.errorOccurred, [
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
       }
     } catch {
       setTyping(false);
       addBotMessage(CHAT_TEXT[chatLocale].errorOccurred, [
-        { label: CHAT_TEXT[chatLocale].backToMenu, action: 'back_to_menu' },
+        { label: CHAT_TEXT[chatLocale].back, action: 'back' },
       ]);
     }
   }, [chatLocale, booking, businessId, addBotMessage]);
@@ -502,7 +628,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
       return;
     }
 
-    const fullPhone = '+998' + digits;
+    const fullPhone = '998' + digits;
     setAuthPhone(fullPhone);
     setAuthLoading(true);
 
@@ -521,14 +647,15 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
       } else {
         const errorMsg = (result.error_code && OTP_ERROR_CODES[chatLocale][result.error_code]) || t.errorOccurred;
         addBotMessage(errorMsg, [
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
       }
-    } catch {
+    } catch (err) {
+      console.error('[ChatWidget] sendOtp error:', err);
       setTyping(false);
       setAuthLoading(false);
       addBotMessage(t.errorOccurred, [
-        { label: t.backToMenu, action: 'back_to_menu' },
+        { label: t.back, action: 'back' },
       ]);
     }
   }, [chatLocale, phoneInput, addUserMessage, addBotMessage]);
@@ -572,7 +699,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
       setTyping(false);
       setAuthLoading(false);
       addBotMessage(t.errorOccurred, [
-        { label: t.backToMenu, action: 'back_to_menu' },
+        { label: t.back, action: 'back' },
       ]);
     }
   }, [chatLocale, otpInput, authPhone, addUserMessage, addBotMessage, createBookingFlow]);
@@ -602,14 +729,14 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         createBookingFlow();
       } else {
         addBotMessage(t.errorOccurred, [
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
       }
     } catch {
       setTyping(false);
       setAuthLoading(false);
       addBotMessage(t.errorOccurred, [
-        { label: t.backToMenu, action: 'back_to_menu' },
+        { label: t.back, action: 'back' },
       ]);
     }
   }, [chatLocale, otpId, nameInput, authPhone, addUserMessage, addBotMessage, createBookingFlow]);
@@ -627,14 +754,13 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     const serviceButtons = services.map(s => {
       const name = getText(s.name, chatLocale);
       const price = formatPrice(s.price);
-      const duration = formatDuration(s.duration_minutes, t.minute, t.hour);
       return {
-        label: `${name} — ${price} ${t.sum} — ${duration}`,
+        label: `${name} (${price} ${t.sum})`,
         action: `select_service_${s.id}`,
       };
     });
 
-    serviceButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+    serviceButtons.push({ label: t.back, action: 'back' });
     showTypingThenRespond(500, t.selectService, serviceButtons);
   }, [chatLocale, services, addUserMessage, showTypingThenRespond]);
 
@@ -659,7 +785,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     setFlowState('date_select');
 
     const dateButtons = generateDateButtons(business, chatLocale, t);
-    dateButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+    dateButtons.push({ label: t.back, action: 'back' });
 
     showTypingThenRespond(500, t.selectDate, dateButtons);
   }, [chatLocale, services, business, addUserMessage, showTypingThenRespond]);
@@ -679,27 +805,28 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
       setTyping(false);
       setLoadingSlots(false);
 
-      if (!result || !result.slots || result.slots.length === 0) {
+      const slots: number[] = result?.available_start_times || [];
+      if (slots.length === 0) {
         addBotMessage(t.noSlotsAvailable, [
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
         return;
       }
 
-      setAvailableSlots(result.slots);
+      setAvailableSlots(slots);
 
-      const timeButtons = result.slots.map((slot: { start_time: number; end_time: number }) => ({
-        label: secondsToTime(slot.start_time),
-        action: `select_time_${slot.start_time}`,
+      const timeButtons = slots.map((startTime: number) => ({
+        label: secondsToTime(startTime),
+        action: `select_time_${startTime}`,
       }));
 
-      timeButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+      timeButtons.push({ label: t.back, action: 'back' });
       addBotMessage(t.selectTime, timeButtons);
     } catch {
       setTyping(false);
       setLoadingSlots(false);
       addBotMessage(t.noSlotsAvailable, [
-        { label: t.backToMenu, action: 'back_to_menu' },
+        { label: t.back, action: 'back' },
       ]);
     }
   }, [chatLocale, booking.serviceId, businessId, addUserMessage, addBotMessage]);
@@ -725,7 +852,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${label}\n${t.specialist}: ${t.anySpecialist}`;
         addBotMessage(summaryText, [
           { label: t.confirm, action: 'confirm_booking' },
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
         return;
       }
@@ -742,7 +869,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         const summaryText = `${t.bookingSummary}:\n\n${t.service}: ${booking.serviceName}\n${t.date}: ${booking.dateLabel}\n${t.time}: ${label}\n${t.specialist}: ${empName}`;
         addBotMessage(summaryText, [
           { label: t.confirm, action: 'confirm_booking' },
-          { label: t.backToMenu, action: 'back_to_menu' },
+          { label: t.back, action: 'back' },
         ]);
         return;
       }
@@ -761,12 +888,12 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         });
       }
 
-      employeeButtons.push({ label: t.backToMenu, action: 'back_to_menu' });
+      employeeButtons.push({ label: t.back, action: 'back' });
       addBotMessage(t.selectEmployee, employeeButtons);
     } catch {
       setTyping(false);
       addBotMessage(t.noSlotsAvailable, [
-        { label: t.backToMenu, action: 'back_to_menu' },
+        { label: t.back, action: 'back' },
       ]);
     }
   }, [chatLocale, booking.serviceId, booking.date, booking.serviceName, booking.dateLabel, businessId, addUserMessage, addBotMessage]);
@@ -792,7 +919,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
 
     showTypingThenRespond(400, summaryText, [
       { label: t.confirm, action: 'confirm_booking' },
-      { label: t.backToMenu, action: 'back_to_menu' },
+      { label: t.back, action: 'back' },
     ]);
   }, [chatLocale, booking.serviceName, booking.dateLabel, booking.timeLabel, slotEmployees, addUserMessage, showTypingThenRespond]);
 
@@ -856,7 +983,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     }
 
     showTypingThenRespond(delay, responseText, [
-      { label: t.backToMenu, action: 'back_to_menu' },
+      { label: t.back, action: 'back' },
     ]);
   }, [chatLocale, services, business, addUserMessage, showTypingThenRespond]);
 
@@ -869,8 +996,8 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
       handleLanguageSelect('uz');
     } else if (btn.action === 'lang_ru') {
       handleLanguageSelect('ru');
-    } else if (btn.action === 'back_to_menu') {
-      handleBackToMenu();
+    } else if (btn.action === 'back') {
+      handleBack();
     } else if (btn.action === 'book') {
       handleBookAction();
     } else if (btn.action.startsWith('select_service_')) {
@@ -892,15 +1019,19 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
     } else {
       handleMenuAction(btn.action, btn.label);
     }
-  }, [typing, authLoading, handleLanguageSelect, handleBackToMenu, handleBookAction, handleServiceSelect, handleDateSelect, handleTimeSelect, handleEmployeeSelect, handleConfirmBooking, handleMenuAction]);
+  }, [typing, authLoading, handleLanguageSelect, handleBack, handleBookAction, handleServiceSelect, handleDateSelect, handleTimeSelect, handleEmployeeSelect, handleConfirmBooking, handleMenuAction]);
 
   const chatTitle = chatLocale ? CHAT_TEXT[chatLocale].title : 'Chat';
   const t = chatLocale ? CHAT_TEXT[chatLocale] : null;
   const isInputState = flowState === 'phone_input' || flowState === 'otp_input' || flowState === 'name_input';
 
+  // Get buttons from the last bot message for the fixed bottom bar
+  const lastBotMsg = [...messages].reverse().find(m => m.type === 'bot');
+  const activeButtons = (!typing && !isInputState && lastBotMsg?.buttons?.length) ? lastBotMsg.buttons : null;
+
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — mobile/tablet only */}
       <AnimatePresence>
         {!open && (
           <motion.button
@@ -909,7 +1040,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform lg:hidden"
             style={{ backgroundColor: primaryColor }}
             aria-label="Open chat"
           >
@@ -918,15 +1049,15 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
         )}
       </AnimatePresence>
 
-      {/* Chat window */}
+      {/* Chat window — fixed overlay on mobile, inline sticky panel on desktop */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 40 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed bottom-0 right-0 sm:bottom-0 sm:right-8 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] bg-white sm:rounded-t-2xl flex flex-col overflow-hidden shadow-2xl"
+            className="fixed bottom-0 right-0 z-50 w-full h-[100dvh] sm:right-8 sm:w-[420px] sm:h-[600px] sm:rounded-t-2xl shadow-2xl lg:sticky lg:top-0 lg:z-0 lg:h-screen lg:right-auto lg:bottom-auto lg:rounded-none lg:shadow-lg lg:border-0 lg:w-[460px] lg:flex-shrink-0 bg-white flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div
@@ -938,8 +1069,8 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                   <MessageCircle size={18} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-[15px] font-semibold truncate">{businessName}</h3>
-                  <p className="text-[12px] opacity-70">{chatTitle}</p>
+                  <h3 className="text-base font-semibold truncate">{businessName}</h3>
+                  <p className="text-sm opacity-70">{chatTitle}</p>
                 </div>
               </div>
               <button
@@ -957,19 +1088,19 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
               {!chatLocale && messages.length === 0 && (
                 <div className="flex justify-start">
                   <div className="max-w-[80%]">
-                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-neutral-800 text-[15px] border border-neutral-100 mb-3">
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-white text-neutral-800 text-base border border-neutral-100 mb-3">
                       Tilni tanlang / Выберите язык
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleButtonClick({ label: "O'zbekcha", action: 'lang_uz' })}
-                        className="px-6 py-3 text-[15px] font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
+                        className="px-6 py-3 text-base font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
                       >
                         O&apos;zbekcha
                       </button>
                       <button
                         onClick={() => handleButtonClick({ label: 'Русский', action: 'lang_ru' })}
-                        className="px-6 py-3 text-[15px] font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
+                        className="px-6 py-3 text-base font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
                       >
                         Русский
                       </button>
@@ -979,15 +1110,18 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
               )}
 
               {/* Chat messages */}
-              {messages.map((msg, idx) => {
+              {messages.map((msg) => {
                 const isUser = msg.type === 'user';
-                const isLast = idx === messages.length - 1;
-                const showButtons = !isUser && isLast && msg.buttons && msg.buttons.length > 0 && !typing && !isInputState;
                 return (
-                  <div key={msg.id}>
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                       <div
-                        className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-[15px] ${
+                        className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-base ${
                           isUser
                             ? 'rounded-br-sm text-white'
                             : 'rounded-bl-sm bg-white text-neutral-800 border border-neutral-100'
@@ -997,22 +1131,7 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                         <p className="whitespace-pre-wrap break-words leading-relaxed">{msg.text}</p>
                       </div>
                     </div>
-
-                    {/* Buttons -- only on last bot message, not during input states */}
-                    {showButtons && (
-                      <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
-                        {msg.buttons!.map((btn, i) => (
-                          <button
-                            key={i}
-                            onClick={() => handleButtonClick(btn)}
-                            className="px-3.5 py-2 text-[13px] font-medium rounded-full border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 active:scale-[0.97] transition-all"
-                          >
-                            {btn.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  </motion.div>
                 );
               })}
 
@@ -1037,6 +1156,24 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Telegram-style fixed bottom buttons */}
+            {activeButtons && (
+              <div className="border-t border-neutral-100 bg-neutral-50 flex-shrink-0 max-h-[40%] overflow-y-auto">
+                <div className="flex flex-col">
+                  {activeButtons.map((btn, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleButtonClick(btn)}
+                      className="w-full px-4 py-3 text-[15px] font-medium text-center border-b border-neutral-100 last:border-b-0 transition-colors hover:bg-neutral-100 active:bg-neutral-200"
+                      style={{ color: primaryColor }}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Input area for auth steps */}
             {isInputState && t && (
               <div className="px-4 py-3 border-t border-neutral-100 bg-white flex-shrink-0">
@@ -1050,14 +1187,14 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                       value={formatPhoneDisplay(phoneInput)}
                       onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 9))}
                       placeholder={t.phonePlaceholder}
-                      className="flex-1 px-3 py-2.5 text-[15px] border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      className="flex-1 px-3 py-2.5 text-base border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
                       autoFocus
                       disabled={authLoading}
                     />
                     <button
                       type="submit"
                       disabled={phoneInput.replace(/\D/g, '').length !== 9 || authLoading}
-                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      className="px-4 py-2.5 text-sm font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
                       style={{ backgroundColor: primaryColor }}
                     >
                       {authLoading ? '...' : t.sendCode}
@@ -1074,14 +1211,14 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                       value={otpInput}
                       onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
                       placeholder="12345"
-                      className="flex-1 px-3 py-2.5 text-[15px] text-center tracking-[0.3em] font-mono border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      className="flex-1 px-3 py-2.5 text-base text-center tracking-[0.3em] font-mono border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
                       autoFocus
                       disabled={authLoading}
                     />
                     <button
                       type="submit"
                       disabled={otpInput.replace(/\D/g, '').length !== 5 || authLoading}
-                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      className="px-4 py-2.5 text-sm font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
                       style={{ backgroundColor: primaryColor }}
                     >
                       {authLoading ? '...' : t.verifyCode}
@@ -1096,14 +1233,14 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
                       value={nameInput}
                       onChange={(e) => setNameInput(e.target.value)}
                       placeholder={t.namePlaceholder}
-                      className="flex-1 px-3 py-2.5 text-[15px] border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
+                      className="flex-1 px-3 py-2.5 text-base border border-neutral-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-300"
                       autoFocus
                       disabled={authLoading}
                     />
                     <button
                       type="submit"
                       disabled={nameInput.trim().length < 2 || authLoading}
-                      className="px-4 py-2.5 text-[13px] font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
+                      className="px-4 py-2.5 text-sm font-semibold rounded-xl text-white disabled:opacity-50 transition-opacity"
                       style={{ backgroundColor: primaryColor }}
                     >
                       {authLoading ? '...' : t.registerBtn}
