@@ -271,7 +271,7 @@ function StatusScreen({
   const t = translations.review
   return (
     <div className="min-h-screen" style={colorStyle}>
-      <div className="flex min-h-screen items-center justify-center mx-auto max-w-3xl bg-white shadow-lg px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center mx-auto max-w-3xl bg-white shadow-lg px-4 text-center">
         <div className="mb-4 flex justify-center">{icon}</div>
         <h1 className="text-2xl font-bold text-stone-900">{title}</h1>
         <p className="mt-2 text-base text-stone-500">{message}</p>
