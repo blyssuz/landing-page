@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin } from 'lucide-react';
+import { MapPin, MessageCircle } from 'lucide-react';
 import { Avatar } from '@/app/components/ui/Avatar';
 import { StarRating } from '@/app/components/ui/StarRating';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -12,6 +12,7 @@ interface ProfileHeaderProps {
   locale: Locale;
   onSwitchLocale: (locale: Locale) => void;
   onBook: () => void;
+  onChat?: () => void;
   openStatus: boolean;
   geoAddress: string | null;
   closingTime: string | null;
@@ -30,6 +31,7 @@ export function ProfileHeader({
   locale,
   onSwitchLocale,
   onBook,
+  onChat,
   openStatus,
   closingTime,
   geoAddress,
@@ -58,13 +60,24 @@ export function ProfileHeader({
     <div className={cn('px-4 pt-4 pb-2 text-left')}>
       {/* Top bar */}
       <div className="flex justify-between items-center mb-6">
-        <button
-          type="button"
-          onClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
-        >
-          <MapPin size={18} className="text-stone-600" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+          >
+            <MapPin size={18} className="text-stone-600" />
+          </button>
+          {onChat && (
+            <button
+              type="button"
+              onClick={onChat}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+            >
+              <MessageCircle size={18} className="text-stone-600" />
+            </button>
+          )}
+        </div>
         <LanguageSwitcher locale={locale} onSwitch={onSwitchLocale} />
       </div>
 

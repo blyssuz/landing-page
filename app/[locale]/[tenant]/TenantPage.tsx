@@ -30,6 +30,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bookingServiceId, setBookingServiceId] = useState<string | null>(null);
   const [showHoursModal, setShowHoursModal] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const primaryColor = business.primary_color || '#088395';
   const openStatus = isOpenNow(business.working_hours);
@@ -58,8 +59,8 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
   const openGallery = (i: number) => { setCurrentImageIndex(i); setShowGallery(true); };
 
   return (
- <div className=''>
-     <div className="bg-white min-h-screen max-w-3xl lg:px-3 mx-auto shadow-lg" style={{ '--primary': primaryColor } as React.CSSProperties}>
+ <div className={chatOpen ? 'flex justify-center gap-6' : ''}>
+     <div className={`bg-white min-h-screen lg:px-3 shadow-lg w-full max-w-3xl ${!chatOpen ? 'mx-auto' : ''}`} style={{ '--primary': primaryColor } as React.CSSProperties}>
      
      {/* Profile Header */}
       <ProfileHeader
@@ -67,6 +68,7 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
         locale={locale}
         onSwitchLocale={switchLocale}
         onBook={() => router.push(`${basePath}/booking`)}
+        onChat={() => setChatOpen(prev => !prev)}
         openStatus={openStatus}
         closingTime={closingTime}
         nextOpenText={nextOpen ? t.opensAt.replace('{{day}}', dayNames[nextOpen.dayKey]).replace('{{time}}', nextOpen.time) : undefined}
@@ -200,6 +202,8 @@ export function TenantPage({ business, services, employees, photos, reviews, ten
       savedUser={savedUser}
       locale={locale}
       primaryColor={primaryColor}
+      isOpen={chatOpen}
+      onOpenChange={setChatOpen}
     />
  </div>
   );
