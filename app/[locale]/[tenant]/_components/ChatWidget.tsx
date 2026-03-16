@@ -1031,24 +1031,6 @@ export function ChatWidget({ business, services, employees, businessId, tenantSl
 
   return (
     <>
-      {/* Floating button — mobile/tablet only */}
-      <AnimatePresence>
-        {!open && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform lg:hidden"
-            style={{ backgroundColor: primaryColor }}
-            aria-label="Open chat"
-          >
-            <MessageCircle size={24} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Chat window — fixed overlay on mobile, inline sticky panel on desktop */}
       <AnimatePresence>
         {open && (
