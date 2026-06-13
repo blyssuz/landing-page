@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n'
 
 const MAIN_DOMAIN = 'blyss.uz'
+const NEW_DOMAIN = 'bookup.uz'
 const LOCAL_DOMAIN = 'localhost'
 
 // List of subdomains that should NOT be treated as tenants
@@ -11,6 +12,18 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const hostname = request.headers.get('host') || ''
   const hostWithoutPort = hostname.split(':')[0]
+
+  // Domain migration: redirect any blyss.uz request to bookup.uz,
+  // preserving subdomain (tenant), path, and query string.
+  // e.g. blyss.uz/foo -> bookup.uz/foo, acme.blyss.uz/bar -> acme.bookup.uz/bar
+  if (hostWithoutPort === MAIN_DOMAIN || hostWithoutPort.endsWith(`.${MAIN_DOMAIN}`)) {
+    const newHost = hostWithoutPort.slice(0, -MAIN_DOMAIN.length) + NEW_DOMAIN
+    const target = new URL(url)
+    target.protocol = 'https:'
+    target.host = newHost
+    target.port = ''
+    return NextResponse.redirect(target, 308)
+  }
 
   const subdomain = getSubdomain(hostWithoutPort)
   const pathname = url.pathname
@@ -65,10 +78,10 @@ export function middleware(request: NextRequest) {
 function getSubdomain(host: string): string | null {
   const parts = host.split('.')
 
-  // Handle production: [tenant].blyss.uz
+  // Handle production: [tenant].blyss.uz / [tenant].bookup.uz
   if (parts.length >= 2) {
     const domain = parts.slice(-2).join('.')
-    if (domain === MAIN_DOMAIN && parts.length > 2) {
+    if ((domain === MAIN_DOMAIN || domain === NEW_DOMAIN) && parts.length > 2) {
       return parts[0]
     }
   }
